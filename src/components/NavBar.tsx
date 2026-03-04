@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { Lock } from "lucide-react";
 
 interface Props {
   journalCount?: number;
@@ -21,28 +20,31 @@ export function NavBar({ journalCount = 0 }: Props) {
       style={{
         backgroundColor: scrolled ? "rgba(8,8,8,0.85)" : "transparent",
         backdropFilter: scrolled ? "blur(12px)" : "none",
-        borderBottom: scrolled ? "1px solid rgba(255,255,255,0.06)" : "1px solid transparent",
+        borderBottom: scrolled ? "1px solid #1A1A1A" : "1px solid transparent",
       }}
     >
-      <div className="max-w-[680px] mx-auto px-4 h-14 flex items-center justify-between">
+      <div className="max-w-[720px] mx-auto px-4 h-14 flex items-center justify-between">
         <Link
           to="/"
-          className="text-[18px] font-bold text-foreground hover:opacity-80 transition-opacity"
-          style={{ letterSpacing: "-0.01em" }}
+          className="text-[16px] font-semibold hover:opacity-80 transition-opacity"
+          style={{ color: "#E8E4DF", letterSpacing: "-0.01em" }}
         >
           StratOS
         </Link>
 
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-1.5" style={{ opacity: 0.4 }}>
-            <Lock className="w-3 h-3" />
-            <span className="text-[12px] text-foreground">Private</span>
+          <div className="flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full pulse-dot" style={{ background: "#22c55e" }} />
+            <span className="text-[12px]" style={{ color: "rgba(232,228,223,0.5)" }}>
+              Private Session
+            </span>
           </div>
 
           {journalCount > 0 && (
             <Link
               to="/journal"
-              className="text-[12px] text-muted-foreground hover:text-foreground transition-colors"
+              className="text-[12px] transition-colors hover:opacity-80"
+              style={{ color: "rgba(232,228,223,0.5)" }}
             >
               Journal
             </Link>

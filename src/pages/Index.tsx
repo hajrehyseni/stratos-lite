@@ -26,7 +26,6 @@ const Index = () => {
   const isExpanded = decision.length > 0;
   const canSubmit = decision.trim().length >= 20;
 
-  // Show social proof after 2s delay
   useEffect(() => {
     const t = setTimeout(() => setShowSocialProof(true), 2000);
     return () => clearTimeout(t);
@@ -53,7 +52,6 @@ const Index = () => {
         result: parsed as any,
       });
 
-      // Ensure minimum 3s processing time
       const elapsed = Date.now() - startTime.current;
       const remaining = Math.max(0, 3000 - elapsed);
 
@@ -76,11 +74,12 @@ const Index = () => {
     }
   };
 
-  const handleReset = () => {
+  const handleReset = (prefill?: string) => {
     setResult(null);
-    setDecision("");
+    setDecision(prefill || "");
     setAuditId("");
     setPhase("input");
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleSaveToJournal = () => {
@@ -92,7 +91,7 @@ const Index = () => {
       createdAt: new Date().toISOString(),
       followUp: true,
     });
-    toast.success("Saved to your Decision Journal");
+    toast.success("Saved to your private journal");
   };
 
   if (phase === "result" && result) {
@@ -118,7 +117,7 @@ const Index = () => {
         className="flex flex-col items-center justify-center px-4"
         style={{ minHeight: "90vh" }}
       >
-        <div className="w-full" style={{ maxWidth: 680 }}>
+        <div className="w-full" style={{ maxWidth: 720 }}>
           {/* Headline */}
           {phase === "input" && (
             <div className="text-center mb-6">
@@ -129,15 +128,15 @@ const Index = () => {
                   lineHeight: 1.1,
                 }}
               >
-                <span className="block font-light" style={{ color: "rgba(255,255,255,0.9)" }}>
+                <span className="block font-light" style={{ color: "rgba(232,228,223,0.9)" }}>
                   What's the decision
                 </span>
-                <span className="block font-light" style={{ color: "rgba(255,255,255,0.9)" }}>
+                <span className="block font-light" style={{ color: "rgba(232,228,223,0.9)" }}>
                   you can't afford
                 </span>
-                <span className="block font-light" style={{ color: "rgba(255,255,255,0.9)" }}>
+                <span className="block font-light" style={{ color: "rgba(232,228,223,0.9)" }}>
                   to get{" "}
-                  <span className="font-semibold" style={{ color: "#FFB800" }}>
+                  <span className="font-semibold" style={{ color: "#C9A84C" }}>
                     wrong?
                   </span>
                 </span>
@@ -147,13 +146,12 @@ const Index = () => {
 
           {/* Input pill */}
           <div className="relative w-full">
-            {/* Left icon */}
             <div
               className="absolute left-5 z-10 transition-opacity duration-300"
               style={{
-                top: isExpanded ? 20 : 20,
+                top: 20,
                 opacity: isFocused ? 1 : 0.5,
-                color: "#FFB800",
+                color: "#C9A84C",
                 fontSize: 20,
               }}
             >
@@ -172,78 +170,71 @@ const Index = () => {
               rows={1}
               className="w-full resize-none outline-none transition-all duration-300"
               style={{
-                background: "rgba(255,255,255,0.04)",
+                background: "rgba(232,228,223,0.04)",
                 border: isFocused
-                  ? "1px solid rgba(255,184,0,0.4)"
-                  : "1px solid rgba(255,255,255,0.1)",
+                  ? "1px solid rgba(201,168,76,0.4)"
+                  : "1px solid rgba(232,228,223,0.1)",
                 borderRadius: isExpanded ? 16 : 32,
                 padding: "18px 56px 18px 56px",
                 fontSize: 18,
                 fontFamily: "'Inter', system-ui, sans-serif",
                 fontWeight: 400,
-                color: "rgba(255,255,255,0.95)",
+                color: "#E8E4DF",
                 minHeight: isExpanded ? 120 : 64,
                 maxHeight: 200,
                 boxShadow: isFocused
-                  ? "0 0 0 4px rgba(255,184,0,0.08)"
+                  ? "0 0 0 4px rgba(201,168,76,0.08)"
                   : "none",
                 opacity: phase === "processing" ? 0.5 : 1,
               }}
             />
 
-            {/* Arrow button inside pill */}
             <button
               onClick={handleSubmit}
               disabled={!canSubmit || phase !== "input"}
               className="absolute right-4 transition-all duration-300 flex items-center justify-center btn-press"
               style={{
-                top: isExpanded ? 16 : 16,
+                top: 16,
                 width: 32,
                 height: 32,
                 borderRadius: "50%",
-                background: canSubmit ? "#FFB800" : "transparent",
+                background: canSubmit ? "#C9A84C" : "transparent",
                 opacity: canSubmit ? 1 : 0.3,
                 cursor: canSubmit ? "pointer" : "default",
-                boxShadow: canSubmit ? "0 0 12px rgba(255,184,0,0.3)" : "none",
-              }}
-              onMouseEnter={(e) => {
-                if (canSubmit) {
-                  e.currentTarget.style.transform = "scale(1.05)";
-                  e.currentTarget.style.boxShadow = "0 0 20px rgba(255,184,0,0.5)";
-                }
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = "scale(1)";
-                if (canSubmit) {
-                  e.currentTarget.style.boxShadow = "0 0 12px rgba(255,184,0,0.3)";
-                }
+                boxShadow: canSubmit ? "0 0 12px rgba(201,168,76,0.3)" : "none",
               }}
             >
               <ArrowRight
                 className="w-4 h-4"
-                style={{ color: canSubmit ? "#080808" : "rgba(255,255,255,0.3)" }}
+                style={{ color: canSubmit ? "#080808" : "rgba(232,228,223,0.3)" }}
               />
             </button>
           </div>
 
-          {/* Hint text */}
+          {/* Hint + label */}
           {phase === "input" && canSubmit && (
-            <p
-              className="text-center mt-3 text-[13px] transition-opacity duration-400"
-              style={{ color: "rgba(255,255,255,0.25)" }}
-            >
-              Press Enter or click →
-            </p>
+            <div className="flex items-center justify-center gap-3 mt-3">
+              <p className="text-[13px]" style={{ color: "rgba(232,228,223,0.25)" }}>
+                Press Enter or click →
+              </p>
+              {decision.trim().length >= 50 && (
+                <span
+                  className="text-[13px] transition-opacity duration-400"
+                  style={{ color: "rgba(201,168,76,0.6)" }}
+                >
+                  Audit this decision
+                </span>
+              )}
+            </div>
           )}
 
           {/* Processing state */}
           {phase === "processing" && (
             <div className="mt-10 space-y-4">
-              <p className="text-center text-[14px] breathe" style={{ color: "rgba(255,255,255,0.5)" }}>
+              <p className="text-center text-[14px] breathe" style={{ color: "rgba(232,228,223,0.5)" }}>
                 Analyzing your decision...
               </p>
 
-              {/* Skeleton cards */}
               <div className="space-y-3">
                 {[{ h: 140 }, { h: 100 }, { h: 80 }].map((card, i) => (
                   <div
@@ -252,8 +243,8 @@ const Index = () => {
                     style={{
                       height: card.h,
                       animationDelay: `${i * 150}ms`,
-                      border: "1px solid rgba(255,255,255,0.06)",
-                      borderRadius: 12,
+                      border: "1px solid #1A1A1A",
+                      borderRadius: 8,
                     }}
                   />
                 ))}
@@ -267,7 +258,7 @@ const Index = () => {
           <p
             className="mt-16 text-[13px] text-center transition-opacity duration-1000"
             style={{
-              color: "rgba(255,255,255,0.25)",
+              color: "rgba(232,228,223,0.25)",
               opacity: showSocialProof ? 1 : 0,
             }}
           >
