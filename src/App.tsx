@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import SharedResult from "./pages/SharedResult";
+import JournalPage from "./pages/JournalPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -18,6 +19,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/r/:id" element={<SharedResult />} />
+          <Route path="/journal" element={<JournalPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
