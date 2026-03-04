@@ -119,3 +119,67 @@
 .pulse-dot {
   animation: pulse-dot 2s ease-in-out infinite;
 }
+
+/* Gold shimmer on period */
+@keyframes gold-shimmer {
+  0%, 80% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.gold-shimmer-dot {
+  background: linear-gradient(90deg, #C9A84C 30%, #ffe8a0 50%, #C9A84C 70%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gold-shimmer 3s ease-in-out infinite;
+}
+
+/* Input shake */
+@keyframes input-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
+.input-shake {
+  animation: input-shake 0.4s ease;
+}
+
+/* Slide in from bottom */
+@keyframes slideInFromBottom {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Simple fade in */
+@keyframes fadeInSimple {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Terminal cursor blink */
+@keyframes cursor-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.terminal-cursor {
+  animation: cursor-blink 0.8s step-end infinite;
+  margin-left: 2px;
+}
+
+/* Placeholder styling */
+input::placeholder {
+  font-style: italic;
+  color: rgba(255,255,255,0.3);
+}
+
+/* Diagnostic grid responsive */
+@media (max-width: 480px) {
+  .diagnostic-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
