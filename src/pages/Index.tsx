@@ -1,55 +1,46 @@
-import { useState, useCallback } from "react";
-import { DiagnosticFlow } from "@/components/DiagnosticFlow";
-import { ProcessingAnimation } from "@/components/ProcessingAnimation";
-import { Scorecard } from "@/components/Scorecard";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { NavBar } from "@/components/NavBar";
-import { AuditResult, AuditResultSchema, DiagnosticAnswers } from "@/lib/types";
-import { buildStratOSPrompt } from "@/lib/prompt-builder";
+import { Scorecard } from "@/components/Scorecard";
+import { AuditResult, AuditResultSchema } from "@/lib/types";
 import { saveJournalEntry, getJournalCount } from "@/lib/journal";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { ArrowRight } from "lucide-react";
 
 function generateId(): string {
   return Math.random().toString(36).substring(2, 8);
 }
 
-type Phase = "diagnostic" | "processing" | "result";
+type Phase = "input" | "processing" | "result";
 
 const Index = () => {
-  const [phase, setPhase] = useState<Phase>("diagnostic");
-  const [isLoading, setIsLoading] = useState(false);
+  const [phase, setPhase] = useState<Phase>("input");
+  const [decision, setDecision] = useState("");
   const [result, setResult] = useState<AuditResult | null>(null);
-  const [diagnostic, setDiagnostic] = useState<DiagnosticAnswers | null>(null);
-  const [builtPrompt, setBuiltPrompt] = useState("");
   const [auditId, setAuditId] = useState("");
-  const [depth, setDepth] = useState(0);
-  const [showDiagnostic, setShowDiagnostic] = useState(true);
+  const [isFocused, setIsFocused] = useState(false);
+  const [showSocialProof, setShowSocialProof] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const startTime = useRef<number>(0);
 
-  const handleDiagnosticComplete = useCallback(async (answers: DiagnosticAnswers) => {
-    setDiagnostic(answers);
-    const prompt = buildStratOSPrompt(answers);
-    setBuiltPrompt(prompt);
+  const isExpanded = decision.length > 0;
+  const canSubmit = decision.trim().length >= 20;
 
-    let d = 3;
-    if (answers.budget) d++;
-    if (answers.timeline) d++;
-    if (answers.constraint) d++;
-    setDepth(d);
+  // Show social proof after 2s delay
+  useEffect(() => {
+    const t = setTimeout(() => setShowSocialProof(true), 2000);
+    return () => clearTimeout(t);
+  }, []);
+
+  const handleSubmit = useCallback(async () => {
+    if (!canSubmit || phase !== "input") return;
 
     setPhase("processing");
-    setIsLoading(true);
-    setShowDiagnostic(false);
+    startTime.current = Date.now();
 
     try {
       const { data, error } = await supabase.functions.invoke("audit", {
-        body: {
-          decision: answers.decision,
-          focus: answers.focus,
-          scale: answers.scale,
-          budget: answers.budget,
-          timeline: answers.timeline,
-          constraint: answers.constraint,
-        },
+        body: { decision: decision.trim() },
       });
 
       if (error) throw error;
@@ -58,113 +49,232 @@ const Index = () => {
 
       await supabase.from("audit_results").insert({
         id,
-        decision: answers.decision,
+        decision: decision.trim(),
         result: parsed as any,
       });
 
-      setResult(parsed);
-      setAuditId(id);
+      // Ensure minimum 3s processing time
+      const elapsed = Date.now() - startTime.current;
+      const remaining = Math.max(0, 3000 - elapsed);
+
+      setTimeout(() => {
+        setResult(parsed);
+        setAuditId(id);
+        setPhase("result");
+      }, remaining);
     } catch (e: any) {
       console.error("Audit error:", e);
       toast.error(e?.message || "Failed to audit decision. Please try again.");
-      setPhase("diagnostic");
-      setShowDiagnostic(true);
-    } finally {
-      setIsLoading(false);
+      setPhase("input");
     }
-  }, []);
+  }, [decision, canSubmit, phase]);
 
-  const handleProcessingDone = useCallback(() => {
-    if (result) {
-      setPhase("result");
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey && canSubmit) {
+      e.preventDefault();
+      handleSubmit();
     }
-    // If result not ready yet, the effect below will handle it
-  }, [result]);
-
-  // When result arrives after processing animation
-  if (phase === "processing" && result && !isLoading) {
-    // Let the processing animation finish naturally
-  }
+  };
 
   const handleReset = () => {
     setResult(null);
-    setDiagnostic(null);
-    setBuiltPrompt("");
+    setDecision("");
     setAuditId("");
-    setDepth(0);
-    setPhase("diagnostic");
-    setShowDiagnostic(true);
+    setPhase("input");
   };
 
   const handleSaveToJournal = () => {
-    if (!result || !diagnostic) return;
+    if (!result) return;
     saveJournalEntry({
       id: auditId,
-      decision: diagnostic.decision,
+      decision: decision.trim(),
       result,
-      diagnostic,
-      builtPrompt,
       createdAt: new Date().toISOString(),
       followUp: true,
     });
     toast.success("Saved to your Decision Journal");
   };
 
+  if (phase === "result" && result) {
+    return (
+      <>
+        <NavBar journalCount={getJournalCount()} />
+        <Scorecard
+          decision={decision.trim()}
+          result={result}
+          auditId={auditId}
+          onReset={handleReset}
+          onSaveToJournal={handleSaveToJournal}
+        />
+      </>
+    );
+  }
+
   return (
     <>
-      <NavBar
-        depth={phase === "diagnostic" ? depth : undefined}
-        journalCount={getJournalCount()}
-      />
+      <NavBar journalCount={getJournalCount()} />
 
-      {phase === "diagnostic" && showDiagnostic && (
-        <DiagnosticFlow onComplete={handleDiagnosticComplete} isLoading={isLoading} />
-      )}
-
-      {phase === "processing" && (
-        <ProcessingAnimation
-          onComplete={() => {
-            if (result) setPhase("result");
-            else {
-              // Wait for result
-              const interval = setInterval(() => {
-                // This is a bit hacky but works for the animation timing
-              }, 100);
-              // We'll handle this via effect
-            }
-          }}
-        />
-      )}
-
-      {phase === "result" && result && diagnostic && (
-        <div>
-          <Scorecard
-            decision={diagnostic.decision}
-            result={result}
-            auditId={auditId}
-            onReset={handleReset}
-            diagnostic={diagnostic}
-            builtPrompt={builtPrompt}
-          />
-          {/* Journal save prompt */}
-          <div className="max-w-2xl mx-auto px-4 pb-12">
-            <div className="border border-border rounded-lg p-4 text-center space-y-3">
-              <p className="text-sm text-foreground font-body">
-                Want to track what happens? We'll remind you to record the outcome in 30 days.
-              </p>
-              <button
-                onClick={handleSaveToJournal}
-                className="text-sm font-mono text-gold hover:underline"
+      <div
+        className="flex flex-col items-center justify-center px-4"
+        style={{ minHeight: "90vh" }}
+      >
+        <div className="w-full" style={{ maxWidth: 680 }}>
+          {/* Headline */}
+          {phase === "input" && (
+            <div className="text-center mb-6">
+              <div
+                style={{
+                  fontSize: "clamp(1.6rem, 5vw, 3.8rem)",
+                  letterSpacing: "-0.03em",
+                  lineHeight: 1.1,
+                }}
               >
-                Save to Decision Journal →
-              </button>
-              <p className="text-[10px] text-muted-foreground">
-                Your decisions are stored locally to your browser session only. We cannot read them. They are never transmitted to our servers or shared with anyone.
-              </p>
+                <span className="block font-light" style={{ color: "rgba(255,255,255,0.9)" }}>
+                  What's the decision
+                </span>
+                <span className="block font-light" style={{ color: "rgba(255,255,255,0.9)" }}>
+                  you can't afford
+                </span>
+                <span className="block font-light" style={{ color: "rgba(255,255,255,0.9)" }}>
+                  to get{" "}
+                  <span className="font-semibold" style={{ color: "#FFB800" }}>
+                    wrong?
+                  </span>
+                </span>
+              </div>
             </div>
+          )}
+
+          {/* Input pill */}
+          <div className="relative w-full">
+            {/* Left icon */}
+            <div
+              className="absolute left-5 z-10 transition-opacity duration-300"
+              style={{
+                top: isExpanded ? 20 : 20,
+                opacity: isFocused ? 1 : 0.5,
+                color: "#FFB800",
+                fontSize: 20,
+              }}
+            >
+              ⚡
+            </div>
+
+            <textarea
+              ref={textareaRef}
+              value={decision}
+              onChange={(e) => setDecision(e.target.value)}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
+              onKeyDown={handleKeyDown}
+              placeholder="Describe your decision..."
+              disabled={phase !== "input"}
+              rows={1}
+              className="w-full resize-none outline-none transition-all duration-300"
+              style={{
+                background: "rgba(255,255,255,0.04)",
+                border: isFocused
+                  ? "1px solid rgba(255,184,0,0.4)"
+                  : "1px solid rgba(255,255,255,0.1)",
+                borderRadius: isExpanded ? 16 : 32,
+                padding: "18px 56px 18px 56px",
+                fontSize: 18,
+                fontFamily: "'Inter', system-ui, sans-serif",
+                fontWeight: 400,
+                color: "rgba(255,255,255,0.95)",
+                minHeight: isExpanded ? 120 : 64,
+                maxHeight: 200,
+                boxShadow: isFocused
+                  ? "0 0 0 4px rgba(255,184,0,0.08)"
+                  : "none",
+                opacity: phase === "processing" ? 0.5 : 1,
+              }}
+            />
+
+            {/* Arrow button inside pill */}
+            <button
+              onClick={handleSubmit}
+              disabled={!canSubmit || phase !== "input"}
+              className="absolute right-4 transition-all duration-300 flex items-center justify-center btn-press"
+              style={{
+                top: isExpanded ? 16 : 16,
+                width: 32,
+                height: 32,
+                borderRadius: "50%",
+                background: canSubmit ? "#FFB800" : "transparent",
+                opacity: canSubmit ? 1 : 0.3,
+                cursor: canSubmit ? "pointer" : "default",
+                boxShadow: canSubmit ? "0 0 12px rgba(255,184,0,0.3)" : "none",
+              }}
+              onMouseEnter={(e) => {
+                if (canSubmit) {
+                  e.currentTarget.style.transform = "scale(1.05)";
+                  e.currentTarget.style.boxShadow = "0 0 20px rgba(255,184,0,0.5)";
+                }
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "scale(1)";
+                if (canSubmit) {
+                  e.currentTarget.style.boxShadow = "0 0 12px rgba(255,184,0,0.3)";
+                }
+              }}
+            >
+              <ArrowRight
+                className="w-4 h-4"
+                style={{ color: canSubmit ? "#080808" : "rgba(255,255,255,0.3)" }}
+              />
+            </button>
           </div>
+
+          {/* Hint text */}
+          {phase === "input" && canSubmit && (
+            <p
+              className="text-center mt-3 text-[13px] transition-opacity duration-400"
+              style={{ color: "rgba(255,255,255,0.25)" }}
+            >
+              Press Enter or click →
+            </p>
+          )}
+
+          {/* Processing state */}
+          {phase === "processing" && (
+            <div className="mt-10 space-y-4">
+              <p className="text-center text-[14px] breathe" style={{ color: "rgba(255,255,255,0.5)" }}>
+                Analyzing your decision...
+              </p>
+
+              {/* Skeleton cards */}
+              <div className="space-y-3">
+                {[{ h: 140 }, { h: 100 }, { h: 80 }].map((card, i) => (
+                  <div
+                    key={i}
+                    className="skeleton-shimmer rounded-xl card-stagger"
+                    style={{
+                      height: card.h,
+                      animationDelay: `${i * 150}ms`,
+                      border: "1px solid rgba(255,255,255,0.06)",
+                      borderRadius: 12,
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
-      )}
+
+        {/* Social proof */}
+        {phase === "input" && (
+          <p
+            className="mt-16 text-[13px] text-center transition-opacity duration-1000"
+            style={{
+              color: "rgba(255,255,255,0.25)",
+              opacity: showSocialProof ? 1 : 0,
+            }}
+          >
+            Used by leaders making decisions from £50K to £50M
+          </p>
+        )}
+      </div>
     </>
   );
 };
