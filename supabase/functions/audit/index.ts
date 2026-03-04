@@ -5,32 +5,59 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const SYSTEM_PROMPT = `You are StratOS Lite, an executive decision auditor for CEOs and strategy leaders.
+interface DiagnosticInput {
+  decision: string;
+  focus: 'risk' | 'speed' | 'board' | 'confidence';
+  scale: 'tactical' | 'operational' | 'strategic' | 'existential';
+  budget?: string;
+  timeline?: string;
+  constraint?: string;
+}
 
-Your job is to audit the quality of a business decision and expose risks before commitment.
+function buildSystemPrompt(input: DiagnosticInput): string {
+  const focusInstructions: Record<string, string> = {
+    risk: `PRIMARY LENS — RISK IDENTIFICATION: Prioritise failure modes, downside scenarios, and second-order consequences above all else. Weight biggest_risk and devils_argument as your most critical outputs. Do not soften.`,
+    speed: `PRIMARY LENS — VALIDATED LEARNING: The user needs to move fast. The thirty_day_test is your most important output — make it specific, measurable, and immediately actionable.`,
+    board: `PRIMARY LENS — STRUCTURED CASE: Frame as the strongest possible case FOR vs AGAINST. Surface the question the board will inevitably ask. better_question is your most important output.`,
+    confidence: `PRIMARY LENS — ASSUMPTION STRESS-TEST: The user has already decided. Find the holes. Challenge every implicit assumption. hidden_assumption is your most important output.`,
+  };
 
-Act like a combination of:
-• a board member
-• a venture capitalist
-• a strategy consultant
-• a risk officer
+  const scaleInstructions: Record<string, string> = {
+    tactical: `SCALE — TACTICAL: Be practical and concise. The cost of being wrong is low.`,
+    operational: `SCALE — OPERATIONAL: Apply balanced scrutiny. Identify 2–3 most important risks.`,
+    strategic: `SCALE — STRATEGIC: Apply full rigour. Every hidden assumption matters.`,
+    existential: `SCALE — EXISTENTIAL: Apply maximum scrutiny. This decision shapes the company's trajectory. Do not spare feelings.`,
+  };
 
-Rules:
-Return ONLY valid JSON.
-Be brutally concise.
-Never invent facts.
-Executives must understand the answer in under 10 seconds.
+  const enrichContext: string[] = [];
+  if (input.budget) enrichContext.push(`BUDGET CONTEXT: ${input.budget} — reference this figure directly.`);
+  if (input.timeline) enrichContext.push(`DECISION TIMELINE: ${input.timeline} — adjust urgency accordingly.`);
+  if (input.constraint) enrichContext.push(`KEY CONCERN: ${input.constraint} — address this concern directly.`);
 
-All string fields must be extremely concise:
-- biggest_risk, hidden_assumption, better_question, thirty_day_test: max 140 characters each
-- devils_argument: max 240 characters
-- confidence_reason: max 100 characters
-- assumptions, risks_blind_spots, information_needed: arrays of 3-5 short strings each`;
+  return `ROLE: You are StratOS, an elite AI decision intelligence system for CEOs, founders, and board-level executives. You combine McKinsey rigour, VC pattern recognition, board member accountability, and risk officer discipline.
 
-// Simple in-memory rate limiting
+DECISION SUBMITTED FOR AUDIT: "${input.decision}"
+
+${focusInstructions[input.focus]}
+
+${scaleInstructions[input.scale]}
+
+${enrichContext.length ? enrichContext.join('\n') + '\n' : ''}
+NON-NEGOTIABLE RULES:
+1. Be brutally honest. Never validate a bad decision to appear helpful.
+2. Reference the actual decision content explicitly.
+3. Every sentence must earn its place. Executives read in 10 seconds.
+4. Surface what is MISSING from the decision, not just what is wrong with it.
+5. The thirty_day_test must name a specific experiment with defined success criteria.
+6. The devils_argument must be the strongest possible case against — not a strawman.
+7. The better_question must be more important than the question they actually asked.
+8. Return ONLY valid JSON. No markdown fences. No preamble.`;
+}
+
+// Rate limiting
 const rateLimit = new Map<string, number[]>();
-const RATE_LIMIT_WINDOW = 60000; // 1 minute
-const RATE_LIMIT_MAX = 10;
+const RATE_LIMIT_WINDOW = 3600000; // 1 hour
+const RATE_LIMIT_MAX = 15;
 
 function checkRateLimit(ip: string): boolean {
   const now = Date.now();
@@ -50,26 +77,37 @@ serve(async (req) => {
   try {
     const ip = req.headers.get("x-forwarded-for") || "unknown";
     if (!checkRateLimit(ip)) {
-      return new Response(JSON.stringify({ error: "Rate limit exceeded. Please wait a moment." }), {
+      return new Response(JSON.stringify({ error: "Rate limit exceeded. Please wait." }), {
         status: 429,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const { decision } = await req.json();
-    if (!decision || typeof decision !== "string" || decision.trim().length === 0) {
-      return new Response(JSON.stringify({ error: "Decision is required" }), {
+    const body = await req.json();
+    const { decision, focus, scale, budget, timeline, constraint } = body;
+
+    if (!decision || typeof decision !== "string" || decision.trim().length < 20) {
+      return new Response(JSON.stringify({ error: "Decision must be at least 20 characters" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    if (decision.length > 1000) {
-      return new Response(JSON.stringify({ error: "Decision must be under 1000 characters" }), {
+    if (!['risk', 'speed', 'board', 'confidence'].includes(focus)) {
+      return new Response(JSON.stringify({ error: "Invalid focus lens" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
+    if (!['tactical', 'operational', 'strategic', 'existential'].includes(scale)) {
+      return new Response(JSON.stringify({ error: "Invalid scale" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const systemPrompt = buildSystemPrompt({ decision: decision.trim(), focus, scale, budget, timeline, constraint });
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
@@ -81,10 +119,10 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: "google/gemini-2.5-flash",
         messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          { role: "user", content: `Audit this business decision:\n\n"${decision.trim()}"` },
+          { role: "system", content: systemPrompt },
+          { role: "user", content: `Audit this business decision and return the structured JSON analysis.` },
         ],
         tools: [
           {
@@ -95,26 +133,21 @@ serve(async (req) => {
               parameters: {
                 type: "object",
                 properties: {
-                  decision_type: {
-                    type: "string",
-                    enum: ["Market Expansion", "Hiring", "Acquisition", "Fundraising", "Pivot", "Partnership", "Pricing", "Investment", "Operations", "Other"],
-                  },
+                  decision_type: { type: "string" },
                   confidence_score: { type: "number" },
-                  confidence_reason: { type: "string" },
+                  confidence_rationale: { type: "string" },
                   verdict: { type: "string", enum: ["Proceed", "Proceed with Caution", "Test First", "High Risk"] },
                   biggest_risk: { type: "string" },
                   hidden_assumption: { type: "string" },
                   better_question: { type: "string" },
-                  thirty_day_test: { type: "string" },
                   devils_argument: { type: "string" },
-                  assumptions: { type: "array", items: { type: "string" } },
-                  risks_blind_spots: { type: "array", items: { type: "string" } },
-                  information_needed: { type: "array", items: { type: "string" } },
+                  stakeholder_gap: { type: "string" },
+                  thirty_day_test: { type: "string" },
                 },
                 required: [
-                  "decision_type", "confidence_score", "confidence_reason", "verdict",
-                  "biggest_risk", "hidden_assumption", "better_question", "thirty_day_test",
-                  "devils_argument", "assumptions", "risks_blind_spots", "information_needed",
+                  "decision_type", "confidence_score", "confidence_rationale", "verdict",
+                  "biggest_risk", "hidden_assumption", "better_question",
+                  "devils_argument", "stakeholder_gap", "thirty_day_test",
                 ],
                 additionalProperties: false,
               },
@@ -131,20 +164,12 @@ serve(async (req) => {
 
       if (response.status === 429) {
         return new Response(JSON.stringify({ error: "AI rate limit exceeded. Please try again later." }), {
-          status: 429,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "AI credits exhausted. Please add funds." }), {
-          status: 402,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
 
       return new Response(JSON.stringify({ error: "Failed to get AI response" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
@@ -154,8 +179,7 @@ serve(async (req) => {
     if (!toolCall?.function?.arguments) {
       console.error("No tool call in response:", JSON.stringify(aiResponse));
       return new Response(JSON.stringify({ error: "Invalid AI response format" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
@@ -167,8 +191,7 @@ serve(async (req) => {
   } catch (e) {
     console.error("Audit error:", e);
     return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 });

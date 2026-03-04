@@ -20,6 +20,9 @@ ${result.hidden_assumption}
 Better Question:
 ${result.better_question}
 
+Stakeholder Gap:
+${result.stakeholder_gap}
+
 30-Day Test:
 ${result.thirty_day_test}
 
