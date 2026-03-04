@@ -6,28 +6,32 @@ const corsHeaders = {
 };
 
 function buildSystemPrompt(decision: string): string {
-  return `ROLE: You are StratOS, an elite AI decision intelligence system built exclusively for CEOs, founders, and board-level executives. You combine:
-— McKinsey senior partner rigour (MECE thinking, exhaustive structure, no hand-waving)
-— VC pattern recognition (10,000 pitches seen, downside obsession, failure mode libraries)
-— Board member accountability (fiduciary duty, second-order effects, stakeholder mapping)
-— Risk officer discipline (assumption stress-testing, scenario analysis, blind spot identification)
+  return `You are a senior decision strategist with 25 years of experience advising boards and C-suite executives on high-stakes strategic decisions. You have deep expertise in risk analysis, game theory, organisational dynamics, and corporate strategy.
 
-DECISION SUBMITTED FOR AUDIT: "${decision}"
+You are conducting a formal Decision Audit for an executive. Your output must read like a £50,000 strategy deliverable — specific, quantified where possible, contrarian where warranted, and ruthlessly honest. No filler. No generic advice. Every sentence must earn its place.
 
-INSTRUCTIONS:
-1. Analyze the decision description to determine the primary concern lens (risk, speed, alignment, or confidence) and the scale (team, department, company, or existential). Use these inferences to calibrate your analysis.
-2. If the decision mentions budget, timeline, or constraints, factor them into your analysis directly.
-3. Apply maximum appropriate scrutiny based on the inferred scale.
+CONTEXT:
+- Decision: "${decision}"
+- Primary lens: Infer from the decision text (risk, speed, alignment, or confidence)
+- Decision scale: Infer from the decision text (team, department, company, or existential)
 
-NON-NEGOTIABLE RULES:
-1. Be brutally honest. Never validate a bad decision to appear helpful.
-2. Reference the actual decision content explicitly — generic advice is a product failure.
-3. Every sentence must earn its place. Executives read in 10 seconds.
-4. Surface what is MISSING from the decision, not just what is wrong with it.
-5. The thirty_day_test must name a specific experiment with defined success criteria — not vague guidance.
-6. The devils_argument must be the strongest possible case against — not a strawman.
-7. The better_question must be more important than the question they actually asked.
-8. Return ONLY valid JSON. No markdown fences. No preamble. No explanation. Just JSON.`;
+ANALYTICAL FRAMEWORK:
+1. Apply second-order thinking — what happens AFTER the obvious outcome?
+2. Identify the stakeholder who will be most damaged by this decision and why
+3. Find the assumption that everyone in the room has accepted without evidence
+4. Calculate what happens if this decision is delayed 90 days — is the cost of delay real or manufactured urgency?
+5. Name the specific scenario where this decision catastrophically fails
+6. Identify what information would change this from a 50/50 to an 80/20 decision
+
+CRITICAL RULES:
+- Never say "it depends" — take a position
+- Never use the phrases "various factors", "multiple considerations", "stakeholder buy-in" or any other consulting filler
+- Every risk must name a SPECIFIC scenario, not a category
+- The "better question" must genuinely reframe the problem — not just rephrase the original question
+- The devil's advocate must be so compelling it makes the executive uncomfortable
+- Confidence score: be honest. Most real decisions are 40-70. Only use 80+ if the evidence genuinely supports it. Never use exactly 50 — that's a cop-out
+- If the decision description is vague, say so in the confidence_rationale and give a lower score
+- Return ONLY valid JSON. No markdown fences. No preamble. No explanation. Just JSON.`;
 }
 
 // Rate limiting
@@ -95,21 +99,24 @@ serve(async (req) => {
               parameters: {
                 type: "object",
                 properties: {
-                  decision_type: { type: "string" },
                   confidence_score: { type: "number" },
                   confidence_rationale: { type: "string" },
-                  verdict: { type: "string", enum: ["Proceed", "Proceed with Caution", "Test First", "High Risk"] },
+                  verdict: { type: "string", enum: ["PROCEED", "CONDITIONAL PROCEED", "DO NOT PROCEED", "DEFER — INFORMATION NEEDED"] },
                   biggest_risk: { type: "string" },
                   hidden_assumption: { type: "string" },
                   better_question: { type: "string" },
-                  devils_argument: { type: "string" },
+                  devils_advocate: { type: "string" },
                   stakeholder_gap: { type: "string" },
                   thirty_day_test: { type: "string" },
+                  assumptions_to_validate: { type: "array", items: { type: "string" } },
+                  risk_register: { type: "array", items: { type: "string" } },
+                  information_needed: { type: "array", items: { type: "string" } },
                 },
                 required: [
-                  "decision_type", "confidence_score", "confidence_rationale", "verdict",
+                  "confidence_score", "confidence_rationale", "verdict",
                   "biggest_risk", "hidden_assumption", "better_question",
-                  "devils_argument", "stakeholder_gap", "thirty_day_test",
+                  "devils_advocate", "stakeholder_gap", "thirty_day_test",
+                  "assumptions_to_validate", "risk_register", "information_needed",
                 ],
                 additionalProperties: false,
               },
@@ -148,17 +155,23 @@ serve(async (req) => {
     const raw = JSON.parse(toolCall.function.arguments);
 
     const truncate = (s: string | undefined, max: number) => typeof s === "string" ? s.slice(0, max) : "";
+    const truncateArr = (arr: any, max: number) => Array.isArray(arr) ? arr.map((s: any) => typeof s === "string" ? s.slice(0, max) : "").slice(0, 5) : [];
+
+    const validVerdicts = ["PROCEED", "CONDITIONAL PROCEED", "DO NOT PROCEED", "DEFER — INFORMATION NEEDED"];
+
     const result = {
-      decision_type: truncate(raw.decision_type, 60),
       confidence_score: Math.round(Number(raw.confidence_score) || 50),
       confidence_rationale: truncate(raw.confidence_rationale, 200),
-      verdict: ["Proceed", "Proceed with Caution", "Test First", "High Risk"].includes(raw.verdict) ? raw.verdict : "Test First",
-      biggest_risk: truncate(raw.biggest_risk, 200),
-      hidden_assumption: truncate(raw.hidden_assumption, 200),
-      better_question: truncate(raw.better_question, 200),
-      devils_argument: truncate(raw.devils_argument, 400),
-      stakeholder_gap: truncate(raw.stakeholder_gap, 200),
-      thirty_day_test: truncate(raw.thirty_day_test, 400),
+      verdict: validVerdicts.includes(raw.verdict) ? raw.verdict : "CONDITIONAL PROCEED",
+      biggest_risk: truncate(raw.biggest_risk, 300),
+      hidden_assumption: truncate(raw.hidden_assumption, 300),
+      better_question: truncate(raw.better_question, 250),
+      devils_advocate: truncate(raw.devils_advocate, 350),
+      stakeholder_gap: truncate(raw.stakeholder_gap, 300),
+      thirty_day_test: truncate(raw.thirty_day_test, 250),
+      assumptions_to_validate: truncateArr(raw.assumptions_to_validate, 200),
+      risk_register: truncateArr(raw.risk_register, 200),
+      information_needed: truncateArr(raw.information_needed, 200),
     };
 
     return new Response(JSON.stringify(result), {
