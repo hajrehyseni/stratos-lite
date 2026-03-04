@@ -183,7 +183,22 @@ serve(async (req) => {
       });
     }
 
-    const result = JSON.parse(toolCall.function.arguments);
+    const raw = JSON.parse(toolCall.function.arguments);
+
+    // Sanitize: round confidence_score and truncate strings to fit schema
+    const truncate = (s: string | undefined, max: number) => typeof s === "string" ? s.slice(0, max) : "";
+    const result = {
+      decision_type: truncate(raw.decision_type, 60),
+      confidence_score: Math.round(Number(raw.confidence_score) || 50),
+      confidence_rationale: truncate(raw.confidence_rationale, 200),
+      verdict: ["Proceed", "Proceed with Caution", "Test First", "High Risk"].includes(raw.verdict) ? raw.verdict : "Test First",
+      biggest_risk: truncate(raw.biggest_risk, 200),
+      hidden_assumption: truncate(raw.hidden_assumption, 200),
+      better_question: truncate(raw.better_question, 200),
+      devils_argument: truncate(raw.devils_argument, 400),
+      stakeholder_gap: truncate(raw.stakeholder_gap, 200),
+      thirty_day_test: truncate(raw.thirty_day_test, 400),
+    };
 
     return new Response(JSON.stringify(result), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
