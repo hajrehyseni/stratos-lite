@@ -7,19 +7,23 @@ const labels = ["", "Minimal", "Basic", "Good", "Strong", "Expert"];
 export function SignalMeter({ level }: Props) {
   return (
     <div className="flex items-center gap-2">
-      <div className="flex gap-0.5">
+      <div className="flex" style={{ gap: "3px" }}>
         {Array.from({ length: 5 }).map((_, i) => (
           <div
             key={i}
-            className={`w-1.5 rounded-sm transition-all duration-200 ${
-              i < level ? "bg-gold" : "bg-secondary"
-            }`}
-            style={{ height: `${8 + i * 3}px` }}
+            style={{
+              width: "6px",
+              height: "12px",
+              borderRadius: "2px",
+              backgroundColor: i < level ? "#FFB800" : "hsl(0 0% 20%)",
+              opacity: i < level ? 1 : 0.2,
+              transition: "all 0.2s ease",
+            }}
           />
         ))}
       </div>
       {level > 0 && (
-        <span className="text-[10px] font-mono uppercase tracking-wider text-gold">
+        <span className="font-mono uppercase tracking-wider" style={{ fontSize: "9px", color: "#FFB800" }}>
           {labels[level]}
         </span>
       )}
