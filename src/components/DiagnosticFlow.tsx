@@ -12,6 +12,13 @@ interface Props {
 
 type Step = "q1-typing" | "q1" | "q2-typing" | "q2" | "q3-typing" | "q3" | "enrich-typing" | "enrich" | "reveal";
 
+const AFTER_Q1 = ["q1", "q2-typing", "q2", "q3-typing", "q3", "enrich-typing", "enrich", "reveal"];
+const PAST_Q1 = ["q2-typing", "q2", "q3-typing", "q3", "enrich-typing", "enrich", "reveal"];
+const SHOW_Q2 = ["q2", "q3-typing", "q3", "enrich-typing", "enrich", "reveal"];
+const PAST_Q2 = ["q3-typing", "q3", "enrich-typing", "enrich", "reveal"];
+const SHOW_Q3 = ["q3", "enrich-typing", "enrich", "reveal"];
+const PAST_Q3 = ["enrich-typing", "enrich", "reveal"];
+
 const focusOptions: { key: FocusLens; letter: string; title: string; desc: string }[] = [
   { key: "risk", letter: "A", title: "Find every risk before I commit", desc: "Surface all failure modes, hidden downsides, and second-order consequences." },
   { key: "speed", letter: "B", title: "Move fast — give me the fastest validation test", desc: "Tell me the one experiment that validates or kills this in 30 days." },
@@ -49,7 +56,6 @@ export function DiagnosticFlow({ onComplete, isLoading }: Props) {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [step]);
 
-  // Step transitions with typing indicators
   useEffect(() => {
     if (step === "q1-typing") {
       const t = setTimeout(() => setStep("q1"), 1100);
@@ -82,7 +88,6 @@ export function DiagnosticFlow({ onComplete, isLoading }: Props) {
   const handleBuild = () => {
     if (!focus || !scale) return;
     setStep("reveal");
-    // After reveal animation, trigger completion
     setTimeout(() => {
       onComplete({
         decision: decision.trim(),
@@ -117,6 +122,8 @@ export function DiagnosticFlow({ onComplete, isLoading }: Props) {
     constraint: constraint.trim() || undefined,
   };
 
+  const canContinue = decision.trim().length >= 20;
+
   if (step === "reveal") {
     return <PromptReveal answers={partialAnswers as DiagnosticAnswers} />;
   }
@@ -124,12 +131,51 @@ export function DiagnosticFlow({ onComplete, isLoading }: Props) {
   return (
     <div className="min-h-screen flex flex-col items-center justify-start px-4 sm:px-6 pt-20 pb-12">
       <div className="w-full max-w-2xl space-y-6">
-        {/* Brand */}
-        <div className="text-center space-y-2 mb-6">
+        {/* Hero Section */}
+        <div className="text-center space-y-5 mb-8">
           <p className="text-xs tracking-[0.3em] uppercase text-muted-foreground font-body">
             London Royal Academy
           </p>
           <h2 className="text-sm font-medium tracking-wide text-gold">StratOS Lite</h2>
+
+          <h1
+            className="font-bold text-foreground leading-[1.05] tracking-tight text-center"
+            style={{
+              fontFamily: "'Bebas Neue', 'Inter', sans-serif",
+              fontSize: "clamp(48px, 6vw, 80px)",
+            }}
+          >
+            THE OPERATING SYSTEM
+            <br />
+            FOR HOW YOU MAKE
+            <br />
+            DECISIONS.
+          </h1>
+
+          <p className="text-sm text-muted-foreground max-w-xl mx-auto" style={{ fontFamily: "'Manrope', 'Inter', sans-serif" }}>
+            StratOS doesn't ask you to prompt AI. It asks you 3 questions — then builds an expert prompt your McKinsey firm would charge £50,000 to write.
+          </p>
+
+          <p className="text-[9px] font-mono uppercase tracking-wider text-gold">
+            3 QUESTIONS &nbsp;→&nbsp; EXPERT PROMPT BUILT &nbsp;→&nbsp; McKINSEY-GRADE AUDIT &nbsp;→&nbsp; TRACK OUTCOMES
+          </p>
+
+          {/* Privacy box */}
+          <div
+            className="max-w-md mx-auto text-left rounded-lg p-4"
+            style={{
+              border: "1px solid rgba(34,197,94,0.3)",
+              background: "rgba(34,197,94,0.05)",
+            }}
+          >
+            <p className="text-[10px] font-mono font-bold uppercase tracking-wider mb-1" style={{ color: "rgb(34,197,94)" }}>
+              🔒 PRIVATE BY DESIGN
+            </p>
+            <p className="text-[13px] text-muted-foreground" style={{ fontFamily: "'Manrope', 'Inter', sans-serif" }}>
+              Your decision never leaves this session. Nothing you type is stored, logged, or shared — with us, with Anthropic, or with anyone. When you close this tab, it's gone.
+            </p>
+          </div>
+
           {depth > 0 && (
             <div className="flex justify-center pt-2">
               <DepthIndicator depth={depth} />
@@ -146,7 +192,7 @@ export function DiagnosticFlow({ onComplete, isLoading }: Props) {
             </BotMessage>
           )}
 
-          {step >= "q1" && step !== "q1-typing" && (
+          {AFTER_Q1.includes(step) && (
             <>
               <BotMessage>
                 <p className="text-foreground font-body">What is the decision you need to make?</p>
@@ -156,26 +202,47 @@ export function DiagnosticFlow({ onComplete, isLoading }: Props) {
                 <UserInputBlock>
                   <div className="flex items-center justify-between mb-2">
                     <SignalMeter level={getSignalLevel(decision.length)} />
-                    <span className="text-[10px] font-mono text-muted-foreground">{decision.length}/600</span>
+                    <span className={`text-[9px] font-mono ${decision.length >= 200 ? 'text-gold' : 'text-muted-foreground'}`}>
+                      {decision.length}/600
+                    </span>
                   </div>
                   <textarea
                     value={decision}
                     onChange={(e) => setDecision(e.target.value.slice(0, 600))}
                     placeholder="Be specific. The more context you share, the sharper the analysis. e.g. We're considering expanding into UAE in Q1 2026. We've done desk research but haven't spoken to customers yet. Investment is around £150k..."
-                    className="w-full min-h-[120px] bg-transparent border-0 text-foreground placeholder:text-muted-foreground font-body text-sm resize-none focus:outline-none"
+                    className="w-full min-h-[120px] bg-transparent border border-border rounded-lg px-3 py-2 text-foreground text-sm resize-none transition-all font-body focus:outline-none"
+                    style={{
+                      fontStyle: decision.length === 0 ? 'italic' : 'normal',
+                    }}
                   />
+                  <style>{`
+                    textarea::placeholder {
+                      color: rgba(240,237,232,0.4) !important;
+                      font-style: italic;
+                    }
+                    textarea:focus {
+                      border-color: rgba(255,184,0,0.5) !important;
+                      box-shadow: 0 0 0 1px rgba(255,184,0,0.3) !important;
+                    }
+                  `}</style>
                   <p className="text-[10px] text-muted-foreground mt-2">🔒 Your answer stays private — never stored or shared</p>
                   <button
                     onClick={handleQ1Submit}
-                    disabled={decision.trim().length < 20}
-                    className="w-full mt-3 bg-gold text-accent-foreground font-body font-semibold text-sm py-2.5 rounded-lg hover:opacity-90 disabled:opacity-30 disabled:cursor-not-allowed transition-opacity"
+                    disabled={!canContinue}
+                    className="w-full mt-3 font-body font-semibold text-sm py-2.5 rounded-lg transition-all"
+                    style={{
+                      backgroundColor: canContinue ? '#FFB800' : 'hsl(0 0% 15%)',
+                      color: canContinue ? '#000' : 'hsl(0 0% 40%)',
+                      opacity: canContinue ? 1 : 0.3,
+                      cursor: canContinue ? 'pointer' : 'not-allowed',
+                    }}
                   >
                     Continue
                   </button>
                 </UserInputBlock>
-              ) : (
+              ) : PAST_Q1.includes(step) ? (
                 <UserBubble>{decision}</UserBubble>
-              )}
+              ) : null}
             </>
           )}
 
@@ -186,7 +253,7 @@ export function DiagnosticFlow({ onComplete, isLoading }: Props) {
             </BotMessage>
           )}
 
-          {(step >= "q2" && step !== "q2-typing" && step !== "q1-typing" && step !== "q1") && (
+          {SHOW_Q2.includes(step) && (
             <>
               <BotMessage>
                 <p className="text-foreground font-body">What matters most to you right now?</p>
@@ -210,11 +277,11 @@ export function DiagnosticFlow({ onComplete, isLoading }: Props) {
                     </button>
                   ))}
                 </div>
-              ) : (
+              ) : PAST_Q2.includes(step) ? (
                 <UserBubble>
                   {focusOptions.find((o) => o.key === focus)?.title || ""}
                 </UserBubble>
-              )}
+              ) : null}
             </>
           )}
 
@@ -225,7 +292,7 @@ export function DiagnosticFlow({ onComplete, isLoading }: Props) {
             </BotMessage>
           )}
 
-          {(step >= "q3" && step !== "q3-typing" && !["q1-typing","q1","q2-typing","q2"].includes(step)) && (
+          {SHOW_Q3.includes(step) && (
             <>
               <BotMessage>
                 <p className="text-foreground font-body">What is the scale of this decision?</p>
@@ -245,11 +312,11 @@ export function DiagnosticFlow({ onComplete, isLoading }: Props) {
                     </button>
                   ))}
                 </div>
-              ) : (
+              ) : PAST_Q3.includes(step) ? (
                 <UserBubble>
                   {scaleOptions.find((o) => o.key === scale)?.title || ""}
                 </UserBubble>
-              )}
+              ) : null}
             </>
           )}
 
@@ -298,7 +365,8 @@ export function DiagnosticFlow({ onComplete, isLoading }: Props) {
                 <button
                   onClick={handleBuild}
                   disabled={isLoading}
-                  className="w-full mt-4 bg-gold text-accent-foreground font-body font-semibold text-sm py-3 rounded-lg hover:opacity-90 disabled:opacity-40 transition-opacity"
+                  className="w-full mt-4 font-body font-semibold text-sm py-3 rounded-lg hover:opacity-90 disabled:opacity-40 transition-opacity"
+                  style={{ backgroundColor: '#FFB800', color: '#000' }}
                 >
                   BUILD MY EXPERT PROMPT →
                 </button>
@@ -359,7 +427,6 @@ function EnrichField({ label, placeholder, value, onChange }: {
   );
 }
 
-// Prompt reveal animation
 function PromptReveal({ answers }: { answers: DiagnosticAnswers }) {
   const [visibleLines, setVisibleLines] = useState(0);
 
