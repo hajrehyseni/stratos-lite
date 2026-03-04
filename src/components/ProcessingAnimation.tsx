@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Loader2 } from "lucide-react";
 
 interface Props {
   onComplete: () => void;
@@ -29,22 +28,56 @@ export function ProcessingAnimation({ onComplete }: Props) {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="w-full max-w-md space-y-6 text-center">
-        <Loader2 className="h-8 w-8 animate-spin text-gold mx-auto" />
-        <div className="space-y-2">
+      <div className="w-full max-w-lg space-y-6">
+        {/* Skeleton preview of scorecard */}
+        <div className="space-y-3">
+          {/* Score skeleton */}
+          <div className="flex justify-center mb-6">
+            <div className="w-24 h-24 rounded-full border-2 border-gold/30 skeleton-pulse" />
+          </div>
+          {/* Card skeletons */}
           {steps.map((s, i) => (
-            <p
+            <div
               key={i}
-              className={`text-sm font-mono transition-all duration-300 ${
+              className={`rounded-lg border px-4 py-3 transition-all duration-500 ${
                 i < currentStep
-                  ? "text-gold opacity-100"
+                  ? "border-gold/30 bg-card"
                   : i === currentStep
-                  ? "text-foreground opacity-100"
-                  : "text-muted-foreground opacity-30"
+                  ? "border-border bg-card"
+                  : "border-border/30 bg-card/50"
               }`}
             >
-              {i < currentStep ? "✓" : i === currentStep ? "●" : "○"} {s}
-            </p>
+              <div className="flex items-center gap-3">
+                <span
+                  className={`text-xs font-mono transition-all duration-300 ${
+                    i < currentStep
+                      ? "text-gold"
+                      : i === currentStep
+                      ? "text-foreground"
+                      : "text-muted-foreground opacity-30"
+                  }`}
+                >
+                  {i < currentStep ? "✓" : i === currentStep ? "●" : "○"}
+                </span>
+                <span
+                  className={`text-sm font-mono transition-all duration-300 ${
+                    i < currentStep
+                      ? "text-gold"
+                      : i === currentStep
+                      ? "text-foreground"
+                      : "text-muted-foreground opacity-30"
+                  }`}
+                >
+                  {s}
+                </span>
+              </div>
+              {i < currentStep && (
+                <div className="mt-2 space-y-1.5">
+                  <div className="h-2 bg-secondary/50 rounded w-4/5 skeleton-pulse" />
+                  <div className="h-2 bg-secondary/50 rounded w-3/5 skeleton-pulse" />
+                </div>
+              )}
+            </div>
           ))}
         </div>
       </div>
