@@ -17,6 +17,8 @@ export default {
         display: ["Playfair Display", "Georgia", "serif"],
         body: ["Inter", "system-ui", "sans-serif"],
         mono: ["JetBrains Mono", "monospace"],
+        headline: ["Bebas Neue", "Inter", "sans-serif"],
+        manrope: ["Manrope", "Inter", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
