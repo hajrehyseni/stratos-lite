@@ -5,58 +5,34 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-interface DiagnosticInput {
-  decision: string;
-  focus: 'risk' | 'speed' | 'board' | 'confidence';
-  scale: 'tactical' | 'operational' | 'strategic' | 'existential';
-  budget?: string;
-  timeline?: string;
-  constraint?: string;
-}
+function buildSystemPrompt(decision: string): string {
+  return `ROLE: You are StratOS, an elite AI decision intelligence system built exclusively for CEOs, founders, and board-level executives. You combine:
+— McKinsey senior partner rigour (MECE thinking, exhaustive structure, no hand-waving)
+— VC pattern recognition (10,000 pitches seen, downside obsession, failure mode libraries)
+— Board member accountability (fiduciary duty, second-order effects, stakeholder mapping)
+— Risk officer discipline (assumption stress-testing, scenario analysis, blind spot identification)
 
-function buildSystemPrompt(input: DiagnosticInput): string {
-  const focusInstructions: Record<string, string> = {
-    risk: `PRIMARY LENS — RISK IDENTIFICATION: Prioritise failure modes, downside scenarios, and second-order consequences above all else. Weight biggest_risk and devils_argument as your most critical outputs. Do not soften.`,
-    speed: `PRIMARY LENS — VALIDATED LEARNING: The user needs to move fast. The thirty_day_test is your most important output — make it specific, measurable, and immediately actionable.`,
-    board: `PRIMARY LENS — STRUCTURED CASE: Frame as the strongest possible case FOR vs AGAINST. Surface the question the board will inevitably ask. better_question is your most important output.`,
-    confidence: `PRIMARY LENS — ASSUMPTION STRESS-TEST: The user has already decided. Find the holes. Challenge every implicit assumption. hidden_assumption is your most important output.`,
-  };
+DECISION SUBMITTED FOR AUDIT: "${decision}"
 
-  const scaleInstructions: Record<string, string> = {
-    tactical: `SCALE — TACTICAL: Be practical and concise. The cost of being wrong is low.`,
-    operational: `SCALE — OPERATIONAL: Apply balanced scrutiny. Identify 2–3 most important risks.`,
-    strategic: `SCALE — STRATEGIC: Apply full rigour. Every hidden assumption matters.`,
-    existential: `SCALE — EXISTENTIAL: Apply maximum scrutiny. This decision shapes the company's trajectory. Do not spare feelings.`,
-  };
+INSTRUCTIONS:
+1. Analyze the decision description to determine the primary concern lens (risk, speed, alignment, or confidence) and the scale (team, department, company, or existential). Use these inferences to calibrate your analysis.
+2. If the decision mentions budget, timeline, or constraints, factor them into your analysis directly.
+3. Apply maximum appropriate scrutiny based on the inferred scale.
 
-  const enrichContext: string[] = [];
-  if (input.budget) enrichContext.push(`BUDGET CONTEXT: ${input.budget} — reference this figure directly.`);
-  if (input.timeline) enrichContext.push(`DECISION TIMELINE: ${input.timeline} — adjust urgency accordingly.`);
-  if (input.constraint) enrichContext.push(`KEY CONCERN: ${input.constraint} — address this concern directly.`);
-
-  return `ROLE: You are StratOS, an elite AI decision intelligence system for CEOs, founders, and board-level executives. You combine McKinsey rigour, VC pattern recognition, board member accountability, and risk officer discipline.
-
-DECISION SUBMITTED FOR AUDIT: "${input.decision}"
-
-${focusInstructions[input.focus]}
-
-${scaleInstructions[input.scale]}
-
-${enrichContext.length ? enrichContext.join('\n') + '\n' : ''}
 NON-NEGOTIABLE RULES:
 1. Be brutally honest. Never validate a bad decision to appear helpful.
-2. Reference the actual decision content explicitly.
+2. Reference the actual decision content explicitly — generic advice is a product failure.
 3. Every sentence must earn its place. Executives read in 10 seconds.
 4. Surface what is MISSING from the decision, not just what is wrong with it.
-5. The thirty_day_test must name a specific experiment with defined success criteria.
+5. The thirty_day_test must name a specific experiment with defined success criteria — not vague guidance.
 6. The devils_argument must be the strongest possible case against — not a strawman.
 7. The better_question must be more important than the question they actually asked.
-8. Return ONLY valid JSON. No markdown fences. No preamble.`;
+8. Return ONLY valid JSON. No markdown fences. No preamble. No explanation. Just JSON.`;
 }
 
 // Rate limiting
 const rateLimit = new Map<string, number[]>();
-const RATE_LIMIT_WINDOW = 3600000; // 1 hour
+const RATE_LIMIT_WINDOW = 3600000;
 const RATE_LIMIT_MAX = 15;
 
 function checkRateLimit(ip: string): boolean {
@@ -84,7 +60,7 @@ serve(async (req) => {
     }
 
     const body = await req.json();
-    const { decision, focus, scale, budget, timeline, constraint } = body;
+    const { decision } = body;
 
     if (!decision || typeof decision !== "string" || decision.trim().length < 20) {
       return new Response(JSON.stringify({ error: "Decision must be at least 20 characters" }), {
@@ -93,21 +69,7 @@ serve(async (req) => {
       });
     }
 
-    if (!['risk', 'speed', 'board', 'confidence'].includes(focus)) {
-      return new Response(JSON.stringify({ error: "Invalid focus lens" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    if (!['tactical', 'operational', 'strategic', 'existential'].includes(scale)) {
-      return new Response(JSON.stringify({ error: "Invalid scale" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    const systemPrompt = buildSystemPrompt({ decision: decision.trim(), focus, scale, budget, timeline, constraint });
+    const systemPrompt = buildSystemPrompt(decision.trim());
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
@@ -122,7 +84,7 @@ serve(async (req) => {
         model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: systemPrompt },
-          { role: "user", content: `Audit this business decision and return the structured JSON analysis.` },
+          { role: "user", content: "Audit this business decision and return the structured JSON analysis." },
         ],
         tools: [
           {
@@ -185,7 +147,6 @@ serve(async (req) => {
 
     const raw = JSON.parse(toolCall.function.arguments);
 
-    // Sanitize: round confidence_score and truncate strings to fit schema
     const truncate = (s: string | undefined, max: number) => typeof s === "string" ? s.slice(0, max) : "";
     const result = {
       decision_type: truncate(raw.decision_type, 60),

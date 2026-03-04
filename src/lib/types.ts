@@ -27,8 +27,8 @@ export type DecisionScale = 'tactical' | 'operational' | 'strategic' | 'existent
 
 export interface DiagnosticAnswers {
   decision: string;
-  focus: FocusLens;
-  scale: DecisionScale;
+  focus?: FocusLens;
+  scale?: DecisionScale;
   budget?: string;
   timeline?: string;
   constraint?: string;
@@ -38,8 +38,8 @@ export interface JournalEntry {
   id: string;
   decision: string;
   result: AuditResult;
-  diagnostic: DiagnosticAnswers;
-  builtPrompt: string;
+  diagnostic?: DiagnosticAnswers;
+  builtPrompt?: string;
   createdAt: string;
   followUp: boolean;
   outcome?: string;

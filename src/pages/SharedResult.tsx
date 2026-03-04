@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Scorecard } from "@/components/Scorecard";
+import { NavBar } from "@/components/NavBar";
 import { AuditResult, AuditResultSchema } from "@/lib/types";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2 } from "lucide-react";
 
 export default function SharedResult() {
   const { id } = useParams<{ id: string }>();
@@ -33,7 +33,7 @@ export default function SharedResult() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-gold" />
+        <div className="w-6 h-6 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: "#FFB800", borderTopColor: "transparent" }} />
       </div>
     );
   }
@@ -42,19 +42,24 @@ export default function SharedResult() {
     return (
       <div className="min-h-screen flex items-center justify-center text-center px-4">
         <div>
-          <h1 className="font-display text-2xl text-foreground mb-2">Result not found</h1>
-          <a href="/" className="text-gold text-sm hover:underline">Try StratOS Lite →</a>
+          <h1 className="text-[24px] font-semibold text-foreground mb-2">Result not found</h1>
+          <a href="/" style={{ color: "#FFB800", fontSize: 14 }} className="hover:opacity-80">
+            Try StratOS →
+          </a>
         </div>
       </div>
     );
   }
 
   return (
-    <Scorecard
-      decision={data.decision}
-      result={data.result}
-      auditId={id!}
-      onReset={() => window.location.href = "/"}
-    />
+    <>
+      <NavBar />
+      <Scorecard
+        decision={data.decision}
+        result={data.result}
+        auditId={id!}
+        onReset={() => window.location.href = "/"}
+      />
+    </>
   );
 }

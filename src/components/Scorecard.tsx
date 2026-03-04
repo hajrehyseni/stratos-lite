@@ -1,44 +1,33 @@
 import { useState } from "react";
-import { Copy, Download, Share2, Check } from "lucide-react";
-import type { AuditResult, DiagnosticAnswers } from "@/lib/types";
+import { Copy, Download, Check } from "lucide-react";
+import type { AuditResult } from "@/lib/types";
 import { generateBrief } from "@/lib/copy-brief";
 import { generatePDF } from "@/lib/generate-pdf";
 import { toast } from "sonner";
-import { PromptQualityBadge } from "./PromptQualityBadge";
-import { BuiltPromptAccordion } from "./BuiltPromptAccordion";
-import { ConfidenceRing } from "./ConfidenceRing";
 
 interface ScorecardProps {
   decision: string;
   result: AuditResult;
   auditId: string;
   onReset: () => void;
-  diagnostic?: DiagnosticAnswers;
-  builtPrompt?: string;
+  onSaveToJournal?: () => void;
 }
-
-const verdictColor: Record<string, string> = {
-  Proceed: "text-success-foreground",
-  "Proceed with Caution": "text-gold",
-  "Test First": "text-gold",
-  "High Risk": "text-destructive",
-};
 
 function getReadinessInterpretation(score: number): string {
-  if (score >= 80) return "Strong foundation — ready for board presentation";
-  if (score >= 60) return "Good basis — address the gaps below before committing";
-  if (score >= 40) return "Significant gaps — more work needed before deciding";
-  return "Not ready — critical assumptions need validation first";
+  if (score >= 80) return "Strong foundation. Ready for board presentation.";
+  if (score >= 60) return "Good basis. Address the gaps below before committing.";
+  if (score >= 40) return "Significant gaps. More work needed before deciding.";
+  return "Not ready. Critical assumptions need validation first.";
 }
 
-export function Scorecard({ decision, result, auditId, onReset, diagnostic, builtPrompt }: ScorecardProps) {
+export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal }: ScorecardProps) {
   const [copied, setCopied] = useState(false);
 
   const handleCopyBrief = async () => {
     const brief = generateBrief(decision, result);
     await navigator.clipboard.writeText(brief);
     setCopied(true);
-    toast.success("Board brief copied to clipboard");
+    toast.success("Brief copied to clipboard");
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -49,7 +38,7 @@ export function Scorecard({ decision, result, auditId, onReset, diagnostic, buil
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "stratos-lite-audit.pdf";
+      a.download = "stratos-audit.pdf";
       a.click();
       URL.revokeObjectURL(url);
       toast.success("PDF downloaded");
@@ -58,157 +47,212 @@ export function Scorecard({ decision, result, auditId, onReset, diagnostic, buil
     }
   };
 
-  const handleShare = async () => {
-    const shareUrl = `${window.location.origin}/r/${auditId}`;
-    await navigator.clipboard.writeText(shareUrl);
-    toast.success("Share link copied to clipboard");
-  };
-
-  const depth = diagnostic ? computeDepth(diagnostic) : 0;
-
-  const fields = [
-    { label: "Decision Type", value: result.decision_type },
+  const cards = [
+    { label: "Verdict", value: result.verdict, accent: true },
     { label: "Biggest Risk", value: result.biggest_risk },
     { label: "Hidden Assumption", value: result.hidden_assumption },
-    { label: "Better Question", value: result.better_question },
-    { label: "Stakeholder Gap", value: result.stakeholder_gap, borderColor: "border-l-purple-accent" },
-    { label: "30-Day Test", value: result.thirty_day_test },
-    { label: "Devil's Argument", value: result.devils_argument },
+    { label: "The Question You Should Be Asking", value: result.better_question, italic: true },
+    { label: "30-Day Validation Test", value: result.thirty_day_test },
+    { label: "Stakeholder Blind Spot", value: result.stakeholder_gap },
   ];
 
   return (
-    <div className="min-h-screen px-4 sm:px-6 py-16">
-      <div className="max-w-[640px] mx-auto space-y-12">
-        {/* Brand header */}
-        <div className="text-center space-y-1">
-          <p className="text-xs tracking-[0.3em] uppercase text-muted-foreground">
-            London Royal Academy
-          </p>
-          <p className="text-sm font-medium text-gold">StratOS Lite</p>
-        </div>
-
-        {/* Decision Readiness Score — the FIRST thing the exec sees */}
-        <div className="text-center space-y-3 card-stagger" style={{ animationDelay: "0ms" }}>
-          <p className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Decision Readiness Score</p>
-          <div className="flex justify-center">
-            <ConfidenceRing score={result.confidence_score} size={120} />
+    <div className="min-h-screen px-4 pt-20 pb-16">
+      <div style={{ maxWidth: 640, margin: "0 auto" }}>
+        {/* CARD 1 — Decision Readiness Score (no border, just content) */}
+        <div
+          className="text-center mb-12 card-stagger"
+          style={{ animationDelay: "0ms" }}
+        >
+          <div className="flex items-baseline justify-center gap-1">
+            <span
+              style={{
+                fontSize: 72,
+                fontWeight: 700,
+                color: "#FFB800",
+                lineHeight: 1,
+              }}
+            >
+              {result.confidence_score}
+            </span>
+            <span
+              style={{
+                fontSize: 24,
+                fontWeight: 400,
+                color: "rgba(255,255,255,0.3)",
+              }}
+            >
+              /100
+            </span>
           </div>
-          <p className="text-sm text-muted-foreground font-manrope max-w-md mx-auto">
+
+          <p
+            className="mt-3"
+            style={{
+              fontSize: 16,
+              color: "rgba(255,255,255,0.7)",
+              lineHeight: 1.5,
+            }}
+          >
             {getReadinessInterpretation(result.confidence_score)}
           </p>
-        </div>
 
-        {/* Prompt Quality Badge */}
-        {diagnostic && (
-          <div className="card-stagger" style={{ animationDelay: "100ms" }}>
-            <PromptQualityBadge diagnostic={diagnostic} depth={depth} />
-          </div>
-        )}
-
-        {/* Decision */}
-        <div className="border-b border-border pb-4 card-stagger" style={{ animationDelay: "200ms" }}>
-          <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">Decision</p>
-          <p className="text-foreground font-body">{decision}</p>
-        </div>
-
-        {/* Verdict — visually dominant */}
-        <div
-          className="text-center space-y-2 py-6 rounded-lg card-stagger"
-          style={{
-            animationDelay: "300ms",
-            borderLeft: "4px solid #FFB800",
-            paddingLeft: "24px",
-            paddingRight: "24px",
-            backgroundColor: "rgba(255,184,0,0.03)",
-          }}
-        >
-          <p className="text-xs uppercase tracking-wider text-muted-foreground">Verdict</p>
-          <p className={`font-display text-4xl sm:text-5xl font-bold ${verdictColor[result.verdict] || "text-foreground"}`}>
-            {result.verdict}
-          </p>
-          <p className="text-muted-foreground text-sm">
-            {result.confidence_rationale}
-          </p>
-        </div>
-
-        {/* Scorecard fields with staggered entrance */}
-        <div className="grid gap-4">
-          {fields.map((field, i) => (
+          {/* Score bar */}
+          <div
+            className="mt-4 mx-auto"
+            style={{
+              maxWidth: 400,
+              height: 4,
+              borderRadius: 2,
+              background: "rgba(255,255,255,0.06)",
+              overflow: "hidden",
+            }}
+          >
             <div
-              key={field.label}
+              className="bar-fill"
+              style={{
+                height: "100%",
+                width: `${result.confidence_score}%`,
+                borderRadius: 2,
+                background: "#FFB800",
+              }}
+            />
+          </div>
+        </div>
+
+        {/* Cards */}
+        <div className="space-y-3">
+          {cards.map((card, i) => (
+            <div
+              key={card.label}
               className="card-stagger"
-              style={{ animationDelay: `${400 + i * 100}ms` }}
+              style={{ animationDelay: `${100 + i * 100}ms` }}
             >
-              <Field label={field.label} value={field.value} borderColor={field.borderColor} />
+              <div
+                className="rounded-xl px-6 py-5 transition-all duration-200"
+                style={{
+                  background: "rgba(255,255,255,0.03)",
+                  border: "1px solid rgba(255,255,255,0.06)",
+                  borderLeft: card.accent ? "4px solid #FFB800" : undefined,
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)";
+                  e.currentTarget.style.transform = "translateY(-1px)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)";
+                  e.currentTarget.style.transform = "translateY(0)";
+                }}
+              >
+                <p
+                  style={{
+                    fontSize: 11,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.1em",
+                    color: "#FFB800",
+                    opacity: 0.6,
+                    marginBottom: 8,
+                  }}
+                >
+                  {card.label}
+                </p>
+                <p
+                  style={{
+                    fontSize: card.accent ? 20 : 15,
+                    fontWeight: card.accent ? 500 : 400,
+                    color: "rgba(255,255,255,0.9)",
+                    lineHeight: 1.5,
+                    fontStyle: card.italic ? "italic" : "normal",
+                  }}
+                >
+                  {card.italic && (
+                    <span style={{ color: "#FFB800", marginRight: 6, fontSize: 20 }}>"</span>
+                  )}
+                  {card.value}
+                </p>
+              </div>
             </div>
           ))}
         </div>
 
-        {/* Built prompt accordion */}
-        {builtPrompt && diagnostic && (
-          <div className="card-stagger" style={{ animationDelay: "1100ms" }}>
-            <BuiltPromptAccordion prompt={builtPrompt} diagnostic={diagnostic} />
-          </div>
-        )}
-
-        {/* Share buttons */}
-        <div className="flex flex-col sm:flex-row gap-3 pt-4 card-stagger" style={{ animationDelay: "1200ms" }}>
-          <button onClick={handleCopyBrief} className="flex-1 flex items-center justify-center gap-2 border border-border rounded-lg py-2.5 text-sm font-body text-foreground hover:bg-secondary hover:border-gold/30 transition-all duration-200">
-            {copied ? <Check className="h-4 w-4 text-success-foreground" /> : <Copy className="h-4 w-4" />}
-            Copy Board Brief
+        {/* Action bar */}
+        <div
+          className="flex flex-col sm:flex-row gap-3 mt-10 card-stagger"
+          style={{ animationDelay: "800ms" }}
+        >
+          <button
+            onClick={handleCopyBrief}
+            className="flex-1 flex items-center justify-center gap-2 rounded-lg transition-all duration-200 hover:bg-secondary"
+            style={{
+              height: 44,
+              fontSize: 14,
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
+              border: "1px solid rgba(255,255,255,0.15)",
+              background: "transparent",
+              color: "rgba(255,255,255,0.8)",
+            }}
+          >
+            {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+            Copy Brief
           </button>
-          <button onClick={handleDownloadPDF} className="flex-1 flex items-center justify-center gap-2 border border-border rounded-lg py-2.5 text-sm font-body text-foreground hover:bg-secondary hover:border-gold/30 transition-all duration-200">
-            <Download className="h-4 w-4" />
+
+          <button
+            onClick={handleDownloadPDF}
+            className="flex-1 flex items-center justify-center gap-2 rounded-lg transition-all duration-200 hover:bg-secondary"
+            style={{
+              height: 44,
+              fontSize: 14,
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
+              border: "1px solid rgba(255,255,255,0.15)",
+              background: "transparent",
+              color: "rgba(255,255,255,0.8)",
+            }}
+          >
+            <Download className="w-4 h-4" />
             Download PDF
           </button>
-          <button onClick={handleShare} className="flex-1 flex items-center justify-center gap-2 border border-border rounded-lg py-2.5 text-sm font-body text-foreground hover:bg-secondary hover:border-gold/30 transition-all duration-200">
-            <Share2 className="h-4 w-4" />
-            Share Link
-          </button>
+
+          {onSaveToJournal && (
+            <button
+              onClick={onSaveToJournal}
+              className="flex-1 flex items-center justify-center gap-2 rounded-lg transition-all duration-200 btn-press"
+              style={{
+                height: 44,
+                fontSize: 14,
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+                background: "#FFB800",
+                color: "#080808",
+                fontWeight: 600,
+                borderRadius: 8,
+              }}
+            >
+              Save to Journal
+            </button>
+          )}
         </div>
 
-        {/* New audit */}
-        <div className="text-center pt-4">
-          <button onClick={onReset} className="text-sm text-gold hover:underline font-body">
-            Audit another decision →
+        {/* New decision link */}
+        <div className="text-center mt-8">
+          <button
+            onClick={onReset}
+            className="text-[14px] transition-opacity duration-200 hover:opacity-100"
+            style={{ color: "#FFB800", opacity: 0.8 }}
+          >
+            ← New decision
           </button>
         </div>
 
         {/* Disclaimer */}
-        <p className="text-center text-xs text-muted-foreground pt-8">
+        <p
+          className="text-center mt-12"
+          style={{ fontSize: 12, color: "rgba(255,255,255,0.25)" }}
+        >
           Supports decision thinking. Not legal or financial advice.
         </p>
       </div>
     </div>
   );
-}
-
-function Field({ label, value, borderColor }: { label: string; value: string; borderColor?: string }) {
-  return (
-    <div
-      className={`bg-card border border-border rounded-lg px-5 py-4 transition-all duration-200 hover:border-gold/20 ${borderColor ? `border-l-2 ${borderColor}` : ""}`}
-      style={{
-        transition: "border-color 0.2s, box-shadow 0.2s, transform 0.2s",
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.boxShadow = "0 4px 20px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,184,0,0.08)";
-        e.currentTarget.style.transform = "translateY(-1px)";
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.boxShadow = "none";
-        e.currentTarget.style.transform = "translateY(0)";
-      }}
-    >
-      <p className="text-xs uppercase tracking-wider text-gold mb-1.5 font-body">{label}</p>
-      <p className="text-sm text-foreground font-body leading-relaxed">{value}</p>
-    </div>
-  );
-}
-
-function computeDepth(d: DiagnosticAnswers): number {
-  let depth = 3;
-  if (d.budget) depth++;
-  if (d.timeline) depth++;
-  if (d.constraint) depth++;
-  return depth;
 }

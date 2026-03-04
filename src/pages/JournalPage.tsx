@@ -24,118 +24,130 @@ export default function JournalPage() {
     toast.success("Outcome recorded");
   };
 
-  const completedCount = entries.length;
   const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
 
   return (
     <>
       <NavBar journalCount={entries.length} />
       <div className="min-h-screen px-4 pt-20 pb-12">
-        <div className="max-w-2xl mx-auto space-y-8">
-          <div className="text-center space-y-2">
-            <h1 className="font-display text-2xl text-foreground">My Decision Journal</h1>
-            <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider">
-              {completedCount} decision{completedCount !== 1 ? "s" : ""} audited · Private · Zero server storage
-            </p>
-          </div>
-
-          {/* Pattern teaser */}
-          {completedCount >= 3 && (
-            <div className="border border-border rounded-lg p-4 opacity-70">
-              <p className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-2">
-                🔒 Decision Pattern Analysis
-              </p>
-              <p className="text-sm text-muted-foreground">
-                You've completed {completedCount} audit{completedCount !== 1 ? "s" : ""}. Patterns emerge at 5.
-              </p>
-              <p className="text-xs text-gold mt-1">Your decision DNA is building.</p>
-              <div className="flex gap-1 mt-2">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className={`h-2 flex-1 rounded-sm ${i < completedCount ? "bg-gold" : "bg-secondary"}`}
-                  />
-                ))}
-              </div>
-              <p className="text-[10px] text-muted-foreground mt-1">
-                {completedCount}/5 audits to unlock pattern analysis
-              </p>
-            </div>
-          )}
-
+        <div style={{ maxWidth: 640, margin: "0 auto" }}>
           {entries.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground text-sm">No decisions saved yet.</p>
-              <Link to="/" className="text-gold text-sm hover:underline mt-2 inline-block">
-                Start your first audit →
+            /* Empty state */
+            <div className="flex flex-col items-center justify-center" style={{ minHeight: "60vh" }}>
+              <span style={{ fontSize: 72, fontWeight: 700, color: "#FFB800", lineHeight: 1 }}>
+                0
+              </span>
+              <p className="mt-4 text-[18px] font-medium" style={{ color: "rgba(255,255,255,0.8)" }}>
+                Your decisions are waiting
+              </p>
+              <p
+                className="mt-2 text-center"
+                style={{ fontSize: 14, color: "rgba(255,255,255,0.4)", maxWidth: 400, lineHeight: 1.6 }}
+              >
+                Every great leader tracks their decisions. Start your first audit to begin building your decision intelligence.
+              </p>
+              <Link
+                to="/"
+                className="mt-6 inline-flex items-center justify-center rounded-lg btn-press"
+                style={{
+                  height: 44,
+                  padding: "0 24px",
+                  fontSize: 14,
+                  textTransform: "uppercase" as const,
+                  letterSpacing: "0.08em",
+                  background: "#FFB800",
+                  color: "#080808",
+                  fontWeight: 600,
+                }}
+              >
+                Audit a Decision →
               </Link>
             </div>
           ) : (
-            <div className="space-y-4">
-              {entries.map((entry) => {
-                const createdDate = new Date(entry.createdAt);
-                const isOlderThan30Days = createdDate.getTime() < thirtyDaysAgo;
-                const needsOutcome = entry.followUp && !entry.outcome && isOlderThan30Days;
+            <div className="space-y-6">
+              <div className="text-center space-y-1">
+                <h1 className="text-[24px] font-semibold text-foreground">Decision Journal</h1>
+                <p style={{ fontSize: 13, color: "rgba(255,255,255,0.4)" }}>
+                  {entries.length} decision{entries.length !== 1 ? "s" : ""} audited
+                </p>
+              </div>
 
-                return (
-                  <div key={entry.id} className="border border-border rounded-lg p-4 space-y-3">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex items-center gap-2">
-                        <span className={`text-[10px] font-mono px-2 py-0.5 rounded ${verdictColors[entry.result.verdict] || "bg-secondary text-foreground"}`}>
+              <div className="space-y-3">
+                {entries.map((entry) => {
+                  const createdDate = new Date(entry.createdAt);
+                  const needsOutcome = entry.followUp && !entry.outcome && createdDate.getTime() < thirtyDaysAgo;
+
+                  return (
+                    <div
+                      key={entry.id}
+                      className="rounded-xl p-5"
+                      style={{
+                        background: "rgba(255,255,255,0.03)",
+                        border: "1px solid rgba(255,255,255,0.06)",
+                      }}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <span className={`text-[11px] px-2 py-0.5 rounded ${verdictColors[entry.result.verdict] || ""}`}>
                           {entry.result.verdict}
                         </span>
-                        <span className="text-[10px] font-mono text-muted-foreground">
-                          {entry.result.decision_type}
+                        <span style={{ fontSize: 12, color: "rgba(255,255,255,0.3)" }}>
+                          {createdDate.toLocaleDateString()}
                         </span>
                       </div>
-                      <span className="text-[10px] font-mono text-muted-foreground shrink-0">
-                        {createdDate.toLocaleDateString()}
-                      </span>
-                    </div>
 
-                    <p className="text-sm text-foreground">
-                      "{entry.decision.slice(0, 80)}{entry.decision.length > 80 ? "..." : ""}"
-                    </p>
-
-                    <div className="flex gap-3 text-[10px] font-mono text-muted-foreground">
-                      <span>Confidence: {entry.result.confidence_score}/100</span>
-                      <span>Lens: {entry.diagnostic.focus}</span>
-                      <span>Scale: {entry.diagnostic.scale}</span>
-                    </div>
-
-                    {entry.outcome ? (
-                      <div className="border-t border-border pt-2">
-                        <p className="text-[10px] font-mono text-gold uppercase">Outcome recorded</p>
-                        <p className="text-xs text-foreground mt-1">{entry.outcome}</p>
-                      </div>
-                    ) : needsOutcome ? (
-                      <div className="border-t border-border pt-3 space-y-2">
-                        <p className="text-xs text-gold">
-                          ⏱ 30 days ago you audited this decision. What actually happened?
-                        </p>
-                        <textarea
-                          rows={3}
-                          value={outcomeText[entry.id] || ""}
-                          onChange={(e) => setOutcomeText({ ...outcomeText, [entry.id]: e.target.value })}
-                          className="w-full bg-background border border-border rounded px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-gold resize-none"
-                          placeholder="What happened..."
-                        />
-                        <button
-                          onClick={() => handleRecordOutcome(entry.id)}
-                          disabled={!outcomeText[entry.id]?.trim()}
-                          className="text-xs font-mono bg-gold text-accent-foreground px-3 py-1.5 rounded hover:opacity-90 disabled:opacity-30 transition-opacity"
-                        >
-                          Record Outcome
-                        </button>
-                      </div>
-                    ) : (
-                      <p className="text-[10px] text-muted-foreground">
-                        Outcome: pending
+                      <p className="mt-2" style={{ fontSize: 14, color: "rgba(255,255,255,0.8)" }}>
+                        "{entry.decision.slice(0, 100)}{entry.decision.length > 100 ? "..." : ""}"
                       </p>
-                    )}
-                  </div>
-                );
-              })}
+
+                      <div className="flex items-center gap-3 mt-2" style={{ fontSize: 12, color: "rgba(255,255,255,0.3)" }}>
+                        <span style={{ color: "#FFB800", fontWeight: 600 }}>{entry.result.confidence_score}/100</span>
+                        {entry.outcome && <span>• Outcome recorded</span>}
+                      </div>
+
+                      {entry.outcome ? (
+                        <div className="mt-3 pt-3" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+                          <p style={{ fontSize: 11, color: "#FFB800", textTransform: "uppercase" as const, letterSpacing: "0.08em" }}>Outcome</p>
+                          <p className="mt-1" style={{ fontSize: 13, color: "rgba(255,255,255,0.7)" }}>{entry.outcome}</p>
+                        </div>
+                      ) : needsOutcome ? (
+                        <div className="mt-3 pt-3 space-y-2" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+                          <p style={{ fontSize: 13, color: "#FFB800" }}>
+                            ⏱ 30 days have passed. What actually happened?
+                          </p>
+                          <textarea
+                            rows={2}
+                            value={outcomeText[entry.id] || ""}
+                            onChange={(e) => setOutcomeText({ ...outcomeText, [entry.id]: e.target.value })}
+                            className="w-full rounded-lg resize-none outline-none"
+                            style={{
+                              background: "rgba(255,255,255,0.04)",
+                              border: "1px solid rgba(255,255,255,0.1)",
+                              padding: "8px 12px",
+                              fontSize: 14,
+                              color: "rgba(255,255,255,0.9)",
+                            }}
+                            placeholder="What happened..."
+                          />
+                          <button
+                            onClick={() => handleRecordOutcome(entry.id)}
+                            disabled={!outcomeText[entry.id]?.trim()}
+                            className="rounded-lg btn-press disabled:opacity-30"
+                            style={{
+                              padding: "6px 16px",
+                              fontSize: 13,
+                              background: "#FFB800",
+                              color: "#080808",
+                              fontWeight: 600,
+                            }}
+                          >
+                            Record Outcome
+                          </button>
+                        </div>
+                      ) : null}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           )}
         </div>
