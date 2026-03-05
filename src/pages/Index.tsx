@@ -63,7 +63,7 @@ const Index = () => {
     (async () => {
       try {
         const { data, error } = await supabase.functions.invoke("audit", {
-          body: { decision: decision.trim() },
+          body: { decision: decision.trim(), lens: selectedLens, scale: selectedScale },
         });
         if (error) throw error;
         const parsed = AuditResultSchema.parse(data);
