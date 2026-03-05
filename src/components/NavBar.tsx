@@ -1,18 +1,28 @@
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { getJournalCount } from "@/lib/journal";
 
 interface Props {
   journalCount?: number;
 }
 
-export function NavBar({ journalCount = 0 }: Props) {
+export function NavBar({ journalCount }: Props) {
   const [scrolled, setScrolled] = useState(false);
+  const count = journalCount ?? getJournalCount();
+  const [dashboardSeen, setDashboardSeen] = useState(() => {
+    try { return localStorage.getItem("stratos_dashboard_seen") === "true"; } catch { return false; }
+  });
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10);
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const markDashboardSeen = () => {
+    localStorage.setItem("stratos_dashboard_seen", "true");
+    setDashboardSeen(true);
+  };
 
   return (
     <nav
@@ -33,13 +43,29 @@ export function NavBar({ journalCount = 0 }: Props) {
         </Link>
 
         <div className="flex items-center gap-4">
-          {journalCount > 0 && (
+          {count >= 1 && (
             <Link
               to="/journal"
-              className="text-[12px] transition-colors hover:opacity-80"
-              style={{ color: "rgba(232,228,223,0.5)" }}
+              className="text-[13px] transition-colors hover:opacity-80"
+              style={{ color: "#888" }}
             >
-              Journal →
+              Journal
+            </Link>
+          )}
+          {count >= 5 && (
+            <Link
+              to="/dashboard"
+              onClick={markDashboardSeen}
+              className="text-[13px] transition-colors hover:opacity-80 flex items-center gap-1.5"
+              style={{ color: "#C9A84C" }}
+            >
+              {!dashboardSeen && (
+                <span
+                  className="inline-block rounded-full"
+                  style={{ width: 6, height: 6, background: "#C9A84C" }}
+                />
+              )}
+              Dashboard
             </Link>
           )}
         </div>
