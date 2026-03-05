@@ -1,36 +1,22 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { getJournalEntries, recordOutcome, deleteJournal } from "@/lib/journal";
+import { getJournalEntries, deleteJournal } from "@/lib/journal";
 import type { JournalEntry } from "@/lib/types";
 import { NavBar } from "@/components/NavBar";
 import { toast } from "sonner";
-import { ChevronDown, ChevronUp, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 
 const verdictColors: Record<string, string> = {
-  "PROCEED": "bg-emerald-900/50 text-emerald-300",
-  "CONDITIONAL PROCEED": "bg-yellow-900/50 text-yellow-300",
-  "DO NOT PROCEED": "bg-red-900/50 text-red-300",
-  "DEFER — INFORMATION NEEDED": "bg-blue-900/50 text-blue-300",
-  // Legacy
-  "Proceed": "bg-emerald-900/50 text-emerald-300",
-  "Proceed with Caution": "bg-yellow-900/50 text-yellow-300",
-  "Test First": "bg-amber-900/50 text-amber-300",
-  "High Risk": "bg-red-900/50 text-red-300",
+  "PROCEED": "#22C55E",
+  "CONDITIONAL PROCEED": "#C9A84C",
+  "DO NOT PROCEED": "#EF4444",
+  "DEFER — INFORMATION NEEDED": "#3B82F6",
 };
 
 export default function JournalPage() {
   const [entries, setEntries] = useState<JournalEntry[]>(getJournalEntries());
-  const [outcomeText, setOutcomeText] = useState<Record<string, string>>({});
-  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [showClear, setShowClear] = useState(false);
-
-  const handleRecordOutcome = (id: string) => {
-    const text = outcomeText[id]?.trim();
-    if (!text) return;
-    recordOutcome(id, text);
-    setEntries(getJournalEntries());
-    toast.success("Outcome recorded");
-  };
+  const [expanded, setExpanded] = useState<string | null>(null);
 
   const handleClearJournal = () => {
     deleteJournal();
@@ -39,11 +25,7 @@ export default function JournalPage() {
     toast.success("Journal cleared");
   };
 
-  const avgScore = entries.length > 0
-    ? Math.round(entries.reduce((sum, e) => sum + e.result.confidence_score, 0) / entries.length)
-    : 0;
-
-  const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
+  const cardBase = { background: "#0F0F0F", border: "1px solid #1A1A1A" };
 
   return (
     <>
@@ -77,117 +59,68 @@ export default function JournalPage() {
                 <h1 className="text-[11px] font-medium uppercase" style={{ letterSpacing: "0.1em", color: "rgba(201,168,76,0.6)" }}>
                   Decision Journal
                 </h1>
-                <p style={{ fontSize: 13, color: "rgba(232,228,223,0.5)" }}>
-                  Your private decision history — stored only in this browser
-                </p>
               </div>
 
-              {/* Stats */}
+              {/* Dashboard banner */}
               <div
-                className="text-center py-4 rounded-lg"
-                style={{ background: "#0F0F0F", border: "1px solid #1A1A1A" }}
+                className="rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3"
+                style={{ ...cardBase, padding: "16px 24px" }}
               >
-                <p style={{ fontSize: 15, color: "#E8E4DF" }}>
-                  You've audited <span style={{ color: "#C9A84C", fontWeight: 600 }}>{entries.length}</span> decision{entries.length !== 1 ? "s" : ""}.{" "}
-                  Average readiness score: <span style={{ color: "#C9A84C", fontWeight: 600 }}>{avgScore}/100</span>
-                </p>
+                <span style={{ fontSize: 14, color: "#E8E4DF" }}>
+                  You have {entries.length} tracked decision{entries.length !== 1 ? "s" : ""}
+                </span>
+                {entries.length >= 5 && (
+                  <Link to="/dashboard" style={{ fontSize: 14, color: "#C9A84C" }}>
+                    View Dashboard →
+                  </Link>
+                )}
               </div>
 
-              <div className="space-y-3">
-                {entries.map((entry) => {
-                  const createdDate = new Date(entry.createdAt);
-                  const needsOutcome = entry.followUp && !entry.outcome && createdDate.getTime() < thirtyDaysAgo;
-                  const isExpanded = expanded[entry.id];
-
+              {/* Decision list */}
+              <div className="rounded-xl overflow-hidden" style={cardBase}>
+                {entries.map(entry => {
+                  const isOpen = expanded === entry.id;
                   return (
-                    <div
-                      key={entry.id}
-                      className="rounded-lg overflow-hidden"
-                      style={{ background: "#0F0F0F", border: "1px solid #1A1A1A" }}
-                    >
-                      {/* Summary row — always visible */}
+                    <div key={entry.id} style={{ borderTop: "1px solid #1A1A1A" }}>
                       <button
-                        onClick={() => setExpanded(prev => ({ ...prev, [entry.id]: !prev[entry.id] }))}
-                        className="w-full p-5 text-left flex items-start justify-between gap-3 transition-colors"
-                        style={{ background: "transparent" }}
+                        onClick={() => setExpanded(isOpen ? null : entry.id)}
+                        className="w-full px-5 py-4 flex items-center gap-3 text-left hover:bg-white/[0.02] transition-colors"
                       >
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-3 mb-2">
-                            <span className={`text-[11px] px-2 py-0.5 rounded ${verdictColors[entry.result.verdict] || ""}`}>
-                              {entry.result.verdict}
-                            </span>
-                            <span style={{ fontSize: 12, color: "rgba(232,228,223,0.3)" }}>
-                              {createdDate.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
-                            </span>
-                          </div>
-
-                          <p className="truncate" style={{ fontSize: 14, color: "#E8E4DF", maxWidth: "100%" }}>
-                            {entry.decision.slice(0, 120)}{entry.decision.length > 120 ? "..." : ""}
-                          </p>
-
-                          <div className="flex items-center gap-3 mt-2" style={{ fontSize: 12, color: "rgba(232,228,223,0.3)" }}>
-                            <span style={{ color: "#C9A84C", fontWeight: 600 }}>{entry.result.confidence_score}/100</span>
-                            {entry.outcome && <span>• Outcome recorded</span>}
-                          </div>
-                        </div>
-
-                        <div className="mt-1" style={{ color: "rgba(232,228,223,0.3)" }}>
-                          {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                        </div>
+                        <span style={{ fontSize: 12, color: "#555", flexShrink: 0, width: 70 }}>
+                          {new Date(entry.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+                        </span>
+                        <span className="flex-1 truncate" style={{ fontSize: 14, color: "#E8E4DF" }}>
+                          {entry.decision.slice(0, 60)}{entry.decision.length > 60 ? "..." : ""}
+                        </span>
+                        <span
+                          className="flex-shrink-0 rounded-full text-center"
+                          style={{ fontSize: 12, color: "#C9A84C", border: "1px solid #C9A84C", padding: "2px 8px" }}
+                        >
+                          {entry.result.confidence_score}
+                        </span>
+                        <span
+                          className="hidden sm:inline-block rounded-full flex-shrink-0"
+                          style={{ width: 8, height: 8, background: verdictColors[entry.result.verdict] || "#888" }}
+                        />
                       </button>
-
-                      {/* Expanded content */}
-                      {isExpanded && (
-                        <div className="px-5 pb-5 space-y-3" style={{ borderTop: "1px solid #1A1A1A" }}>
-                          <div className="pt-4 space-y-3">
+                      {isOpen && (
+                        <div className="px-5 pb-5" style={{ maxHeight: 600, overflowY: "auto" }}>
+                          <div className="space-y-3 pt-2">
                             {[
+                              ["Verdict", entry.result.verdict],
                               ["Biggest Risk", entry.result.biggest_risk],
-                              ["Hidden Assumption", entry.result.hidden_assumption],
-                              ["Better Question", entry.result.better_question],
-                              ["Devil's Advocate", (entry.result as any).devils_advocate || (entry.result as any).devils_argument],
+                              ["The Reframe", entry.result.better_question],
+                              ["Devil's Advocate", entry.result.devils_advocate],
                               ["Stakeholder Gap", entry.result.stakeholder_gap],
-                              ["30-Day Test", entry.result.thirty_day_test],
                             ].filter(([, v]) => v).map(([label, value]) => (
                               <div key={label as string}>
-                                <p style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(201,168,76,0.5)", marginBottom: 4 }}>
+                                <p style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(201,168,76,0.5)", marginBottom: 4 }}>
                                   {label}
                                 </p>
                                 <p style={{ fontSize: 13, color: "rgba(232,228,223,0.7)", lineHeight: 1.6 }}>{value}</p>
                               </div>
                             ))}
                           </div>
-
-                          {entry.outcome ? (
-                            <div className="pt-3" style={{ borderTop: "1px solid #1A1A1A" }}>
-                              <p style={{ fontSize: 11, color: "#C9A84C", textTransform: "uppercase", letterSpacing: "0.08em" }}>Outcome</p>
-                              <p className="mt-1" style={{ fontSize: 13, color: "rgba(232,228,223,0.7)" }}>{entry.outcome}</p>
-                            </div>
-                          ) : needsOutcome ? (
-                            <div className="pt-3 space-y-2" style={{ borderTop: "1px solid #1A1A1A" }}>
-                              <p style={{ fontSize: 13, color: "#C9A84C" }}>
-                                ⏱ 30 days have passed. What actually happened?
-                              </p>
-                              <textarea
-                                rows={2}
-                                value={outcomeText[entry.id] || ""}
-                                onChange={(e) => setOutcomeText({ ...outcomeText, [entry.id]: e.target.value })}
-                                className="w-full rounded-lg resize-none outline-none"
-                                style={{
-                                  background: "rgba(232,228,223,0.04)", border: "1px solid #1A1A1A",
-                                  padding: "8px 12px", fontSize: 14, color: "#E8E4DF",
-                                }}
-                                placeholder="What happened..."
-                              />
-                              <button
-                                onClick={() => handleRecordOutcome(entry.id)}
-                                disabled={!outcomeText[entry.id]?.trim()}
-                                className="rounded-lg btn-press disabled:opacity-30"
-                                style={{ padding: "6px 16px", fontSize: 13, background: "#C9A84C", color: "#080808", fontWeight: 600 }}
-                              >
-                                Record Outcome
-                              </button>
-                            </div>
-                          ) : null}
                         </div>
                       )}
                     </div>
@@ -206,9 +139,9 @@ export default function JournalPage() {
                     Clear Journal
                   </button>
                 ) : (
-                  <div className="rounded-lg p-4" style={{ background: "#0F0F0F", border: "1px solid #1A1A1A" }}>
+                  <div className="rounded-lg p-4" style={cardBase}>
                     <p style={{ fontSize: 14, color: "#E8E4DF", marginBottom: 12 }}>
-                      This will permanently delete all saved audits from this browser. This cannot be undone.
+                      This will permanently delete all saved audits. This cannot be undone.
                     </p>
                     <div className="flex justify-center gap-3">
                       <button

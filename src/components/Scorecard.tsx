@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Copy, Download, Check, BookmarkPlus, ChevronDown } from "lucide-react";
+import { Link } from "react-router-dom";
 import type { AuditResult } from "@/lib/types";
 import { generateBrief } from "@/lib/copy-brief";
 import { generatePDF } from "@/lib/generate-pdf";
+import { getJournalCount } from "@/lib/journal";
 import { toast } from "sonner";
 
 interface ScorecardProps {
@@ -32,6 +34,7 @@ const verdictColor: Record<string, string> = {
 export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal, journalSaved, readOnly }: ScorecardProps) {
   const [copied, setCopied] = useState(false);
   const [deepDiveOpen, setDeepDiveOpen] = useState(false);
+  const journalCount = getJournalCount();
 
   const handleCopyBrief = async () => {
     const brief = generateBrief(decision, result);
@@ -104,84 +107,45 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
         )}
 
         {/* ═══ TIER 1: The 2-Second Scan ═══ */}
-
-        {/* Decision Readiness Score */}
         <div className="text-center mb-12">
-          <p
-            className="mb-3"
-            style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(201,168,76,0.6)" }}
-          >
+          <p className="mb-3" style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(201,168,76,0.6)" }}>
             Decision Readiness Score
           </p>
           <div className="flex items-baseline justify-center gap-1">
             <span style={{ fontSize: 72, fontWeight: 700, color: "#C9A84C", lineHeight: 1 }}>
               {result.confidence_score}
             </span>
-            <span style={{ fontSize: 24, fontWeight: 400, color: "rgba(232,228,223,0.3)" }}>
-              /100
-            </span>
+            <span style={{ fontSize: 24, fontWeight: 400, color: "rgba(232,228,223,0.3)" }}>/100</span>
           </div>
           <p className="mt-3" style={{ fontSize: 16, color: "rgba(232,228,223,0.7)", lineHeight: 1.5 }}>
             {getReadinessInterpretation(result.confidence_score)}
           </p>
-          <div
-            className="mt-4 mx-auto"
-            style={{ maxWidth: 400, height: 4, borderRadius: 2, background: "rgba(232,228,223,0.06)", overflow: "hidden" }}
-          >
-            <div
-              className="bar-fill"
-              style={{ height: "100%", width: `${result.confidence_score}%`, borderRadius: 2, background: "#C9A84C" }}
-            />
+          <div className="mt-4 mx-auto" style={{ maxWidth: 400, height: 4, borderRadius: 2, background: "rgba(232,228,223,0.06)", overflow: "hidden" }}>
+            <div className="bar-fill" style={{ height: "100%", width: `${result.confidence_score}%`, borderRadius: 2, background: "#C9A84C" }} />
           </div>
           {result.confidence_rationale && (
-            <p className="mt-3" style={{ fontSize: 13, color: "rgba(232,228,223,0.4)" }}>
-              {result.confidence_rationale}
-            </p>
+            <p className="mt-3" style={{ fontSize: 13, color: "rgba(232,228,223,0.4)" }}>{result.confidence_rationale}</p>
           )}
         </div>
 
         {/* Verdict */}
-        <div
-          className="rounded-lg px-6 py-5 mb-3"
-          style={{
-            ...cardBase,
-            borderLeft: `4px solid ${verdictColor[result.verdict] || "#C9A84C"}`,
-          }}
-        >
-          <p style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", color: "#C9A84C", opacity: 0.6, marginBottom: 8 }}>
-            Verdict
-          </p>
-          <p style={{ fontSize: 20, fontWeight: 500, color: "#E8E4DF", lineHeight: 1.7 }}>
-            {result.verdict}
-          </p>
+        <div className="rounded-lg px-6 py-5 mb-3" style={{ ...cardBase, borderLeft: `4px solid ${verdictColor[result.verdict] || "#C9A84C"}` }}>
+          <p style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", color: "#C9A84C", opacity: 0.6, marginBottom: 8 }}>Verdict</p>
+          <p style={{ fontSize: 20, fontWeight: 500, color: "#E8E4DF", lineHeight: 1.7 }}>{result.verdict}</p>
         </div>
 
-        {/* The Reframe — promoted hero card */}
-        <div
-          className="rounded-lg px-6 py-5 mb-3 reframe-glow"
-          style={{
-            ...cardBase,
-            borderTop: "1px solid rgba(201,168,76,0.3)",
-          }}
-        >
-          <p style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.15em", color: "#666", marginBottom: 8 }}>
-            THE REFRAME
-          </p>
+        {/* The Reframe */}
+        <div className="rounded-lg px-6 py-5 mb-3 reframe-glow" style={{ ...cardBase, borderTop: "1px solid rgba(201,168,76,0.3)" }}>
+          <p style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.15em", color: "#666", marginBottom: 8 }}>THE REFRAME</p>
           <p style={{ fontSize: 20, fontWeight: 400, fontStyle: "italic", color: "#C9A84C", lineHeight: 1.7 }}>
-            <span style={{ marginRight: 6 }}>"</span>
-            {result.better_question}
+            <span style={{ marginRight: 6 }}>"</span>{result.better_question}
           </p>
         </div>
 
-        {/* ═══ TIER 2: The 30-Second Read ═══ */}
-
-        {/* Section divider */}
+        {/* ═══ TIER 2 ═══ */}
         <div className="relative my-8">
           <div style={{ height: 1, background: "#1A1A1A" }} />
-          <span
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 px-3"
-            style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.15em", color: "#555", background: "#080808" }}
-          >
+          <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 px-3" style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.15em", color: "#555", background: "#080808" }}>
             STRATEGIC RISK SURFACE
           </span>
         </div>
@@ -192,23 +156,14 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
             { label: "Devil's Advocate", value: result.devils_advocate },
             { label: "Stakeholder Blind Spot", value: result.stakeholder_gap },
           ].map((card) => (
-            <div
-              key={card.label}
-              className="rounded-lg px-5 py-4"
-              style={cardBase}
-            >
-              <p style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", color: "#C9A84C", opacity: 0.6, marginBottom: 8 }}>
-                {card.label}
-              </p>
-              <p style={{ fontSize: 14, fontWeight: 400, color: "#E8E4DF", lineHeight: 1.7 }}>
-                {card.value}
-              </p>
+            <div key={card.label} className="rounded-lg px-5 py-4" style={cardBase}>
+              <p style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", color: "#C9A84C", opacity: 0.6, marginBottom: 8 }}>{card.label}</p>
+              <p style={{ fontSize: 14, fontWeight: 400, color: "#E8E4DF", lineHeight: 1.7 }}>{card.value}</p>
             </div>
           ))}
         </div>
 
-        {/* ═══ TIER 3: The Deep Dive (collapsible) ═══ */}
-
+        {/* ═══ TIER 3 ═══ */}
         <div className="mt-6">
           <button
             onClick={() => setDeepDiveOpen(!deepDiveOpen)}
@@ -216,42 +171,26 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
             style={{ fontSize: 13, color: "#C9A84C", opacity: 0.8, background: "none", border: "none", padding: 0 }}
           >
             View Full Analysis
-            <ChevronDown
-              className="w-4 h-4 transition-transform duration-300"
-              style={{ transform: deepDiveOpen ? "rotate(180deg)" : "rotate(0deg)" }}
-            />
+            <ChevronDown className="w-4 h-4 transition-transform duration-300" style={{ transform: deepDiveOpen ? "rotate(180deg)" : "rotate(0deg)" }} />
           </button>
-
           <div
             className="overflow-hidden transition-all duration-300 ease-in-out"
-            style={{
-              maxHeight: deepDiveOpen ? 2000 : 0,
-              opacity: deepDiveOpen ? 1 : 0,
-              marginTop: deepDiveOpen ? 12 : 0,
-            }}
+            style={{ maxHeight: deepDiveOpen ? 2000 : 0, opacity: deepDiveOpen ? 1 : 0, marginTop: deepDiveOpen ? 12 : 0 }}
           >
             <div className="space-y-3">
               {deepDiveItems.map((item) => (
                 <div key={item.label} className="rounded-lg px-6 py-5" style={cardBase}>
-                  <p style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", color: "#C9A84C", opacity: 0.6, marginBottom: 8 }}>
-                    {item.label}
-                  </p>
-                  <p style={{ fontSize: 15, fontWeight: 400, color: "#E8E4DF", lineHeight: 1.7 }}>
-                    {item.value}
-                  </p>
+                  <p style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", color: "#C9A84C", opacity: 0.6, marginBottom: 8 }}>{item.label}</p>
+                  <p style={{ fontSize: 15, fontWeight: 400, color: "#E8E4DF", lineHeight: 1.7 }}>{item.value}</p>
                 </div>
               ))}
-
               {listSections.map((section) => (
                 <div key={section.label} className="rounded-lg px-6 py-5" style={cardBase}>
-                  <p style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", color: "#C9A84C", opacity: 0.6, marginBottom: 12 }}>
-                    {section.label}
-                  </p>
+                  <p style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", color: "#C9A84C", opacity: 0.6, marginBottom: 12 }}>{section.label}</p>
                   <ul className="space-y-2">
                     {section.items.map((item, j) => (
                       <li key={j} className="flex gap-2" style={{ fontSize: 15, color: "#E8E4DF", lineHeight: 1.7 }}>
-                        <span style={{ color: "rgba(201,168,76,0.5)" }}>•</span>
-                        {item}
+                        <span style={{ color: "rgba(201,168,76,0.5)" }}>•</span>{item}
                       </li>
                     ))}
                   </ul>
@@ -287,8 +226,8 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
               </button>
             </div>
 
-            {/* ═══ THE 30-DAY LOOP ═══ */}
-            <div className="mt-8 rounded-xl p-6 sm:p-6 mobile-journal-pad" style={cardBase}>
+            {/* 30-Day Loop */}
+            <div className="mt-8 rounded-xl p-6" style={cardBase}>
               {journalSaved ? (
                 <div className="flex items-center justify-center gap-3 py-2">
                   <Check className="w-5 h-5" style={{ color: "#C9A84C" }} />
@@ -296,9 +235,7 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
                 </div>
               ) : (
                 <>
-                  <h3 style={{ fontSize: 16, fontWeight: 600, color: "#E8E4DF", marginBottom: 8 }}>
-                    Track This Decision
-                  </h3>
+                  <h3 style={{ fontSize: 16, fontWeight: 600, color: "#E8E4DF", marginBottom: 8 }}>Track This Decision</h3>
                   <p style={{ fontSize: 14, color: "#888", lineHeight: 1.6, maxWidth: 520, marginBottom: 16 }}>
                     In 30 days, StratOS will ask you what actually happened. After 5 tracked decisions, you'll unlock your Decision Pattern Profile — where you're sharp, where you're blind.
                   </p>
@@ -306,16 +243,9 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
                     onClick={onSaveToJournal}
                     className="flex items-center justify-center gap-2 transition-all duration-200 btn-press w-full sm:w-auto"
                     style={{
-                      height: 44,
-                      fontSize: 14,
-                      borderRadius: 8,
-                      border: "1px solid #C9A84C",
-                      background: "transparent",
-                      color: "#C9A84C",
-                      fontWeight: 600,
-                      padding: "0 24px",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.08em",
+                      height: 44, fontSize: 14, borderRadius: 8,
+                      border: "1px solid #C9A84C", background: "transparent", color: "#C9A84C",
+                      fontWeight: 600, padding: "0 24px", textTransform: "uppercase", letterSpacing: "0.08em",
                     }}
                     onMouseEnter={(e) => { e.currentTarget.style.background = "#C9A84C"; e.currentTarget.style.color = "#080808"; }}
                     onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#C9A84C"; }}
@@ -323,43 +253,23 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
                     <BookmarkPlus className="w-4 h-4" />
                     Save & Track for 30 Days
                   </button>
-                  <p className="mt-3" style={{ fontSize: 11, color: "#555" }}>
-                    Private. Stored locally. Only you can see this.
-                  </p>
+                  <p className="mt-3" style={{ fontSize: 11, color: "#555" }}>Private. Stored locally. Only you can see this.</p>
                 </>
               )}
             </div>
 
-            {/* ═══ AUDIT THE OPPOSITE ═══ */}
-            <div
-              className="mt-6 rounded-xl text-center mobile-opposite-pad"
-              style={{
-                ...cardBase,
-                borderStyle: "dashed",
-                padding: 32,
-              }}
-            >
+            {/* Audit the Opposite */}
+            <div className="mt-6 rounded-xl text-center" style={{ ...cardBase, borderStyle: "dashed", padding: 32 }}>
               <span style={{ fontSize: 24, color: "rgba(201,168,76,0.5)" }}>⟳</span>
-              <h3 className="mt-3" style={{ fontSize: 18, color: "#E8E4DF" }}>
-                What if you're wrong?
-              </h3>
-              <p className="mt-2" style={{ fontSize: 14, color: "#666" }}>
-                Run the same audit from the opposite position.
-              </p>
+              <h3 className="mt-3" style={{ fontSize: 18, color: "#E8E4DF" }}>What if you're wrong?</h3>
+              <p className="mt-2" style={{ fontSize: 14, color: "#666" }}>Run the same audit from the opposite position.</p>
               <button
                 onClick={handleAuditOpposite}
                 className="mt-4 inline-flex items-center justify-center gap-2 transition-all duration-200 btn-press"
                 style={{
-                  height: 44,
-                  fontSize: 14,
-                  borderRadius: 9999,
-                  border: "1px solid #C9A84C",
-                  background: "transparent",
-                  color: "#C9A84C",
-                  fontWeight: 600,
-                  padding: "0 28px",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.08em",
+                  height: 44, fontSize: 14, borderRadius: 9999,
+                  border: "1px solid #C9A84C", background: "transparent", color: "#C9A84C",
+                  fontWeight: 600, padding: "0 28px", textTransform: "uppercase", letterSpacing: "0.08em",
                 }}
                 onMouseEnter={(e) => { e.currentTarget.style.background = "#C9A84C"; e.currentTarget.style.color = "#080808"; e.currentTarget.style.transform = "scale(1.02)"; }}
                 onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#C9A84C"; e.currentTarget.style.transform = "scale(1)"; }}
@@ -367,6 +277,40 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
                 Audit the Opposite
               </button>
             </div>
+
+            {/* Dashboard upsell */}
+            {journalSaved && journalCount >= 3 && journalCount < 5 && (
+              <div className="mt-6 rounded-xl text-center" style={{ ...cardBase, borderStyle: "dashed", padding: 24 }}>
+                <p style={{ fontSize: 14, color: "#E8E4DF" }}>
+                  {5 - journalCount} more audit{5 - journalCount !== 1 ? "s" : ""} to unlock your Decision Pattern Profile
+                </p>
+                <p className="mt-2 mx-auto" style={{ fontSize: 13, color: "#888", maxWidth: 480 }}>
+                  StratOS is learning how you think. Complete 5 audits to see your decision-making blind spots.
+                </p>
+                <div className="mx-auto mt-3 rounded-full overflow-hidden" style={{ maxWidth: 200, height: 4, background: "#1A1A1A" }}>
+                  <div className="rounded-full" style={{ height: "100%", width: `${(journalCount / 5) * 100}%`, background: "#C9A84C" }} />
+                </div>
+              </div>
+            )}
+            {journalSaved && journalCount >= 5 && (
+              <div className="mt-6 rounded-xl text-center" style={{ ...cardBase, border: "1px solid rgba(201,168,76,0.3)", padding: 24 }}>
+                <p style={{ fontSize: 16, color: "#E8E4DF" }}>Your Dashboard is ready</p>
+                <p className="mt-2" style={{ fontSize: 13, color: "#888" }}>See your decision patterns, risk profile, and readiness trends.</p>
+                <Link
+                  to="/dashboard"
+                  className="mt-4 inline-flex items-center justify-center transition-all duration-200"
+                  style={{
+                    height: 40, fontSize: 14, borderRadius: 9999,
+                    border: "1px solid #C9A84C", background: "transparent", color: "#C9A84C",
+                    fontWeight: 600, padding: "0 24px",
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = "#C9A84C"; e.currentTarget.style.color = "#080808"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#C9A84C"; }}
+                >
+                  Open Dashboard →
+                </Link>
+              </div>
+            )}
 
             {/* Start another */}
             <div className="text-center mt-8">
