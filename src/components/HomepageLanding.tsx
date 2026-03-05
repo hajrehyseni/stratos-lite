@@ -35,7 +35,7 @@ export function HomepageLanding({ onSubmit }: Props) {
             fontSize: 11,
             fontWeight: 500,
             letterSpacing: "2px",
-            textTransform: "uppercase" as const,
+            textTransform: "uppercase",
             color: "rgba(255,255,255,0.35)",
             marginTop: 80,
           }}
@@ -83,7 +83,7 @@ export function HomepageLanding({ onSubmit }: Props) {
         </p>
 
         {/* Input Area */}
-        <div className="w-full" style={{ maxWidth: 580, marginTop: 32 }}>
+        <div className="w-full px-4 sm:px-0" style={{ maxWidth: 580, marginTop: 32 }}>
           <div
             className={`relative flex items-center ${shake ? "input-shake" : ""}`}
             style={{
@@ -128,24 +128,38 @@ export function HomepageLanding({ onSubmit }: Props) {
                 fontWeight: 400,
                 color: "#fff",
                 fontStyle: value ? "normal" : "italic",
+                minHeight: 48,
               }}
             />
           </div>
         </div>
 
-        {/* Footer line */}
+        {/* Below input */}
         <p
           className="text-center"
           style={{
             fontSize: 12,
             fontWeight: 400,
-            color: "rgba(255,255,255,0.25)",
-            marginTop: 24,
+            color: "#555",
+            marginTop: 16,
           }}
         >
-          🔒 Nothing leaves your browser. Ever.
+          Free. No signup. Takes 10 seconds.
         </p>
       </div>
+
+      {/* Footer privacy line */}
+      <p
+        className="text-center mt-auto"
+        style={{
+          fontSize: 11,
+          color: "#444",
+          paddingBottom: 32,
+          paddingTop: 48,
+        }}
+      >
+        🔒 Private session — nothing is stored on our servers
+      </p>
 
       {/* Background gradient */}
       <div
