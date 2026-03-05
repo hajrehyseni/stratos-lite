@@ -23,10 +23,11 @@ const Index = () => {
   const [result, setResult] = useState<AuditResult | null>(null);
   const [auditId, setAuditId] = useState("");
   const [landingExiting, setLandingExiting] = useState(false);
+  const [journalSaved, setJournalSaved] = useState(false);
 
-  const apiDone = useRef(false);
+  const apiResolved = useRef(false);
+  const [apiResolvedState, setApiResolvedState] = useState(false);
   const apiResult = useRef<{ parsed: AuditResult; id: string } | null>(null);
-  const minTimeDone = useRef(false);
 
   const handleLandingSubmit = (text: string) => {
     setDecision(text);
@@ -37,66 +38,74 @@ const Index = () => {
     }, 400);
   };
 
+  const handleSkipDiagnostic = useCallback(() => {
+    // Use defaults and go straight to processing
+    setLens("risk");
+    setScale("tactical");
+    startProcessing("risk", "tactical");
+  }, [decision]);
+
   const handleDiagnosticComplete = useCallback(
     (selectedLens: FocusLens, selectedScale: DecisionScale) => {
       setLens(selectedLens);
       setScale(selectedScale);
-      setPhase("processing");
-
-      // Fire API call
-      apiDone.current = false;
-      minTimeDone.current = false;
-      apiResult.current = null;
-
-      (async () => {
-        try {
-          const { data, error } = await supabase.functions.invoke("audit", {
-            body: { decision: decision.trim() },
-          });
-          if (error) throw error;
-          const parsed = AuditResultSchema.parse(data);
-          const id = generateId();
-
-          await supabase.from("audit_results").insert({
-            id,
-            decision: decision.trim(),
-            result: parsed as any,
-          });
-
-          apiResult.current = { parsed, id };
-          apiDone.current = true;
-
-          if (minTimeDone.current) {
-            showResult(parsed, id);
-          }
-        } catch (e: any) {
-          console.error("Audit error:", e);
-          toast.error(e?.message || "Failed to audit decision. Please try again.");
-          setPhase("landing");
-        }
-      })();
+      startProcessing(selectedLens, selectedScale);
     },
     [decision]
   );
 
-  const handleMinTimeReached = useCallback(() => {
-    minTimeDone.current = true;
-    if (apiDone.current && apiResult.current) {
-      showResult(apiResult.current.parsed, apiResult.current.id);
+  const startProcessing = (selectedLens: FocusLens, selectedScale: DecisionScale) => {
+    setPhase("processing");
+    apiResolved.current = false;
+    setApiResolvedState(false);
+    apiResult.current = null;
+
+    (async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke("audit", {
+          body: { decision: decision.trim() },
+        });
+        if (error) throw error;
+        const parsed = AuditResultSchema.parse(data);
+        const id = generateId();
+
+        await supabase.from("audit_results").insert({
+          id,
+          decision: decision.trim(),
+          result: parsed as any,
+        });
+
+        apiResult.current = { parsed, id };
+        apiResolved.current = true;
+        setApiResolvedState(true);
+      } catch (e: any) {
+        console.error("Audit error:", e);
+        toast.error(e?.message || "Failed to audit decision. Please try again.");
+        setPhase("landing");
+      }
+    })();
+  };
+
+  const handleProcessingDone = useCallback(() => {
+    if (apiResult.current) {
+      setResult(apiResult.current.parsed);
+      setAuditId(apiResult.current.id);
+      setJournalSaved(false);
+      setPhase("result");
     }
   }, []);
-
-  const showResult = (parsed: AuditResult, id: string) => {
-    setResult(parsed);
-    setAuditId(id);
-    setPhase("result");
-  };
 
   const handleReset = (prefill?: string) => {
     setResult(null);
     setDecision(prefill || "");
     setAuditId("");
-    setPhase("landing");
+    setJournalSaved(false);
+    if (prefill && prefill.length >= 20) {
+      // Auto-submit for Audit the Opposite
+      setPhase("diagnostic");
+    } else {
+      setPhase("landing");
+    }
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -109,6 +118,7 @@ const Index = () => {
       createdAt: new Date().toISOString(),
       followUp: true,
     });
+    setJournalSaved(true);
     toast.success("Saved to your private journal");
   };
 
@@ -122,6 +132,7 @@ const Index = () => {
           auditId={auditId}
           onReset={handleReset}
           onSaveToJournal={handleSaveToJournal}
+          journalSaved={journalSaved}
         />
       </>
     );
@@ -147,6 +158,7 @@ const Index = () => {
         <NewDiagnosticFlow
           decision={decision}
           onComplete={handleDiagnosticComplete}
+          onSkip={handleSkipDiagnostic}
         />
       )}
 
@@ -154,7 +166,8 @@ const Index = () => {
         <NewProcessingState
           lens={lens}
           scale={scale}
-          onMinTimeReached={handleMinTimeReached}
+          onApiReady={handleProcessingDone}
+          apiResolved={apiResolvedState}
         />
       )}
     </>

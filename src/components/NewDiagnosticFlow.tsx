@@ -5,6 +5,7 @@ import type { FocusLens, DecisionScale } from "@/lib/types";
 interface Props {
   decision: string;
   onComplete: (lens: FocusLens, scale: DecisionScale) => void;
+  onSkip: () => void;
 }
 
 const lensOptions: { key: FocusLens; emoji: string; label: string; desc: string }[] = [
@@ -23,7 +24,7 @@ const scaleOptions: { key: DecisionScale; emoji: string; label: string; desc: st
 
 type Step = 2 | 3;
 
-export function NewDiagnosticFlow({ decision, onComplete }: Props) {
+export function NewDiagnosticFlow({ decision, onComplete, onSkip }: Props) {
   const [step, setStep] = useState<Step>(2);
   const [lens, setLens] = useState<FocusLens | null>(null);
   const [scale, setScale] = useState<DecisionScale | null>(null);
@@ -73,7 +74,7 @@ export function NewDiagnosticFlow({ decision, onComplete }: Props) {
         </div>
 
         {/* Q1 - Decision summary (always shown as completed) */}
-        <div className="mb-8">
+        <div className="mb-6">
           <div className="flex items-center justify-between mb-2">
             <span
               style={{
@@ -81,7 +82,7 @@ export function NewDiagnosticFlow({ decision, onComplete }: Props) {
                 fontWeight: 500,
                 color: "#C9A84C",
                 letterSpacing: "1.5px",
-                textTransform: "uppercase" as const,
+                textTransform: "uppercase",
               }}
             >
               YOUR DECISION
@@ -101,66 +102,50 @@ export function NewDiagnosticFlow({ decision, onComplete }: Props) {
           </p>
         </div>
 
+        {/* Skip link — only before Q2 is answered */}
+        {step === 2 && lens === null && (
+          <div className="mb-6">
+            <button
+              onClick={onSkip}
+              className="transition-opacity duration-200 hover:underline"
+              style={{
+                fontSize: 11,
+                color: "#555",
+                background: "none",
+                border: "none",
+                padding: 0,
+              }}
+            >
+              Skip to instant audit →
+            </button>
+          </div>
+        )}
+
         {/* Q2 - Lens selection */}
         {step >= 2 && !scale && (
           <div
             className="mb-8"
-            style={{
-              animation: "slideInFromBottom 300ms ease forwards",
-            }}
+            style={{ animation: "slideInFromBottom 300ms ease forwards" }}
           >
             {lens && step === 3 ? (
-              /* Collapsed Q2 summary */
               <div className="mb-6">
                 <div className="flex items-center justify-between mb-2">
-                  <span
-                    style={{
-                      fontSize: 10,
-                      fontWeight: 500,
-                      color: "#C9A84C",
-                      letterSpacing: "1.5px",
-                      textTransform: "uppercase" as const,
-                    }}
-                  >
+                  <span style={{ fontSize: 10, fontWeight: 500, color: "#C9A84C", letterSpacing: "1.5px", textTransform: "uppercase" }}>
                     YOUR FOCUS
                   </span>
                   <span style={{ color: "rgba(201,168,76,0.5)", fontSize: 14 }}>✓</span>
                 </div>
-                <p
-                  style={{
-                    fontSize: 15,
-                    fontWeight: 400,
-                    color: "rgba(255,255,255,0.7)",
-                    borderLeft: "2px solid rgba(201,168,76,0.3)",
-                    paddingLeft: 16,
-                  }}
-                >
+                <p style={{ fontSize: 15, fontWeight: 400, color: "rgba(255,255,255,0.7)", borderLeft: "2px solid rgba(201,168,76,0.3)", paddingLeft: 16 }}>
                   {lensOptions.find((o) => o.key === lens)?.emoji}{" "}
                   {lensOptions.find((o) => o.key === lens)?.label}
                 </p>
               </div>
             ) : (
               <>
-                <p
-                  style={{
-                    fontSize: 10,
-                    fontWeight: 500,
-                    color: "rgba(255,255,255,0.3)",
-                    letterSpacing: "1.5px",
-                    textTransform: "uppercase" as const,
-                  }}
-                >
+                <p style={{ fontSize: 10, fontWeight: 500, color: "rgba(255,255,255,0.3)", letterSpacing: "1.5px", textTransform: "uppercase" }}>
                   STEP 2 OF 3
                 </p>
-                <h2
-                  style={{
-                    fontSize: 22,
-                    fontWeight: 600,
-                    color: "#fff",
-                    marginTop: 8,
-                    marginBottom: 16,
-                  }}
-                >
+                <h2 style={{ fontSize: 22, fontWeight: 600, color: "#fff", marginTop: 8, marginBottom: 16 }}>
                   What matters most to you right now?
                 </h2>
                 <div className="grid grid-cols-2 gap-3 diagnostic-grid">
@@ -175,44 +160,21 @@ export function NewDiagnosticFlow({ decision, onComplete }: Props) {
                         style={{
                           padding: 20,
                           borderRadius: 12,
-                          background: selected
-                            ? "rgba(201,168,76,0.06)"
-                            : "rgba(255,255,255,0.03)",
-                          border: selected
-                            ? "1px solid #C9A84C"
-                            : "1px solid rgba(255,255,255,0.06)",
+                          background: selected ? "rgba(201,168,76,0.06)" : "rgba(255,255,255,0.03)",
+                          border: selected ? "1px solid #C9A84C" : "1px solid rgba(255,255,255,0.06)",
                           opacity: dimmed ? 0.5 : 1,
                           transform: selected ? "scale(1.02)" : "scale(1)",
+                          minHeight: 48,
                         }}
                       >
                         {selected && (
-                          <div
-                            className="absolute top-3 right-3 w-5 h-5 rounded-full flex items-center justify-center"
-                            style={{ background: "#C9A84C" }}
-                          >
+                          <div className="absolute top-3 right-3 w-5 h-5 rounded-full flex items-center justify-center" style={{ background: "#C9A84C" }}>
                             <Check className="w-3 h-3" style={{ color: "#080808" }} />
                           </div>
                         )}
                         <span style={{ fontSize: 20 }}>{opt.emoji}</span>
-                        <p
-                          style={{
-                            fontSize: 15,
-                            fontWeight: 600,
-                            color: "#fff",
-                            marginTop: 8,
-                          }}
-                        >
-                          {opt.label}
-                        </p>
-                        <p
-                          style={{
-                            fontSize: 12,
-                            color: "rgba(255,255,255,0.4)",
-                            marginTop: 4,
-                          }}
-                        >
-                          {opt.desc}
-                        </p>
+                        <p style={{ fontSize: 15, fontWeight: 600, color: "#fff", marginTop: 8 }}>{opt.label}</p>
+                        <p style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", marginTop: 4 }}>{opt.desc}</p>
                       </button>
                     );
                   })}
@@ -224,31 +186,11 @@ export function NewDiagnosticFlow({ decision, onComplete }: Props) {
 
         {/* Q3 - Scale selection */}
         {step === 3 && (
-          <div
-            style={{
-              animation: "slideInFromBottom 300ms ease forwards",
-            }}
-          >
-            <p
-              style={{
-                fontSize: 10,
-                fontWeight: 500,
-                color: "rgba(255,255,255,0.3)",
-                letterSpacing: "1.5px",
-                textTransform: "uppercase" as const,
-              }}
-            >
+          <div style={{ animation: "slideInFromBottom 300ms ease forwards" }}>
+            <p style={{ fontSize: 10, fontWeight: 500, color: "rgba(255,255,255,0.3)", letterSpacing: "1.5px", textTransform: "uppercase" }}>
               STEP 3 OF 3
             </p>
-            <h2
-              style={{
-                fontSize: 22,
-                fontWeight: 600,
-                color: "#fff",
-                marginTop: 8,
-                marginBottom: 16,
-              }}
-            >
+            <h2 style={{ fontSize: 22, fontWeight: 600, color: "#fff", marginTop: 8, marginBottom: 16 }}>
               What is the scale of this decision?
             </h2>
             <div className="grid grid-cols-2 gap-3 diagnostic-grid">
@@ -263,44 +205,21 @@ export function NewDiagnosticFlow({ decision, onComplete }: Props) {
                     style={{
                       padding: 20,
                       borderRadius: 12,
-                      background: selected
-                        ? "rgba(201,168,76,0.06)"
-                        : "rgba(255,255,255,0.03)",
-                      border: selected
-                        ? "1px solid #C9A84C"
-                        : "1px solid rgba(255,255,255,0.06)",
+                      background: selected ? "rgba(201,168,76,0.06)" : "rgba(255,255,255,0.03)",
+                      border: selected ? "1px solid #C9A84C" : "1px solid rgba(255,255,255,0.06)",
                       opacity: dimmed ? 0.5 : 1,
                       transform: selected ? "scale(1.02)" : "scale(1)",
+                      minHeight: 48,
                     }}
                   >
                     {selected && (
-                      <div
-                        className="absolute top-3 right-3 w-5 h-5 rounded-full flex items-center justify-center"
-                        style={{ background: "#C9A84C" }}
-                      >
+                      <div className="absolute top-3 right-3 w-5 h-5 rounded-full flex items-center justify-center" style={{ background: "#C9A84C" }}>
                         <Check className="w-3 h-3" style={{ color: "#080808" }} />
                       </div>
                     )}
                     <span style={{ fontSize: 20 }}>{opt.emoji}</span>
-                    <p
-                      style={{
-                        fontSize: 15,
-                        fontWeight: 600,
-                        color: "#fff",
-                        marginTop: 8,
-                      }}
-                    >
-                      {opt.label}
-                    </p>
-                    <p
-                      style={{
-                        fontSize: 12,
-                        color: "rgba(255,255,255,0.4)",
-                        marginTop: 4,
-                      }}
-                    >
-                      {opt.desc}
-                    </p>
+                    <p style={{ fontSize: 15, fontWeight: 600, color: "#fff", marginTop: 8 }}>{opt.label}</p>
+                    <p style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", marginTop: 4 }}>{opt.desc}</p>
                   </button>
                 );
               })}
