@@ -1,18 +1,18 @@
 import { z } from "zod";
 
 export const AuditResultSchema = z.object({
-  confidence_score: z.number().int().min(0).max(100),
-  confidence_rationale: z.string().min(1).max(220),
+  confidence_score: z.number().min(0).max(100).transform(v => Math.round(v)),
+  confidence_rationale: z.string().min(1),
   verdict: z.enum(["PROCEED", "CONDITIONAL PROCEED", "DO NOT PROCEED", "DEFER — INFORMATION NEEDED"]),
-  biggest_risk: z.string().min(1).max(220),
-  hidden_assumption: z.string().min(1).max(220),
-  better_question: z.string().min(1).max(220),
-  devils_advocate: z.string().min(1).max(320),
-  stakeholder_gap: z.string().min(1).max(220),
-  thirty_day_test: z.string().min(1).max(320),
-  assumptions_to_validate: z.array(z.string().max(220)).min(1).max(3).default([]),
-  risk_register: z.array(z.string().max(220)).min(1).max(3).default([]),
-  information_needed: z.array(z.string().max(220)).min(1).max(3).default([]),
+  biggest_risk: z.string().min(1),
+  hidden_assumption: z.string().min(1),
+  better_question: z.string().min(1),
+  devils_advocate: z.string().min(1),
+  stakeholder_gap: z.string().min(1),
+  thirty_day_test: z.string().min(1),
+  assumptions_to_validate: z.array(z.string()).min(1).transform(a => a.slice(0, 3)),
+  risk_register: z.array(z.string()).min(1).transform(a => a.slice(0, 3)),
+  information_needed: z.array(z.string()).min(1).transform(a => a.slice(0, 3)),
 });
 
 export type AuditResult = z.infer<typeof AuditResultSchema>;
