@@ -19,7 +19,7 @@ const Index = () => {
   const [phase, setPhase] = useState<Phase>("landing");
   const [decision, setDecision] = useState("");
   const [lens, setLens] = useState<FocusLens>("risk");
-  const [scale, setScale] = useState<DecisionScale>("tactical");
+  const [scale, setScale] = useState<DecisionScale>("company");
   const [result, setResult] = useState<AuditResult | null>(null);
   const [auditId, setAuditId] = useState("");
   const [landingExiting, setLandingExiting] = useState(false);
@@ -41,8 +41,8 @@ const Index = () => {
   const handleSkipDiagnostic = useCallback(() => {
     // Use defaults and go straight to processing
     setLens("risk");
-    setScale("tactical");
-    startProcessing("risk", "tactical");
+    setScale("company");
+    startProcessing("risk", "company");
   }, [decision]);
 
   const handleDiagnosticComplete = useCallback(

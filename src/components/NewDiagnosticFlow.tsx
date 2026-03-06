@@ -11,15 +11,15 @@ interface Props {
 const lensOptions: { key: FocusLens; emoji: string; label: string; desc: string }[] = [
   { key: "risk", emoji: "🛡️", label: "Risk", desc: "What could go wrong?" },
   { key: "speed", emoji: "⚡", label: "Speed", desc: "How fast can we move?" },
-  { key: "board", emoji: "👔", label: "Board Alignment", desc: "Will stakeholders back this?" },
+  { key: "board", emoji: "👔", label: "Board Readiness", desc: "Will the board back this?" },
   { key: "confidence", emoji: "📊", label: "Confidence", desc: "Do we have enough data?" },
 ];
 
 const scaleOptions: { key: DecisionScale; emoji: string; label: string; desc: string }[] = [
-  { key: "tactical", emoji: "🚀", label: "Startup / Small Team", desc: "Under 20 people affected" },
-  { key: "operational", emoji: "🏢", label: "Department", desc: "One business unit" },
-  { key: "strategic", emoji: "🏛️", label: "Organisation", desc: "Company-wide impact" },
-  { key: "existential", emoji: "🌍", label: "Market / Industry", desc: "Sector-level consequences" },
+  { key: "team", emoji: "🚀", label: "Team", desc: "Under 20 people affected" },
+  { key: "department", emoji: "🏢", label: "Department", desc: "One business unit" },
+  { key: "company", emoji: "🏛️", label: "Company", desc: "Company-wide impact" },
+  { key: "bet-the-company", emoji: "🌍", label: "Bet-the-Company", desc: "Sector-level consequences" },
 ];
 
 type Step = 2 | 3;

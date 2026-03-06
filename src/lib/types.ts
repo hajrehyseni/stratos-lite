@@ -25,7 +25,7 @@ export interface AuditData {
 }
 
 export type FocusLens = 'risk' | 'speed' | 'board' | 'confidence';
-export type DecisionScale = 'tactical' | 'operational' | 'strategic' | 'existential';
+export type DecisionScale = 'team' | 'department' | 'company' | 'bet-the-company';
 
 export interface DiagnosticAnswers {
   decision: string;

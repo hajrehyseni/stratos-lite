@@ -79,7 +79,7 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
   };
 
   const deepDiveItems = [
-    { label: "Hidden Assumption", value: result.hidden_assumption },
+    { label: "Devil's Advocate", value: result.devils_advocate },
     { label: "30-Day Validation Test", value: result.thirty_day_test },
   ];
 
@@ -153,7 +153,7 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
           {[
             { label: "Biggest Risk", value: result.biggest_risk },
-            { label: "Devil's Advocate", value: result.devils_advocate },
+            { label: "Hidden Assumption", value: result.hidden_assumption },
             { label: "Stakeholder Blind Spot", value: result.stakeholder_gap },
           ].map((card) => (
             <div key={card.label} className="rounded-lg px-5 py-4" style={cardBase}>
@@ -224,6 +224,27 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
                 <Download className="w-4 h-4" />
                 Download PDF
               </button>
+              {onSaveToJournal && !journalSaved && (
+                <button
+                  onClick={onSaveToJournal}
+                  className="flex-1 flex items-center justify-center gap-2 transition-all duration-200"
+                  style={{ ...btnStyle, border: "1px solid #C9A84C", background: "transparent", color: "#C9A84C" }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = "#C9A84C"; e.currentTarget.style.color = "#080808"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#C9A84C"; }}
+                >
+                  <BookmarkPlus className="w-4 h-4" />
+                  Save to Journal
+                </button>
+              )}
+              {journalSaved && (
+                <div
+                  className="flex-1 flex items-center justify-center gap-2"
+                  style={{ ...btnStyle, border: "1px solid rgba(201,168,76,0.3)", color: "rgba(201,168,76,0.6)" }}
+                >
+                  <Check className="w-4 h-4" />
+                  Saved
+                </div>
+              )}
             </div>
 
             {/* 30-Day Loop */}

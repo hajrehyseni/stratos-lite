@@ -16,10 +16,10 @@ const lensLabels: Record<FocusLens, string> = {
 };
 
 const scaleLabels: Record<DecisionScale, string> = {
-  tactical: "Startup / Small Team",
-  operational: "Department",
-  strategic: "Organisation",
-  existential: "Market / Industry",
+  "team": "Team",
+  "department": "Department",
+  "company": "Company",
+  "bet-the-company": "Bet-the-Company",
 };
 
 const analysisSteps = (lens: FocusLens, scale: DecisionScale) => [
