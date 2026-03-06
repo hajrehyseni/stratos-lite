@@ -29,10 +29,10 @@ const focusOptions: { key: FocusLens; letter: string; title: string; desc: strin
 ];
 
 const scaleOptions: { key: DecisionScale; title: string; line1: string; line2: string }[] = [
-  { key: "tactical", title: "TACTICAL", line1: "Low stakes · Reversible in weeks", line2: "A hire, a campaign, a test." },
-  { key: "operational", title: "OPERATIONAL", line1: "Moderate · Reversible in months", line2: "A process change, a partnership, a market test." },
-  { key: "strategic", title: "STRATEGIC", line1: "High stakes · 1–2 year horizon", line2: "Expansion, funding, major restructure." },
-  { key: "existential", title: "EXISTENTIAL", line1: "Company-shaping · Near-irreversible", line2: "Acquisition, major pivot, defining capital event." },
+  { key: "team", title: "TEAM", line1: "Low stakes · Reversible in weeks", line2: "A hire, a campaign, a test." },
+  { key: "department", title: "DEPARTMENT", line1: "Moderate · Reversible in months", line2: "A process change, a partnership, a market test." },
+  { key: "company", title: "COMPANY", line1: "High stakes · 1–2 year horizon", line2: "Expansion, funding, major restructure." },
+  { key: "bet-the-company", title: "BET-THE-COMPANY", line1: "Company-shaping · Near-irreversible", line2: "Acquisition, major pivot, defining capital event." },
 ];
 
 function getSignalLevel(len: number): number {
