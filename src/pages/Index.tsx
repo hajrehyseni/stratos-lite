@@ -2,9 +2,9 @@ import { useState, useRef, useCallback } from "react";
 import { NavBar } from "@/components/NavBar";
 import { Scorecard } from "@/components/Scorecard";
 import { HomepageLanding } from "@/components/HomepageLanding";
-import { NewDiagnosticFlow } from "@/components/NewDiagnosticFlow";
+import { NewDiagnosticFlow, DiagnosticResult } from "@/components/NewDiagnosticFlow";
 import { NewProcessingState } from "@/components/NewProcessingState";
-import { AuditResult, AuditResultSchema, FocusLens, DecisionScale } from "@/lib/types";
+import { AuditResult, AuditResultSchema } from "@/lib/types";
 import { saveJournalEntry, getJournalCount } from "@/lib/journal";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -15,11 +15,18 @@ function generateId(): string {
 
 type Phase = "landing" | "diagnostic" | "processing" | "result";
 
+const SKIP_DEFAULTS: DiagnosticResult = {
+  stakes: "",
+  decision_type: "risk",
+  blast_radius: "company",
+  primary_constraint: "data",
+  success_vision: "",
+};
+
 const Index = () => {
   const [phase, setPhase] = useState<Phase>("landing");
   const [decision, setDecision] = useState("");
-  const [lens, setLens] = useState<FocusLens>("risk");
-  const [scale, setScale] = useState<DecisionScale>("company");
+  const [diagnosticResult, setDiagnosticResult] = useState<DiagnosticResult>(SKIP_DEFAULTS);
   const [result, setResult] = useState<AuditResult | null>(null);
   const [auditId, setAuditId] = useState("");
   const [landingExiting, setLandingExiting] = useState(false);
@@ -39,22 +46,19 @@ const Index = () => {
   };
 
   const handleSkipDiagnostic = useCallback(() => {
-    // Use defaults and go straight to processing
-    setLens("risk");
-    setScale("company");
-    startProcessing("risk", "company");
+    setDiagnosticResult(SKIP_DEFAULTS);
+    startProcessing(SKIP_DEFAULTS);
   }, [decision]);
 
   const handleDiagnosticComplete = useCallback(
-    (selectedLens: FocusLens, selectedScale: DecisionScale) => {
-      setLens(selectedLens);
-      setScale(selectedScale);
-      startProcessing(selectedLens, selectedScale);
+    (dr: DiagnosticResult) => {
+      setDiagnosticResult(dr);
+      startProcessing(dr);
     },
     [decision]
   );
 
-  const startProcessing = (selectedLens: FocusLens, selectedScale: DecisionScale) => {
+  const startProcessing = (dr: DiagnosticResult) => {
     setPhase("processing");
     apiResolved.current = false;
     setApiResolvedState(false);
@@ -63,7 +67,14 @@ const Index = () => {
     (async () => {
       try {
         const { data, error } = await supabase.functions.invoke("audit", {
-          body: { decision: decision.trim(), lens: selectedLens, scale: selectedScale },
+          body: {
+            decision: decision.trim(),
+            stakes: dr.stakes,
+            decision_type: dr.decision_type,
+            blast_radius: dr.blast_radius,
+            primary_constraint: dr.primary_constraint,
+            success_vision: dr.success_vision,
+          },
         });
         if (error) throw error;
         const parsed = AuditResultSchema.parse(data);
@@ -100,8 +111,8 @@ const Index = () => {
     setDecision(prefill || "");
     setAuditId("");
     setJournalSaved(false);
+    setDiagnosticResult(SKIP_DEFAULTS);
     if (prefill && prefill.length >= 20) {
-      // Auto-submit for Audit the Opposite
       setPhase("diagnostic");
     } else {
       setPhase("landing");
@@ -164,8 +175,8 @@ const Index = () => {
 
       {phase === "processing" && (
         <NewProcessingState
-          lens={lens}
-          scale={scale}
+          lens={diagnosticResult.decision_type as any}
+          scale={diagnosticResult.blast_radius as any}
           onApiReady={handleProcessingDone}
           apiResolved={apiResolvedState}
         />

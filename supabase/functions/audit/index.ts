@@ -98,20 +98,28 @@ NEVER output these: "It depends on", "Consider the implications", "Various stake
 
 </banned_output_patterns>`;
 
-function buildUserMessage(decision: string, lens?: string, scale?: string): string {
-  const focusLens = lens || "infer the most relevant lens from the decision context";
-  const decisionScale = scale || "infer the scale from the financial and organisational indicators in the decision";
-  return `<decision_context>
-
-<decision_text>${decision}</decision_text>
-
-<focus_lens>${focusLens}</focus_lens>
-
-<decision_scale>${decisionScale}</decision_scale>
-
-</decision_context>
+function buildUserMessage(
+  decision: string,
+  stakes?: string,
+  decision_type?: string,
+  blast_radius?: string,
+  primary_constraint?: string,
+  success_vision?: string,
+): string {
+  const dt = decision_type || "risk";
+  const br = blast_radius || "company";
+  const pc = primary_constraint || "data";
+  let xml = `<decision_context>
+  <decision_text>${decision}</decision_text>`;
+  if (stakes && stakes.trim()) xml += `\n  <stakes>${stakes.trim()}</stakes>`;
+  xml += `\n  <decision_type>${dt}</decision_type>`;
+  xml += `\n  <blast_radius>${br}</blast_radius>`;
+  xml += `\n  <primary_constraint>${pc}</primary_constraint>`;
+  if (success_vision && success_vision.trim()) xml += `\n  <success_vision>${success_vision.trim()}</success_vision>`;
+  xml += `\n</decision_context>
 
 Perform the full decision audit. Return only the JSON object, no preamble.`;
+  return xml;
 }
 
 // Rate limiting
@@ -144,7 +152,7 @@ serve(async (req) => {
     }
 
     const body = await req.json();
-    const { decision, lens, scale } = body;
+    const { decision, stakes, decision_type, blast_radius, primary_constraint, success_vision } = body;
 
     if (!decision || typeof decision !== "string" || decision.trim().length < 20) {
       return new Response(JSON.stringify({ error: "Decision must be at least 20 characters" }), {
@@ -153,7 +161,7 @@ serve(async (req) => {
       });
     }
 
-    const userMessage = buildUserMessage(decision.trim(), lens, scale);
+    const userMessage = buildUserMessage(decision.trim(), stakes, decision_type, blast_radius, primary_constraint, success_vision);
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
