@@ -41,8 +41,8 @@ const Index = () => {
   const handleSkipDiagnostic = useCallback(() => {
     // Use defaults and go straight to processing
     setLens("risk");
-    setScale("tactical");
-    startProcessing("risk", "tactical");
+    setScale("company");
+    startProcessing("risk", "company");
   }, [decision]);
 
   const handleDiagnosticComplete = useCallback(
