@@ -60,6 +60,18 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
     }
   };
 
+  const handleShare = async () => {
+    try {
+      const payload = { decision, result };
+      const encoded = encodeURIComponent(JSON.stringify(payload));
+      const url = `${window.location.origin}/r/${auditId}#${encoded}`;
+      await navigator.clipboard.writeText(url);
+      toast.success("Share link copied to clipboard");
+    } catch {
+      toast.error("Failed to copy share link");
+    }
+  };
+
   const handleAuditOpposite = () => {
     const inverse = `NOT: ${decision}`;
     onReset(inverse);
