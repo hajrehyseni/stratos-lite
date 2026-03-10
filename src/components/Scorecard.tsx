@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Copy, Download, Check, BookmarkPlus, ChevronDown } from "lucide-react";
+import { Copy, Download, Check, BookmarkPlus, ChevronDown, Share2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import type { AuditResult } from "@/lib/types";
 import { generateBrief } from "@/lib/copy-brief";
