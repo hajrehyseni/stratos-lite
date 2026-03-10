@@ -236,6 +236,16 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
                 <Download className="w-4 h-4" />
                 Download PDF
               </button>
+              <button
+                onClick={handleShare}
+                className="flex-1 flex items-center justify-center gap-2 transition-all duration-200"
+                style={{ ...btnStyle, border: "1px solid #1A1A1A", background: "transparent", color: "rgba(232,228,223,0.8)" }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = "#0F0F0F"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+              >
+                <Share2 className="w-4 h-4" />
+                Share Link
+              </button>
               {onSaveToJournal && !journalSaved && (
                 <button
                   onClick={onSaveToJournal}
