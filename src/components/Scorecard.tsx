@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Copy, Download, Check, BookmarkPlus, ChevronDown } from "lucide-react";
+import { Copy, Download, Check, BookmarkPlus, ChevronDown, Share2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import type { AuditResult } from "@/lib/types";
 import { generateBrief } from "@/lib/copy-brief";
@@ -57,6 +57,18 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
       toast.success("PDF downloaded");
     } catch {
       toast.error("Failed to generate PDF");
+    }
+  };
+
+  const handleShare = async () => {
+    try {
+      const payload = { decision, result };
+      const encoded = encodeURIComponent(JSON.stringify(payload));
+      const url = `${window.location.origin}/r/${auditId}#${encoded}`;
+      await navigator.clipboard.writeText(url);
+      toast.success("Share link copied to clipboard");
+    } catch {
+      toast.error("Failed to copy share link");
     }
   };
 
@@ -223,6 +235,16 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
               >
                 <Download className="w-4 h-4" />
                 Download PDF
+              </button>
+              <button
+                onClick={handleShare}
+                className="flex-1 flex items-center justify-center gap-2 transition-all duration-200"
+                style={{ ...btnStyle, border: "1px solid #1A1A1A", background: "transparent", color: "rgba(232,228,223,0.8)" }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = "#0F0F0F"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+              >
+                <Share2 className="w-4 h-4" />
+                Share Link
               </button>
               {onSaveToJournal && !journalSaved && (
                 <button
