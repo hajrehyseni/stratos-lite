@@ -59,6 +59,13 @@ export default function JournalPage() {
                 <h1 className="text-[11px] font-medium uppercase" style={{ letterSpacing: "0.1em", color: "rgba(201,168,76,0.6)" }}>
                   Decision Journal
                 </h1>
+                {entries.length > 0 && (
+                  <p style={{ fontSize: 14, color: "rgba(232,228,223,0.5)" }}>
+                    Average Readiness: <span style={{ color: "#C9A84C", fontWeight: 600 }}>
+                      {Math.round(entries.reduce((sum, e) => sum + e.result.confidence_score, 0) / entries.length)}
+                    </span>/100
+                  </p>
+                )}
               </div>
 
               {/* Dashboard banner */}
