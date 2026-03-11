@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { getJournalEntries, deleteJournal } from "@/lib/journal";
 import type { JournalEntry } from "@/lib/types";
+import { useAuth } from "@/contexts/AuthContext";
 import { NavBar } from "@/components/NavBar";
 import { toast } from "sonner";
 import { Trash2 } from "lucide-react";
