@@ -189,6 +189,7 @@ const Index = () => {
     setAuditId("");
     setJournalSaved(false);
     setDiagnosticResult(SKIP_DEFAULTS);
+    clearDiagnosticSession();
     if (prefill && prefill.length >= 20) {
       setPhase("diagnostic");
     } else {
