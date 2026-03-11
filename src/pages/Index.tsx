@@ -202,7 +202,9 @@ const Index = () => {
     setJournalSaved(false);
     setDiagnosticResult(SKIP_DEFAULTS);
     clearDiagnosticSession();
+    sessionStorage.removeItem("stratos_diag_decision");
     if (prefill && prefill.length >= 20) {
+      sessionStorage.setItem("stratos_diag_decision", prefill);
       setPhase("diagnostic");
     } else {
       setPhase("landing");
