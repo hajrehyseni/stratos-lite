@@ -1,18 +1,68 @@
 import { z } from "zod";
 
+const StakeholderEntrySchema = z.object({
+  role: z.string(),
+  position: z.enum(["Support", "Oppose", "Neutral"]),
+  influence: z.enum(["High", "Medium", "Low"]),
+  action: z.string(),
+});
+
+const MeceBranchSchema = z.object({
+  title: z.string(),
+  findings: z.array(z.string()).min(2).max(3),
+});
+
 export const AuditResultSchema = z.object({
   confidence_score: z.number().min(0).max(100).transform(v => Math.round(v)),
-  confidence_rationale: z.string().min(1),
   verdict: z.enum(["PROCEED", "CONDITIONAL PROCEED", "DO NOT PROCEED", "DEFER — INFORMATION NEEDED"]),
-  biggest_risk: z.string().min(1),
-  hidden_assumption: z.string().min(1),
-  better_question: z.string().min(1),
-  devils_advocate: z.string().min(1),
-  stakeholder_gap: z.string().min(1),
-  thirty_day_test: z.string().min(1),
-  assumptions_to_validate: z.array(z.string()).min(1).transform(a => a.slice(0, 3)),
-  risk_register: z.array(z.string()).min(1).transform(a => a.slice(0, 3)),
-  information_needed: z.array(z.string()).min(1).transform(a => a.slice(0, 3)),
+  verdict_rationale: z.string().default(""),
+
+  decision_domain: z.enum(["CLEAR", "COMPLICATED", "COMPLEX", "CHAOTIC"]).nullable().optional(),
+  decision_domain_approach: z.string().nullable().optional(),
+
+  reframe_question: z.string().default(""),
+
+  mece_tree: z.object({
+    branches: z.array(MeceBranchSchema).min(1).max(6),
+  }).nullable().optional(),
+
+  pre_mortem_narrative: z.string().nullable().optional(),
+
+  time_horizon: z.object({
+    ten_minutes: z.string(),
+    ten_months: z.string(),
+    ten_years: z.string(),
+  }).nullable().optional(),
+
+  rapid: z.object({
+    recommend: z.string(),
+    agree: z.string(),
+    perform: z.string(),
+    input: z.string(),
+    decide: z.string(),
+  }).nullable().optional(),
+
+  second_order_chain: z.string().nullable().optional(),
+
+  opportunity_cost: z.array(z.string()).max(2).nullable().optional(),
+
+  stakeholder_map: z.array(StakeholderEntrySchema).nullable().optional(),
+
+  biggest_risk: z.string().default(""),
+  hidden_assumption: z.string().default(""),
+  stakeholder_blind_spot: z.string().default(""),
+  devils_advocate: z.string().default(""),
+  validation_test_30_day: z.string().default(""),
+
+  assumptions_to_validate: z.array(z.string()).max(3).default([]),
+  risk_register: z.array(z.string()).max(3).default([]),
+  information_needed: z.array(z.string()).max(3).default([]),
+
+  // Legacy field aliases — keep backward compat for shared links
+  confidence_rationale: z.string().optional(),
+  better_question: z.string().optional(),
+  stakeholder_gap: z.string().optional(),
+  thirty_day_test: z.string().optional(),
 });
 
 export type AuditResult = z.infer<typeof AuditResultSchema>;

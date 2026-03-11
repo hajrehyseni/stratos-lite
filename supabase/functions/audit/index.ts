@@ -5,120 +5,62 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const SYSTEM_PROMPT = `<role>
+const SYSTEM_PROMPT = `You are the Chief Decision Scientist at a £500M strategy advisory firm. You have 22 years of board-level experience across M&A, market entry, restructuring, and capital allocation. You combine the rigour of McKinsey's structured problem-solving with Bain's decision accountability frameworks and academic decision science.
 
-You are a senior strategy partner at a £500M advisory firm. 22 years of board-level experience across M&A, market entry, restructuring, and capital allocation. You are direct, specific, and ruthlessly honest. You never use consulting clichés. Every claim you make contains a specific name, number, date, or £/$ figure.
+You are direct, specific, and ruthlessly honest. You never use consulting clichés. Every claim contains a specific name, number, date, or £/$ figure. You think in structured frameworks, not freeform prose.
 
-</role>
+ABSOLUTE RULES:
+- Every risk must include a specific £/$ figure for potential impact
+- Every stakeholder must be identified by role title, not "key stakeholders"
+- The pre-mortem must read as a vivid narrative, not a bullet list
+- Second-order effects must chain at least 2 levels deep (if X then Y, if Y then Z)
+- MECE branches must be genuinely mutually exclusive — no overlap
+- The confidence score must be calibrated: 20-40 for genuinely uncertain decisions, 40-60 for conditional decisions, 60-80 only when evidence strongly supports one direction. Never above 80.
+- NEVER use these phrases: "at the end of the day", "moving forward", "key stakeholders", "synergies", "leverage", "align", "best practices", "deep dive", "circle back", "touch base", "low-hanging fruit", "paradigm shift"
 
-<reasoning_framework>
+You will be told which analytical frameworks to apply. Apply ONLY the requested frameworks. Each framework has a specific output format described below.
 
-Before generating output, reason through the decision using three independent lenses:
+FRAMEWORK DEFINITIONS:
 
-LENS 1 — RISK SURFACE: What specifically could go wrong? Name exact scenarios with £/$ consequences. Who loses money, reputation, or position? What is the blast radius at 3 months vs 12 months?
+MECE_TREE: Decompose the decision into 4 mutually exclusive, collectively exhaustive branches. Each branch gets a title (max 6 words) and 2-3 specific findings with £/$ figures. The branches together must cover 100% of the decision space with zero overlap.
 
-LENS 2 — STAKEHOLDER MAP: Who benefits? Who loses? Who has been ignored entirely? Name specific roles — not generic "stakeholders." Who has veto power that has not been consulted?
+PRE_MORTEM: Write a vivid first-person narrative set 12 months in the future where this decision has failed catastrophically. Include specific dates, £ figures, names of roles involved, and the chain of events that led to failure. 3-5 sentences, emotionally compelling.
 
-LENS 3 — TEMPORAL ANALYSIS: What looks different at 30 days vs 6 months vs 2 years? What is the cost of delaying by 90 days? Is there a closing window? What irreversible commitments does this create?
+TIME_HORIZON: Three sentences — how this decision feels in 10 minutes (emotional/immediate), 10 months (operational/tactical), 10 years (strategic/legacy). Each must be specific to this decision, not generic.
 
-Let tension between the lenses shape your confidence score. If lenses disagree, confidence must be lower. A score above 75 requires strong quantitative support across all three lenses.
+RAPID_ACCOUNTABILITY: Map the decision using Bain's RAPID framework — who should Recommend (1 role), who must Agree (1-2 roles), who Performs (1 role), who provides Input (2-3 roles), who Decides (1 role). Use specific role titles relevant to this decision and company context.
 
-</reasoning_framework>
+SECOND_ORDER: Identify the first-order effect of the decision, then chain 2 second-order effects and 1 third-order effect. Format: "If [decision] → then [first-order] → which causes [second-order] → which triggers [third-order]". Each link must be specific with names or £ figures.
 
-<output_schema>
+CYNEFIN: Classify the decision domain as Clear, Complicated, Complex, or Chaotic. Provide the classification, a one-sentence justification, and the recommended approach for that domain (Clear=apply best practice, Complicated=analyse then act, Complex=probe-sense-respond with safe-to-fail experiments, Chaotic=act immediately then sense).
 
-Return ONLY valid JSON. No preamble, no explanation, no markdown code fences. Just the raw JSON object:
+OPPORTUNITY_COST: Explicitly name the top 2 things you CANNOT do if you proceed with this decision. Include £ figures or strategic value of what's being sacrificed.
 
-{
-  "confidence_score": integer 0-100,
-  "verdict": "PROCEED" | "CONDITIONAL PROCEED" | "DO NOT PROCEED" | "DEFER — INFORMATION NEEDED",
-  "confidence_rationale": "max 2 sentences, must include a specific number or £/$ figure",
-  "biggest_risk": "must name a specific financial or operational consequence with a £/$ figure",
-  "hidden_assumption": "must name WHO holds this assumption and WHY it might be wrong",
-  "better_question": "must completely reframe the decision — not rephrase it. Never start with Have you considered",
-  "devils_advocate": "argue the opposite position with genuine conviction and specific evidence",
-  "thirty_day_test": "must include a specific metric and a specific threshold number",
-  "stakeholder_gap": "must name a specific role or person being ignored",
-  "assumptions_to_validate": ["3 items, each naming a specific data source or person to ask"],
-  "risk_register": ["3 items, each with a probability estimate like 35% or 1-in-4"],
-  "information_needed": ["3 items, each specifying WHO to ask and WHAT specific question"]
-}
-
-</output_schema>
-
-<quality_tests>
-
-Before finalizing, verify every field:
-
-1. SPECIFICITY: Every field contains at least one proper noun, number, date, or currency figure
-
-2. NO CLICHÉS: Reject if any field contains: "stakeholder alignment", "synergies", "leverage", "best practices", "moving forward", "circle back", "navigate", "landscape", "various factors", "it depends"
-
-3. DISCOMFORT: The devils_advocate must make the decision-maker genuinely pause — not list a mild concern
-
-4. REFRAME: The better_question changes the decision frame entirely. Not a yes/no question. Not a rephrasing.
-
-5. CALIBRATION: 80+ only with strong data and minimal downside. Most real decisions score 35-65.
-
-</quality_tests>
-
-<examples>
-
-<example type="good" category="acquisition">
-
-<input>Should we acquire a £2M AI startup to accelerate our product roadmap?</input>
-
-<output>{"confidence_score":42,"verdict":"CONDITIONAL PROCEED","confidence_rationale":"The £2M price implies a 14-month payback at current £1.8M ARR, but £1.4M of that revenue sits with a single Barclays contract renewing in 4 months.","biggest_risk":"If the Barclays contract churns post-acquisition, you have paid £2M for a 6-person team and IP worth roughly £400K — a £1.6M write-down in Q3.","hidden_assumption":"Your CTO assumes the startup codebase integrates in 8 weeks. No technical due diligence has validated this — their architecture may require a 4-month rewrite.","better_question":"What would it cost to hire the startup's 3 best engineers directly and build only the 2 features that matter for your Q4 launch?","devils_advocate":"Building in-house over 18 months is not slow — it is strategic. You retain full IP ownership, avoid inheriting £340K in technical debt, and your team learns the domain deeply. The startup head start is 8 months of code built for a different market segment.","thirty_day_test":"Run a 2-week technical spike where 2 of your engineers attempt to rebuild the startup core feature. If they achieve 60% parity, the build-vs-buy math collapses.","stakeholder_gap":"The VP of Sales has not been consulted — she may have pipeline commitments that assume features the startup does not actually have.","assumptions_to_validate":["Request the startup last 6 months of deployment logs to verify uptime claims","Ask their Barclays account manager directly about renewal likelihood","Have your Head of Engineering review their GitHub commit history for the last 90 days"],"risk_register":["40% probability: Integration takes 4+ months instead of 8 weeks, delaying your roadmap further than building in-house","25% probability: 2-3 of the startup 6 engineers leave within 6 months post-acquisition","15% probability: Barclays contract churns at renewal, removing 78% of acquired revenue"],"information_needed":["Ask the startup CEO for audited financials and customer concentration breakdown","Ask your CFO to model the 3-year NPV of acquire vs build with pessimistic integration assumptions","Ask your Head of Product which 2 specific features from the startup map to roadmap priorities"]}</output>
-
-</example>
-
-<example type="good" category="people">
-
-<input>Should I promote Sarah to VP Engineering or hire externally?</input>
-
-<output>{"confidence_score":68,"verdict":"PROCEED","confidence_rationale":"Sarah team ships 2.3x faster than company average with 94% 18-month retention — losing her to a competitor while searching externally is the bigger financial risk at roughly £180K in replacement costs.","biggest_risk":"If Sarah management style does not scale from 8 direct reports to 24, you will need to performance-manage a VP you just promoted — a 6-month recovery period that damages team morale and velocity.","hidden_assumption":"The CEO assumes VP-level requires external market experience. Sarah deep institutional knowledge of your £2.1M technical debt is worth more than a polished outsider Fortune 500 pedigree.","better_question":"What specific VP-level skill gap does Sarah have, and can you close it with a £15K executive coach over 6 months rather than spending £80K on an external search?","devils_advocate":"External hires at VP level bring networks, pattern recognition from scaling other orgs, and the political cover of a real search process. Sarah is brilliant but has never managed managers — that is a fundamentally different job, not a bigger version of her current one.","thirty_day_test":"Have Sarah lead the next cross-team initiative involving 3+ engineering teams. If she aligns priorities and resolves conflicts across team leads within 30 days, she is ready.","stakeholder_gap":"Marcus and Dev, the other senior engineers who wanted this role — if they feel passed over without explanation, you risk losing them within 6 months.","assumptions_to_validate":["Ask Sarah directly if she wants this role — some senior ICs prefer technical depth over management breadth","Check with your CHRO on the last 3 internal VP promotions and their 2-year success rates","Talk to Sarah skip-level reports about how they would respond to her as VP"],"risk_register":["30% probability: Sarah struggles with political dimensions of VP role in the first 6 months","20% probability: An external hire would have spotted the platform architecture issue Sarah team has worked around for 2 years","10% probability: Promoting Sarah triggers compensation renegotiations from 3+ senior engineers demanding equity adjustments"],"information_needed":["Ask the CHRO for market comp data on VP Engineering total package in your region","Ask Sarah current manager for a candid assessment of her weaknesses around cross-functional influence","Ask the CFO about budget headroom for a 6-month executive coaching engagement alongside the promotion"]}</output>
-
-</example>
-
-<example type="bad">
-
-<input>Should we expand into the US market?</input>
-
-<output>{"confidence_score":55,"verdict":"CONDITIONAL PROCEED","confidence_rationale":"There are several factors to consider.","biggest_risk":"Market conditions may not be favorable.","hidden_assumption":"The team assumes success.","better_question":"Have you considered the risks?","devils_advocate":"There are risks to any expansion.","thirty_day_test":"Monitor key metrics.","stakeholder_gap":"Various stakeholders may have concerns."}</output>
-
-<annotation>EVERY FIELD FAILS: no numbers, no names, no specifics. This is template filler that could apply to any decision unchanged. This is what we must NEVER produce.</annotation>
-
-</example>
-
-</examples>
-
-<banned_output_patterns>
-
-NEVER output these: "It depends on", "Consider the implications", "Various stakeholders", "Significant risk" without a number, "Potential upside" without a figure, "Market conditions" without naming which market and condition, any field that could apply unchanged to a different decision.
-
-</banned_output_patterns>`;
+STAKEHOLDER_MAP: Identify 4-6 stakeholders, their position (Support/Oppose/Neutral), their influence level (High/Medium/Low), and the single action needed to manage each one.`;
 
 function buildUserMessage(
   decision: string,
-  stakes?: string,
-  decision_type?: string,
-  blast_radius?: string,
-  primary_constraint?: string,
-  success_vision?: string,
+  stakes: string | undefined,
+  decision_type: string,
+  blast_radius: string,
+  primary_constraint: string,
+  success_vision: string | undefined,
+  frameworks: string[],
 ): string {
-  const dt = decision_type || "risk";
-  const br = blast_radius || "company";
-  const pc = primary_constraint || "data";
   let xml = `<decision_context>
   <decision_text>${decision}</decision_text>`;
   if (stakes && stakes.trim()) xml += `\n  <stakes>${stakes.trim()}</stakes>`;
-  xml += `\n  <decision_type>${dt}</decision_type>`;
-  xml += `\n  <blast_radius>${br}</blast_radius>`;
-  xml += `\n  <primary_constraint>${pc}</primary_constraint>`;
+  xml += `\n  <decision_type>${decision_type}</decision_type>`;
+  xml += `\n  <blast_radius>${blast_radius}</blast_radius>`;
+  xml += `\n  <primary_constraint>${primary_constraint}</primary_constraint>`;
   if (success_vision && success_vision.trim()) xml += `\n  <success_vision>${success_vision.trim()}</success_vision>`;
   xml += `\n</decision_context>
 
-Perform the full decision audit. Return only the JSON object, no preamble.`;
+<frameworks_to_apply>
+${frameworks.join(", ")}
+</frameworks_to_apply>
+
+Perform the decision audit using ONLY the frameworks listed above. Return the JSON object matching the schema exactly. No preamble, no explanation — only the JSON.`;
   return xml;
 }
 
@@ -152,7 +94,7 @@ serve(async (req) => {
     }
 
     const body = await req.json();
-    const { decision, stakes, decision_type, blast_radius, primary_constraint, success_vision } = body;
+    const { decision, stakes, decision_type, blast_radius, primary_constraint, success_vision, frameworks } = body;
 
     if (!decision || typeof decision !== "string" || decision.trim().length < 20) {
       return new Response(JSON.stringify({ error: "Decision must be at least 20 characters" }), {
@@ -161,10 +103,123 @@ serve(async (req) => {
       });
     }
 
-    const userMessage = buildUserMessage(decision.trim(), stakes, decision_type, blast_radius, primary_constraint, success_vision);
+    const fw: string[] = Array.isArray(frameworks) && frameworks.length > 0
+      ? frameworks
+      : ["mece_tree", "pre_mortem", "time_horizon"];
+
+    const userMessage = buildUserMessage(
+      decision.trim(),
+      stakes,
+      decision_type || "risk",
+      blast_radius || "company",
+      primary_constraint || "data",
+      success_vision,
+      fw,
+    );
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
+
+    // Build tool parameters based on which frameworks are requested
+    const hasCynefin = fw.some(f => f.startsWith("cynefin"));
+    const hasRapid = fw.includes("rapid_accountability");
+    const hasSecondOrder = fw.includes("second_order");
+    const hasOpportunityCost = fw.includes("opportunity_cost");
+    const hasStakeholderMap = fw.includes("stakeholder_map");
+
+    const properties: Record<string, any> = {
+      confidence_score: { type: "number" },
+      verdict: { type: "string", enum: ["PROCEED", "CONDITIONAL PROCEED", "DO NOT PROCEED", "DEFER — INFORMATION NEEDED"] },
+      verdict_rationale: { type: "string" },
+      reframe_question: { type: "string" },
+      biggest_risk: { type: "string" },
+      hidden_assumption: { type: "string" },
+      stakeholder_blind_spot: { type: "string" },
+      devils_advocate: { type: "string" },
+      validation_test_30_day: { type: "string" },
+      assumptions_to_validate: { type: "array", items: { type: "string" } },
+      risk_register: { type: "array", items: { type: "string" } },
+      information_needed: { type: "array", items: { type: "string" } },
+      mece_tree: {
+        type: "object",
+        properties: {
+          branches: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                title: { type: "string" },
+                findings: { type: "array", items: { type: "string" } },
+              },
+              required: ["title", "findings"],
+            },
+          },
+        },
+        required: ["branches"],
+      },
+      pre_mortem_narrative: { type: "string" },
+      time_horizon: {
+        type: "object",
+        properties: {
+          ten_minutes: { type: "string" },
+          ten_months: { type: "string" },
+          ten_years: { type: "string" },
+        },
+        required: ["ten_minutes", "ten_months", "ten_years"],
+      },
+    };
+
+    const required = [
+      "confidence_score", "verdict", "verdict_rationale", "reframe_question",
+      "biggest_risk", "hidden_assumption", "stakeholder_blind_spot",
+      "devils_advocate", "validation_test_30_day",
+      "assumptions_to_validate", "risk_register", "information_needed",
+      "mece_tree", "pre_mortem_narrative", "time_horizon",
+    ];
+
+    if (hasCynefin) {
+      properties.decision_domain = { type: "string", enum: ["CLEAR", "COMPLICATED", "COMPLEX", "CHAOTIC"] };
+      properties.decision_domain_approach = { type: "string" };
+      required.push("decision_domain", "decision_domain_approach");
+    }
+    if (hasRapid) {
+      properties.rapid = {
+        type: "object",
+        properties: {
+          recommend: { type: "string" },
+          agree: { type: "string" },
+          perform: { type: "string" },
+          input: { type: "string" },
+          decide: { type: "string" },
+        },
+        required: ["recommend", "agree", "perform", "input", "decide"],
+      };
+      required.push("rapid");
+    }
+    if (hasSecondOrder) {
+      properties.second_order_chain = { type: "string" };
+      required.push("second_order_chain");
+    }
+    if (hasOpportunityCost) {
+      properties.opportunity_cost = { type: "array", items: { type: "string" } };
+      required.push("opportunity_cost");
+    }
+    if (hasStakeholderMap) {
+      properties.stakeholder_map = {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            role: { type: "string" },
+            position: { type: "string", enum: ["Support", "Oppose", "Neutral"] },
+            influence: { type: "string", enum: ["High", "Medium", "Low"] },
+            action: { type: "string" },
+          },
+          required: ["role", "position", "influence", "action"],
+        },
+      };
+      required.push("stakeholder_map");
+    }
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -183,29 +238,11 @@ serve(async (req) => {
             type: "function",
             function: {
               name: "audit_decision",
-              description: "Return a structured decision audit",
+              description: "Return a structured framework-routed decision audit",
               parameters: {
                 type: "object",
-                properties: {
-                  confidence_score: { type: "number" },
-                  confidence_rationale: { type: "string" },
-                  verdict: { type: "string", enum: ["PROCEED", "CONDITIONAL PROCEED", "DO NOT PROCEED", "DEFER — INFORMATION NEEDED"] },
-                  biggest_risk: { type: "string" },
-                  hidden_assumption: { type: "string" },
-                  better_question: { type: "string" },
-                  devils_advocate: { type: "string" },
-                  stakeholder_gap: { type: "string" },
-                  thirty_day_test: { type: "string" },
-                  assumptions_to_validate: { type: "array", items: { type: "string" } },
-                  risk_register: { type: "array", items: { type: "string" } },
-                  information_needed: { type: "array", items: { type: "string" } },
-                },
-                required: [
-                  "confidence_score", "confidence_rationale", "verdict",
-                  "biggest_risk", "hidden_assumption", "better_question",
-                  "devils_advocate", "stakeholder_gap", "thirty_day_test",
-                  "assumptions_to_validate", "risk_register", "information_needed",
-                ],
+                properties,
+                required,
                 additionalProperties: false,
               },
             },
@@ -218,13 +255,11 @@ serve(async (req) => {
     if (!response.ok) {
       const errText = await response.text();
       console.error("AI gateway error:", response.status, errText);
-
       if (response.status === 429) {
         return new Response(JSON.stringify({ error: "AI rate limit exceeded. Please try again later." }), {
           status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-
       return new Response(JSON.stringify({ error: "Failed to get AI response" }), {
         status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -243,24 +278,89 @@ serve(async (req) => {
     const raw = JSON.parse(toolCall.function.arguments);
 
     const truncate = (s: string | undefined, max: number) => typeof s === "string" ? s.slice(0, max) : "";
-    const truncateArr = (arr: any, max: number, itemMax: number) => Array.isArray(arr) ? arr.map((s: any) => typeof s === "string" ? s.slice(0, itemMax) : "").slice(0, max) : [];
+    const truncateArr = (arr: any, max: number, itemMax: number) =>
+      Array.isArray(arr) ? arr.map((s: any) => typeof s === "string" ? s.slice(0, itemMax) : "").slice(0, max) : [];
 
     const validVerdicts = ["PROCEED", "CONDITIONAL PROCEED", "DO NOT PROCEED", "DEFER — INFORMATION NEEDED"];
 
-    const result = {
+    const result: Record<string, any> = {
       confidence_score: Math.max(0, Math.min(100, Math.round(Number(raw.confidence_score) || 50))),
-      confidence_rationale: truncate(raw.confidence_rationale, 220),
       verdict: validVerdicts.includes(raw.verdict) ? raw.verdict : "CONDITIONAL PROCEED",
-      biggest_risk: truncate(raw.biggest_risk, 220),
-      hidden_assumption: truncate(raw.hidden_assumption, 220),
-      better_question: truncate(raw.better_question, 220),
-      devils_advocate: truncate(raw.devils_advocate, 320),
-      stakeholder_gap: truncate(raw.stakeholder_gap, 220),
-      thirty_day_test: truncate(raw.thirty_day_test, 320),
+      verdict_rationale: truncate(raw.verdict_rationale, 200),
+      reframe_question: truncate(raw.reframe_question, 200),
+      biggest_risk: truncate(raw.biggest_risk, 200),
+      hidden_assumption: truncate(raw.hidden_assumption, 200),
+      stakeholder_blind_spot: truncate(raw.stakeholder_blind_spot, 200),
+      devils_advocate: truncate(raw.devils_advocate, 250),
+      validation_test_30_day: truncate(raw.validation_test_30_day, 200),
       assumptions_to_validate: truncateArr(raw.assumptions_to_validate, 3, 220),
       risk_register: truncateArr(raw.risk_register, 3, 220),
       information_needed: truncateArr(raw.information_needed, 3, 220),
     };
+
+    // MECE tree
+    if (raw.mece_tree?.branches && Array.isArray(raw.mece_tree.branches)) {
+      result.mece_tree = {
+        branches: raw.mece_tree.branches.slice(0, 6).map((b: any) => ({
+          title: truncate(b?.title, 60),
+          findings: Array.isArray(b?.findings) ? b.findings.map((f: any) => truncate(f, 200)).slice(0, 3) : [],
+        })),
+      };
+    }
+
+    // Pre-mortem
+    if (raw.pre_mortem_narrative) {
+      result.pre_mortem_narrative = truncate(raw.pre_mortem_narrative, 500);
+    }
+
+    // Time horizon
+    if (raw.time_horizon) {
+      result.time_horizon = {
+        ten_minutes: truncate(raw.time_horizon.ten_minutes, 120),
+        ten_months: truncate(raw.time_horizon.ten_months, 120),
+        ten_years: truncate(raw.time_horizon.ten_years, 120),
+      };
+    }
+
+    // Cynefin
+    if (raw.decision_domain) {
+      const validDomains = ["CLEAR", "COMPLICATED", "COMPLEX", "CHAOTIC"];
+      result.decision_domain = validDomains.includes(raw.decision_domain) ? raw.decision_domain : null;
+      result.decision_domain_approach = truncate(raw.decision_domain_approach, 150);
+    }
+
+    // RAPID
+    if (raw.rapid) {
+      result.rapid = {
+        recommend: truncate(raw.rapid.recommend, 100),
+        agree: truncate(raw.rapid.agree, 100),
+        perform: truncate(raw.rapid.perform, 100),
+        input: truncate(raw.rapid.input, 150),
+        decide: truncate(raw.rapid.decide, 100),
+      };
+    }
+
+    // Second order
+    if (raw.second_order_chain) {
+      result.second_order_chain = truncate(raw.second_order_chain, 300);
+    }
+
+    // Opportunity cost
+    if (Array.isArray(raw.opportunity_cost)) {
+      result.opportunity_cost = raw.opportunity_cost.slice(0, 2).map((s: any) => truncate(s, 200));
+    }
+
+    // Stakeholder map
+    if (Array.isArray(raw.stakeholder_map)) {
+      const validPositions = ["Support", "Oppose", "Neutral"];
+      const validInfluence = ["High", "Medium", "Low"];
+      result.stakeholder_map = raw.stakeholder_map.slice(0, 6).map((s: any) => ({
+        role: truncate(s?.role, 80),
+        position: validPositions.includes(s?.position) ? s.position : "Neutral",
+        influence: validInfluence.includes(s?.influence) ? s.influence : "Medium",
+        action: truncate(s?.action, 150),
+      }));
+    }
 
     return new Response(JSON.stringify(result), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

@@ -6,6 +6,7 @@ import { NewDiagnosticFlow, DiagnosticResult } from "@/components/NewDiagnosticF
 import { NewProcessingState } from "@/components/NewProcessingState";
 import { AuditResult, AuditResultSchema } from "@/lib/types";
 import { saveJournalEntry, getJournalCount } from "@/lib/journal";
+import { selectFrameworks, frameworkIds } from "@/lib/framework-router";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { STRIPE_TIERS } from "@/lib/stripe-config";
@@ -97,6 +98,11 @@ const Index = () => {
 
     (async () => {
       try {
+        const frameworks = selectFrameworks({
+          decision_type: dr.decision_type,
+          blast_radius: dr.blast_radius,
+          primary_constraint: dr.primary_constraint,
+        });
         const { data, error } = await supabase.functions.invoke("audit", {
           body: {
             decision: decision.trim(),
@@ -105,6 +111,7 @@ const Index = () => {
             blast_radius: dr.blast_radius,
             primary_constraint: dr.primary_constraint,
             success_vision: dr.success_vision,
+            frameworks: frameworkIds(frameworks),
           },
         });
         if (error) throw error;
