@@ -120,14 +120,18 @@ const Index = () => {
 
         // Increment audit count
         if (user) {
-          await supabase.rpc("increment_audit_count" as any, { p_user_id: user.id } as any).catch(() => {
-            // Fallback: direct update
-            supabase
+          const { data: subData } = await supabase
+            .from("subscriptions")
+            .select("audit_count")
+            .eq("user_id", user.id)
+            .single();
+          
+          if (subData) {
+            await supabase
               .from("subscriptions")
-              .update({ audit_count: subscription.auditCount + 1 } as any)
-              .eq("user_id", user.id)
-              .then(() => refreshSubscription());
-          });
+              .update({ audit_count: (subData.audit_count ?? 0) + 1 })
+              .eq("user_id", user.id);
+          }
           refreshSubscription();
         } else {
           // Mark anonymous audit as done
