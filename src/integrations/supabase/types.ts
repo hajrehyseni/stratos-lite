@@ -20,18 +20,75 @@ export type Database = {
           decision: string
           id: string
           result: Json
+          user_id: string | null
         }
         Insert: {
           created_at?: string
           decision: string
           id: string
           result: Json
+          user_id?: string | null
         }
         Update: {
           created_at?: string
           decision?: string
           id?: string
           result?: Json
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          id: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          id?: string
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          audit_count: number
+          created_at: string
+          id: string
+          period_start: string | null
+          plan: string
+          status: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          user_id: string
+        }
+        Insert: {
+          audit_count?: number
+          created_at?: string
+          id?: string
+          period_start?: string | null
+          plan?: string
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          user_id: string
+        }
+        Update: {
+          audit_count?: number
+          created_at?: string
+          id?: string
+          period_start?: string | null
+          plan?: string
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          user_id?: string
         }
         Relationships: []
       }
