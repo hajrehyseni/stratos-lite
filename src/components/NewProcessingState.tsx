@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import type { FocusLens, DecisionScale } from "@/lib/types";
 
 interface Props {
@@ -6,23 +6,10 @@ interface Props {
   scale: DecisionScale;
   onApiReady: () => void;
   apiResolved: boolean;
+  decisionText?: string;
 }
 
-const lensLabels: Record<FocusLens, string> = {
-  risk: "Risk",
-  speed: "Speed",
-  board: "Board Alignment",
-  confidence: "Confidence",
-};
-
-const scaleLabels: Record<DecisionScale, string> = {
-  "team": "Team",
-  "department": "Department",
-  "company": "Company",
-  "bet-the-company": "Bet-the-Company",
-};
-
-const analysisSteps = (lens: FocusLens, scale: DecisionScale) => [
+const analysisSteps = () => [
   "Parsing decision context...",
   "Mapping stakeholder landscape...",
   "Identifying hidden assumptions...",
@@ -31,25 +18,22 @@ const analysisSteps = (lens: FocusLens, scale: DecisionScale) => [
   "Generating strategic recommendation...",
 ];
 
-export function NewProcessingState({ lens, scale, onApiReady, apiResolved }: Props) {
+export function NewProcessingState({ lens, scale, onApiReady, apiResolved, decisionText }: Props) {
   const [visible, setVisible] = useState(false);
   const [visibleLines, setVisibleLines] = useState(0);
   const [completedLines, setCompletedLines] = useState<Set<number>>(new Set());
   const [fadingOut, setFadingOut] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const lines = analysisSteps(lens, scale);
+  const lines = analysisSteps();
 
-  // Fade in
   useEffect(() => {
     requestAnimationFrame(() => setVisible(true));
   }, []);
 
-  // Reveal lines one by one, 800ms apart
   useEffect(() => {
     if (visibleLines < lines.length && !apiResolved) {
       timerRef.current = setTimeout(() => {
         setVisibleLines((v) => v + 1);
-        // Mark previous line as complete
         if (visibleLines > 0) {
           setCompletedLines((prev) => new Set(prev).add(visibleLines - 1));
         }
@@ -58,11 +42,9 @@ export function NewProcessingState({ lens, scale, onApiReady, apiResolved }: Pro
     }
   }, [visibleLines, apiResolved, lines.length]);
 
-  // When API resolves: rapidly show remaining lines, then transition
   useEffect(() => {
     if (!apiResolved) return;
 
-    // Show all remaining lines rapidly
     const remaining = lines.length - visibleLines;
     if (remaining > 0) {
       let i = 0;
@@ -70,14 +52,12 @@ export function NewProcessingState({ lens, scale, onApiReady, apiResolved }: Pro
         setVisibleLines((v) => v + 1);
         setCompletedLines((prev) => {
           const next = new Set(prev);
-          // complete all shown lines
           for (let j = 0; j <= visibleLines + i; j++) next.add(j);
           return next;
         });
         i++;
         if (i >= remaining) {
           clearInterval(rapid);
-          // Mark all complete
           setTimeout(() => {
             setCompletedLines(new Set(lines.map((_, idx) => idx)));
             setTimeout(() => {
@@ -89,7 +69,6 @@ export function NewProcessingState({ lens, scale, onApiReady, apiResolved }: Pro
       }, 100);
       return () => clearInterval(rapid);
     } else {
-      // All lines already shown
       setCompletedLines(new Set(lines.map((_, idx) => idx)));
       setTimeout(() => {
         setFadingOut(true);
@@ -97,6 +76,10 @@ export function NewProcessingState({ lens, scale, onApiReady, apiResolved }: Pro
       }, 400);
     }
   }, [apiResolved]);
+
+  const truncated = decisionText
+    ? decisionText.length > 80 ? decisionText.slice(0, 80) + "…" : decisionText
+    : null;
 
   return (
     <div
@@ -109,6 +92,13 @@ export function NewProcessingState({ lens, scale, onApiReady, apiResolved }: Pro
       }}
     >
       <div className="w-full" style={{ maxWidth: 720 }}>
+        {/* Decision text preview */}
+        {truncated && (
+          <p className="text-center mb-4" style={{ fontSize: 13, color: "hsl(var(--muted-foreground))", fontStyle: "italic" }}>
+            {truncated}
+          </p>
+        )}
+
         <div
           className="rounded-xl"
           style={{
@@ -117,7 +107,6 @@ export function NewProcessingState({ lens, scale, onApiReady, apiResolved }: Pro
             padding: "28px 24px",
           }}
         >
-          {/* Header */}
           <div className="flex items-center gap-2 mb-6">
             <span
               className="inline-block rounded-full"
@@ -133,7 +122,6 @@ export function NewProcessingState({ lens, scale, onApiReady, apiResolved }: Pro
             </span>
           </div>
 
-          {/* Analysis lines */}
           <div className="space-y-3">
             {lines.slice(0, visibleLines).map((line, i) => {
               const isComplete = completedLines.has(i);
