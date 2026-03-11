@@ -170,12 +170,18 @@ const Index = () => {
 
   const handleProcessingDone = useCallback(() => {
     if (apiResult.current) {
+      clearDiagnosticSession();
       setResult(apiResult.current.parsed);
       setAuditId(apiResult.current.id);
       setJournalSaved(false);
       setPhase("result");
     }
   }, []);
+
+  const handleBackToLanding = () => {
+    setPhase("landing");
+    // decision text stays pre-filled in landing via state
+  };
 
   const handleReset = (prefill?: string) => {
     setResult(null);
