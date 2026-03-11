@@ -31,11 +31,33 @@ const verdictColor: Record<string, string> = {
   "DEFER — INFORMATION NEEDED": "#3b82f6",
 };
 
-const domainColors: Record<string, string> = {
+const cynefinBadgeColors: Record<string, string> = {
+  clear: "#22c55e",
+  complicated: "#3b82f6",
+  complex: "#C9A84C",
+  chaotic: "#ef4444",
   CLEAR: "#22c55e",
   COMPLICATED: "#3b82f6",
   COMPLEX: "#C9A84C",
   CHAOTIC: "#ef4444",
+};
+
+const classificationLabels: Record<string, string> = {
+  big_bet: "BIG-BET DECISION",
+  cross_cutting: "CROSS-CUTTING",
+  delegated: "DELEGATED",
+};
+
+const ssmRoleLabels: Record<string, string> = {
+  problem_owner: "Problem Owner",
+  problem_solver: "Problem Solver",
+  client: "Client",
+};
+
+const ssmRoleColors: Record<string, string> = {
+  problem_owner: "#C9A84C",
+  problem_solver: "#3b82f6",
+  client: "#22c55e",
 };
 
 const positionColors: Record<string, string> = {
@@ -73,11 +95,13 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
   const [deepDiveOpen, setDeepDiveOpen] = useState(false);
   const journalCount = getJournalCount();
 
-  // Compat helpers for legacy/new fields
   const reframe = result.reframe_question || result.better_question || "";
   const rationale = result.verdict_rationale || result.confidence_rationale || "";
   const blindSpot = result.stakeholder_blind_spot || result.stakeholder_gap || "";
   const test30 = result.validation_test_30_day || result.thirty_day_test || "";
+
+  const cynefinDomain = result.cynefin_domain || (result.decision_domain ? result.decision_domain.toLowerCase() : null);
+  const domainApproach = result.decision_domain_approach || null;
 
   const handleCopyBrief = async () => {
     const brief = generateBrief(decision, result);
@@ -139,61 +163,58 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
           </div>
         )}
 
-        {/* ═══ TIER 0: CLASSIFICATION BAR ═══ */}
-        <div className="flex items-start justify-between mb-12">
-          {/* Left: Domain badge */}
-          <div>
-            {result.decision_domain && (
-              <>
-                <span
-                  className="inline-flex items-center rounded-full px-3 py-1 text-xs font-bold"
-                  style={{
-                    background: `${domainColors[result.decision_domain]}15`,
-                    border: `1px solid ${domainColors[result.decision_domain]}40`,
-                    color: domainColors[result.decision_domain],
-                    letterSpacing: "0.05em",
-                  }}
-                >
-                  {result.decision_domain}
-                </span>
-                {result.decision_domain_approach && (
-                  <p className="mt-2" style={{ fontSize: 12, color: "rgba(232,228,223,0.4)", maxWidth: 260 }}>
-                    {result.decision_domain_approach}
-                  </p>
-                )}
-              </>
-            )}
-          </div>
-
-          {/* Right: Score */}
-          <div className="text-right">
-            <p style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(201,168,76,0.6)", marginBottom: 4 }}>
-              Readiness Score
-            </p>
-            <div className="flex items-baseline justify-end gap-1">
-              <span style={{ fontSize: 56, fontWeight: 700, color: "#C9A84C", lineHeight: 1 }}>
-                {result.confidence_score}
-              </span>
-              <span style={{ fontSize: 20, fontWeight: 400, color: "rgba(232,228,223,0.3)" }}>/100</span>
-            </div>
-            <div className="mt-2 ml-auto" style={{ width: 200, height: 4, borderRadius: 2, background: "rgba(232,228,223,0.06)", overflow: "hidden" }}>
-              <div className="bar-fill" style={{ height: "100%", width: `${result.confidence_score}%`, borderRadius: 2, background: "#C9A84C" }} />
-            </div>
-            <p className="mt-2" style={{ fontSize: 12, color: "rgba(232,228,223,0.5)" }}>
-              {getReadinessInterpretation(result.confidence_score)}
-            </p>
+        {/* ═══ SECTION 0: CLASSIFICATION BAR ═══ */}
+        <div className="flex items-center gap-3 mb-8 flex-wrap">
+          {cynefinDomain && (
+            <span
+              className="inline-flex items-center rounded-full px-3 py-1 text-xs font-bold"
+              style={{
+                background: `${cynefinBadgeColors[cynefinDomain] || "#888"}15`,
+                border: `1px solid ${cynefinBadgeColors[cynefinDomain] || "#888"}40`,
+                color: cynefinBadgeColors[cynefinDomain] || "#888",
+                letterSpacing: "0.05em",
+                textTransform: "uppercase",
+              }}
+            >
+              {cynefinDomain}
+            </span>
+          )}
+          {result.decision_classification && classificationLabels[result.decision_classification] && (
+            <span
+              className="inline-flex items-center rounded-full px-3 py-1 text-xs font-bold"
+              style={{
+                background: "rgba(232,228,223,0.05)",
+                border: "1px solid rgba(232,228,223,0.15)",
+                color: "rgba(232,228,223,0.7)",
+                letterSpacing: "0.05em",
+              }}
+            >
+              {classificationLabels[result.decision_classification]}
+            </span>
+          )}
+          <div className="ml-auto flex items-baseline gap-1">
+            <span style={{ fontSize: 40, fontWeight: 700, color: "#C9A84C", lineHeight: 1 }}>
+              {result.confidence_score}
+            </span>
+            <span style={{ fontSize: 16, fontWeight: 400, color: "rgba(232,228,223,0.3)" }}>/100</span>
           </div>
         </div>
+        {domainApproach && (
+          <p className="mb-6 -mt-4" style={{ fontSize: 12, color: "rgba(232,228,223,0.4)" }}>
+            {domainApproach}
+          </p>
+        )}
+        <div className="mb-8" style={{ width: "100%", height: 4, borderRadius: 2, background: "rgba(232,228,223,0.06)", overflow: "hidden" }}>
+          <div className="bar-fill" style={{ height: "100%", width: `${result.confidence_score}%`, borderRadius: 2, background: "#C9A84C" }} />
+        </div>
 
-        {/* ═══ TIER 1: EXECUTIVE SUMMARY ═══ */}
-        {/* Verdict */}
+        {/* ═══ SECTION 1: EXECUTIVE SUMMARY ═══ */}
         <div className="rounded-lg px-6 py-5 mb-3" style={{ ...cardBase, borderLeft: `4px solid ${verdictColor[result.verdict] || "#C9A84C"}` }}>
           <CardLabel>Verdict</CardLabel>
           <p style={{ fontSize: 20, fontWeight: 500, color: "#E8E4DF", lineHeight: 1.7 }}>{result.verdict}</p>
           {rationale && <p className="mt-2" style={{ fontSize: 13, color: "rgba(232,228,223,0.4)" }}>{rationale}</p>}
         </div>
 
-        {/* Reframe */}
         {reframe && (
           <div className="rounded-lg px-6 py-5 mb-3 reframe-glow" style={{ ...cardBase, borderTop: "1px solid rgba(201,168,76,0.3)" }}>
             <p style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.15em", color: "#666", marginBottom: 8 }}>THE REFRAME</p>
@@ -203,10 +224,9 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
           </div>
         )}
 
-        {/* Time Horizon */}
         {result.time_horizon && (
           <div className="rounded-lg px-6 py-5 mb-3" style={cardBase}>
-            <CardLabel>Time Horizon</CardLabel>
+            <CardLabel>Time Horizon Check</CardLabel>
             <div className="space-y-3">
               {[
                 { icon: "⏱", label: "10 minutes", value: result.time_horizon.ten_minutes },
@@ -225,7 +245,147 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
           </div>
         )}
 
-        {/* ═══ TIER 2: MECE ISSUE TREE ═══ */}
+        {/* ═══ SECTION 2: STAKEHOLDER PERSPECTIVES ═══ */}
+        {result.stakeholder_perspectives && result.stakeholder_perspectives.length > 0 && (
+          <>
+            <SectionDivider label="Stakeholder Perspectives" />
+            <div className="rounded-lg overflow-hidden" style={{ ...cardBase, borderLeft: "3px solid rgba(201,168,76,0.4)" }}>
+              {result.stakeholder_perspectives.map((s, i) => (
+                <div key={i} className="px-5 py-4" style={{ borderBottom: i < result.stakeholder_perspectives!.length - 1 ? "1px solid #1A1A1A" : "none" }}>
+                  <div className="flex items-center gap-3 mb-2">
+                    <span style={{ fontSize: 14, fontWeight: 600, color: "#E8E4DF" }}>{s.role}</span>
+                    <span
+                      className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                      style={{
+                        background: `${ssmRoleColors[s.ssm_role] || "#888"}15`,
+                        border: `1px solid ${ssmRoleColors[s.ssm_role] || "#888"}40`,
+                        color: ssmRoleColors[s.ssm_role] || "#888",
+                        letterSpacing: "0.03em",
+                      }}
+                    >
+                      {ssmRoleLabels[s.ssm_role] || s.ssm_role}
+                    </span>
+                  </div>
+                  <p style={{ fontSize: 13, color: "rgba(232,228,223,0.7)", lineHeight: 1.6 }}>{s.stance}</p>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
+        {/* ═══ SECTION 3: CAUSAL CLUSTERS ═══ */}
+        {result.causal_clusters && result.causal_clusters.length > 0 && (
+          <>
+            <SectionDivider label="Causal Clusters" />
+            <div className="space-y-3">
+              {result.causal_clusters.map((cluster, i) => (
+                <div key={i} className="rounded-lg px-5 py-4" style={{ ...cardBase, borderLeft: "3px solid rgba(201,168,76,0.4)" }}>
+                  <div className="flex items-center gap-3 mb-3">
+                    <span
+                      className="flex items-center justify-center rounded-md font-bold"
+                      style={{ width: 28, height: 28, flexShrink: 0, background: "rgba(201,168,76,0.12)", color: "#C9A84C", fontSize: 13 }}
+                    >
+                      {i + 1}
+                    </span>
+                    <p style={{ fontSize: 14, fontWeight: 600, color: "#E8E4DF" }}>{cluster.name}</p>
+                  </div>
+                  <ul className="space-y-1.5 mb-3">
+                    {cluster.concepts.map((c, j) => (
+                      <li key={j} className="flex gap-2" style={{ fontSize: 13, color: "rgba(232,228,223,0.7)", lineHeight: 1.6 }}>
+                        <span style={{ color: "rgba(201,168,76,0.5)", flexShrink: 0 }}>•</span>{c}
+                      </li>
+                    ))}
+                  </ul>
+                  <p style={{ fontSize: 13, fontStyle: "italic", color: "rgba(232,228,223,0.5)", lineHeight: 1.5 }}>
+                    {cluster.key_link}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
+        {/* ═══ SECTION 4: RISK SURFACE ═══ */}
+        <SectionDivider label="Strategic Risk Surface" />
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
+          {[
+            { label: "Biggest Risk", value: result.biggest_risk },
+            { label: "Hidden Assumption", value: result.hidden_assumption },
+            { label: "Stakeholder Blind Spot", value: blindSpot },
+          ].filter(c => c.value).map((card) => (
+            <div key={card.label} className="rounded-lg px-5 py-4" style={cardBase}>
+              <CardLabel>{card.label}</CardLabel>
+              <p style={{ fontSize: 14, fontWeight: 400, color: "#E8E4DF", lineHeight: 1.7 }}>{card.value}</p>
+            </div>
+          ))}
+        </div>
+
+        {result.pre_mortem_narrative && (
+          <div className="rounded-lg px-6 py-5 mb-3" style={{ ...cardBase, borderLeft: "4px solid #ef4444" }}>
+            <CardLabel>12-Month Failure Scenario</CardLabel>
+            <p style={{ fontSize: 15, fontStyle: "italic", color: "#E8E4DF", lineHeight: 1.7 }}>
+              {result.pre_mortem_narrative}
+            </p>
+          </div>
+        )}
+
+        {/* Second-Order Effects (new array format) */}
+        {result.second_order_effects && result.second_order_effects.length > 0 && (
+          <div className="rounded-lg px-6 py-5 mb-3" style={cardBase}>
+            <CardLabel>Chain Reactions</CardLabel>
+            <div className="space-y-2">
+              {result.second_order_effects.map((effect, i) => (
+                <div key={i} className="flex gap-2" style={{ fontSize: 14, color: "#E8E4DF", lineHeight: 1.7 }}>
+                  <span style={{ color: "#C9A84C", fontWeight: 700, flexShrink: 0 }}>→</span>
+                  <span>{effect}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Legacy second_order_chain */}
+        {!result.second_order_effects?.length && result.second_order_chain && (
+          <div className="rounded-lg px-6 py-5 mb-3" style={cardBase}>
+            <CardLabel>Second-Order Effects</CardLabel>
+            <div className="flex flex-wrap items-center gap-2" style={{ fontSize: 14, color: "#E8E4DF", lineHeight: 1.7 }}>
+              {result.second_order_chain.split("→").map((part, i, arr) => (
+                <span key={i} className="flex items-center gap-2">
+                  <span>{part.trim()}</span>
+                  {i < arr.length - 1 && <span style={{ color: "#C9A84C", fontWeight: 700, fontSize: 16 }}>→</span>}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ═══ SECTION 5: RECOMMENDED ACTIONS ═══ */}
+        {result.recommendations && result.recommendations.filter(r => r.feasible).length > 0 && (
+          <>
+            <SectionDivider label="Recommended Actions" />
+            <div className="space-y-3">
+              {result.recommendations.filter(r => r.feasible).map((rec, i) => (
+                <div key={i} className="rounded-lg px-5 py-4" style={cardBase}>
+                  <div className="flex items-start justify-between gap-3 mb-2">
+                    <p style={{ fontSize: 14, fontWeight: 600, color: "#E8E4DF", lineHeight: 1.5 }}>{rec.action}</p>
+                    <span
+                      className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold flex-shrink-0"
+                      style={{ background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.3)", color: "#22c55e" }}
+                    >
+                      FEASIBLE
+                    </span>
+                  </div>
+                  <p style={{ fontSize: 12, color: "rgba(232,228,223,0.4)", marginBottom: 4 }}>
+                    Agreed by: <span style={{ color: "rgba(232,228,223,0.6)" }}>{rec.agreed_by}</span>
+                  </p>
+                  <p style={{ fontSize: 13, color: "rgba(232,228,223,0.7)", lineHeight: 1.6 }}>{rec.justification}</p>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
+        {/* ═══ MECE ISSUE TREE ═══ */}
         {result.mece_tree?.branches && result.mece_tree.branches.length > 0 && (
           <>
             <SectionDivider label="Structured Analysis" />
@@ -246,32 +406,7 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
           </>
         )}
 
-        {/* ═══ TIER 3: RISK SURFACE ═══ */}
-        <SectionDivider label="Strategic Risk Surface" />
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
-          {[
-            { label: "Biggest Risk", value: result.biggest_risk },
-            { label: "Hidden Assumption", value: result.hidden_assumption },
-            { label: "Stakeholder Blind Spot", value: blindSpot },
-          ].filter(c => c.value).map((card) => (
-            <div key={card.label} className="rounded-lg px-5 py-4" style={cardBase}>
-              <CardLabel>{card.label}</CardLabel>
-              <p style={{ fontSize: 14, fontWeight: 400, color: "#E8E4DF", lineHeight: 1.7 }}>{card.value}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* Pre-Mortem */}
-        {result.pre_mortem_narrative && (
-          <div className="rounded-lg px-6 py-5 mb-3" style={{ ...cardBase, borderLeft: "4px solid #ef4444" }}>
-            <CardLabel>Pre-Mortem: The Failure Scenario</CardLabel>
-            <p style={{ fontSize: 15, fontStyle: "italic", color: "#E8E4DF", lineHeight: 1.7 }}>
-              {result.pre_mortem_narrative}
-            </p>
-          </div>
-        )}
-
-        {/* ═══ TIER 4: RAPID ═══ */}
+        {/* ═══ RAPID ═══ */}
         {result.rapid && (
           <>
             <SectionDivider label="Decision Accountability (RAPID)" />
@@ -300,24 +435,7 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
           </>
         )}
 
-        {/* ═══ TIER 5: SECOND-ORDER EFFECTS ═══ */}
-        {result.second_order_chain && (
-          <>
-            <SectionDivider label="Second-Order Effects" />
-            <div className="rounded-lg px-6 py-5" style={cardBase}>
-              <div className="flex flex-wrap items-center gap-2" style={{ fontSize: 14, color: "#E8E4DF", lineHeight: 1.7 }}>
-                {result.second_order_chain.split("→").map((part, i, arr) => (
-                  <span key={i} className="flex items-center gap-2">
-                    <span>{part.trim()}</span>
-                    {i < arr.length - 1 && <span style={{ color: "#C9A84C", fontWeight: 700, fontSize: 16 }}>→</span>}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </>
-        )}
-
-        {/* ═══ TIER 6: OPPORTUNITY COST ═══ */}
+        {/* ═══ OPPORTUNITY COST ═══ */}
         {result.opportunity_cost && result.opportunity_cost.length > 0 && (
           <>
             <SectionDivider label="Opportunity Cost" />
@@ -334,12 +452,11 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
           </>
         )}
 
-        {/* ═══ TIER 7: STAKEHOLDER MAP ═══ */}
+        {/* ═══ STAKEHOLDER MAP ═══ */}
         {result.stakeholder_map && result.stakeholder_map.length > 0 && (
           <>
             <SectionDivider label="Stakeholder Map" />
             <div className="rounded-lg overflow-hidden" style={cardBase}>
-              {/* Header */}
               <div className="hidden sm:grid grid-cols-[2fr_1fr_1fr_3fr] gap-2 px-5 py-3" style={{ borderBottom: "1px solid #1A1A1A" }}>
                 {["Role", "Position", "Influence", "Action"].map((h) => (
                   <span key={h} style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.1em", color: "#555" }}>{h}</span>
@@ -357,7 +474,7 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
           </>
         )}
 
-        {/* ═══ TIER 8: DEEP DIVE ═══ */}
+        {/* ═══ DEEP DIVE ═══ */}
         <div className="mt-6">
           <button
             onClick={() => setDeepDiveOpen(!deepDiveOpen)}
@@ -401,7 +518,7 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
           </div>
         </div>
 
-        {/* ═══ TIER 9: ACTIONS ═══ */}
+        {/* ═══ ACTIONS ═══ */}
         {!readOnly && (
           <>
             <div className="flex flex-col sm:flex-row gap-3 mt-10">
@@ -458,7 +575,6 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
               )}
             </div>
 
-            {/* 30-Day Loop */}
             <div className="mt-8 rounded-xl p-6" style={cardBase}>
               {journalSaved ? (
                 <div className="flex items-center justify-center gap-3 py-2">
@@ -490,7 +606,6 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
               )}
             </div>
 
-            {/* Audit the Opposite */}
             <div className="mt-6 rounded-xl text-center" style={{ ...cardBase, borderStyle: "dashed", padding: 32 }}>
               <span style={{ fontSize: 24, color: "rgba(201,168,76,0.5)" }}>⟳</span>
               <h3 className="mt-3" style={{ fontSize: 18, color: "#E8E4DF" }}>What if you're wrong?</h3>
@@ -510,7 +625,6 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
               </button>
             </div>
 
-            {/* Dashboard upsell */}
             {journalSaved && journalCount >= 3 && journalCount < 5 && (
               <div className="mt-6 rounded-xl text-center" style={{ ...cardBase, borderStyle: "dashed", padding: 24 }}>
                 <p style={{ fontSize: 14, color: "#E8E4DF" }}>
@@ -544,7 +658,6 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
               </div>
             )}
 
-            {/* Start another */}
             <div className="text-center mt-8">
               <button
                 onClick={() => onReset()}

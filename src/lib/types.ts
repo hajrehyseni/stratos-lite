@@ -12,6 +12,25 @@ const MeceBranchSchema = z.object({
   findings: z.array(z.string()).min(2).max(3),
 });
 
+const StakeholderPerspectiveSchema = z.object({
+  role: z.string(),
+  stance: z.string(),
+  ssm_role: z.enum(["problem_owner", "problem_solver", "client"]),
+});
+
+const CausalClusterSchema = z.object({
+  name: z.string(),
+  concepts: z.array(z.string()).min(1).max(4),
+  key_link: z.string(),
+});
+
+const RecommendationSchema = z.object({
+  action: z.string(),
+  feasible: z.boolean(),
+  agreed_by: z.string(),
+  justification: z.string(),
+});
+
 export const AuditResultSchema = z.object({
   confidence_score: z.number().min(0).max(100).transform(v => Math.round(v)),
   verdict: z.enum(["PROCEED", "CONDITIONAL PROCEED", "DO NOT PROCEED", "DEFER — INFORMATION NEEDED"]),
@@ -57,6 +76,14 @@ export const AuditResultSchema = z.object({
   assumptions_to_validate: z.array(z.string()).max(3).default([]),
   risk_register: z.array(z.string()).max(3).default([]),
   information_needed: z.array(z.string()).max(3).default([]),
+
+  // New SSM/SODA fields
+  cynefin_domain: z.enum(["clear", "complicated", "complex", "chaotic"]).nullable().optional(),
+  decision_classification: z.enum(["big_bet", "cross_cutting", "delegated"]).nullable().optional(),
+  stakeholder_perspectives: z.array(StakeholderPerspectiveSchema).nullable().optional(),
+  causal_clusters: z.array(CausalClusterSchema).nullable().optional(),
+  second_order_effects: z.array(z.string()).nullable().optional(),
+  recommendations: z.array(RecommendationSchema).nullable().optional(),
 
   // Legacy field aliases — keep backward compat for shared links
   confidence_rationale: z.string().optional(),
