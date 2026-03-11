@@ -181,6 +181,7 @@ const Index = () => {
   const handleProcessingDone = useCallback(() => {
     if (apiResult.current) {
       clearDiagnosticSession();
+      sessionStorage.removeItem("stratos_diag_decision");
       setResult(apiResult.current.parsed);
       setAuditId(apiResult.current.id);
       setJournalSaved(false);
@@ -189,8 +190,9 @@ const Index = () => {
   }, []);
 
   const handleBackToLanding = () => {
+    sessionStorage.removeItem("stratos_diag_decision");
+    clearDiagnosticSession();
     setPhase("landing");
-    // decision text stays pre-filled in landing via state
   };
 
   const handleReset = (prefill?: string) => {
