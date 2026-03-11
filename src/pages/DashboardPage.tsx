@@ -16,6 +16,9 @@ const verdictColors: Record<string, string> = {
 const verdictLabels = ["PROCEED", "CONDITIONAL PROCEED", "DO NOT PROCEED", "DEFER — INFORMATION NEEDED"];
 
 export default function DashboardPage() {
+  const { user, loading } = useAuth();
+  if (loading) return null;
+  if (!user) return <Navigate to="/login" replace />;
   const entries = getJournalEntries();
   const count = entries.length;
 
