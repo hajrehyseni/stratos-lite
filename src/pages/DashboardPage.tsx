@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { NavBar } from "@/components/NavBar";
+import { useAuth } from "@/contexts/AuthContext";
 import { getJournalEntries } from "@/lib/journal";
 import type { JournalEntry, AuditResult } from "@/lib/types";
 import { ArrowRight } from "lucide-react";
