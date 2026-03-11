@@ -42,6 +42,18 @@ const Index = () => {
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [showSignupGate, setShowSignupGate] = useState(false);
 
+  // Check for prefill from 404 page
+  useEffect(() => {
+    const prefill = sessionStorage.getItem("stratos_prefill");
+    if (prefill) {
+      sessionStorage.removeItem("stratos_prefill");
+      setDecision(prefill);
+      if (prefill.length >= 10) {
+        setPhase("diagnostic");
+      }
+    }
+  }, []);
+
   const apiResolved = useRef(false);
   const [apiResolvedState, setApiResolvedState] = useState(false);
   const apiResult = useRef<{ parsed: AuditResult; id: string } | null>(null);
