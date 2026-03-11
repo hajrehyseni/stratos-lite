@@ -1,8 +1,8 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { NavBar } from "@/components/NavBar";
 import { Scorecard } from "@/components/Scorecard";
 import { HomepageLanding } from "@/components/HomepageLanding";
-import { NewDiagnosticFlow, DiagnosticResult } from "@/components/NewDiagnosticFlow";
+import { NewDiagnosticFlow, DiagnosticResult, clearDiagnosticSession } from "@/components/NewDiagnosticFlow";
 import { NewProcessingState } from "@/components/NewProcessingState";
 import { AuditResult, AuditResultSchema } from "@/lib/types";
 import { saveJournalEntry, getJournalCount } from "@/lib/journal";
