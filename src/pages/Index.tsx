@@ -42,7 +42,7 @@ const Index = () => {
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [showSignupGate, setShowSignupGate] = useState(false);
 
-  // Check for prefill from 404 page
+  // Restore diagnostic flow from sessionStorage on mount
   useEffect(() => {
     const prefill = sessionStorage.getItem("stratos_prefill");
     if (prefill) {
@@ -51,6 +51,14 @@ const Index = () => {
       if (prefill.length >= 10) {
         setPhase("diagnostic");
       }
+      return;
+    }
+    // Resume in-progress diagnostic flow
+    const savedDiag = sessionStorage.getItem("stratos_diag_state");
+    const savedDecision = sessionStorage.getItem("stratos_diag_decision");
+    if (savedDiag && savedDecision) {
+      setDecision(savedDecision);
+      setPhase("diagnostic");
     }
   }, []);
 
@@ -82,6 +90,8 @@ const Index = () => {
   const handleLandingSubmit = (text: string) => {
     setDecision(text);
     if (!canRunAudit()) return;
+    // Save decision text for sessionStorage resume
+    sessionStorage.setItem("stratos_diag_decision", text);
     setLandingExiting(true);
     setTimeout(() => {
       setPhase("diagnostic");
@@ -171,6 +181,7 @@ const Index = () => {
   const handleProcessingDone = useCallback(() => {
     if (apiResult.current) {
       clearDiagnosticSession();
+      sessionStorage.removeItem("stratos_diag_decision");
       setResult(apiResult.current.parsed);
       setAuditId(apiResult.current.id);
       setJournalSaved(false);
@@ -179,8 +190,9 @@ const Index = () => {
   }, []);
 
   const handleBackToLanding = () => {
+    sessionStorage.removeItem("stratos_diag_decision");
+    clearDiagnosticSession();
     setPhase("landing");
-    // decision text stays pre-filled in landing via state
   };
 
   const handleReset = (prefill?: string) => {
@@ -190,7 +202,9 @@ const Index = () => {
     setJournalSaved(false);
     setDiagnosticResult(SKIP_DEFAULTS);
     clearDiagnosticSession();
+    sessionStorage.removeItem("stratos_diag_decision");
     if (prefill && prefill.length >= 20) {
+      sessionStorage.setItem("stratos_diag_decision", prefill);
       setPhase("diagnostic");
     } else {
       setPhase("landing");
