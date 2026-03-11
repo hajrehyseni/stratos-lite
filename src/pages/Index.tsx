@@ -274,6 +274,7 @@ const Index = () => {
           decision={decision}
           onComplete={handleDiagnosticComplete}
           onSkip={handleSkipDiagnostic}
+          onBackToLanding={handleBackToLanding}
         />
       )}
 
