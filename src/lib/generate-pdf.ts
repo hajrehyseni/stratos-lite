@@ -5,14 +5,13 @@ export async function generatePDF(decision: string, result: AuditResult): Promis
   const doc = await PDFDocument.create();
   const helvetica = await doc.embedFont(StandardFonts.Helvetica);
   const helveticaBold = await doc.embedFont(StandardFonts.HelveticaBold);
+  const helveticaOblique = await doc.embedFont(StandardFonts.HelveticaOblique);
 
   const gold = rgb(0.79, 0.66, 0.30);
   const black = rgb(0.03, 0.03, 0.03);
-  const textColor = rgb(0.91, 0.89, 0.87);
   const muted = rgb(0.5, 0.5, 0.5);
-  const white = rgb(1, 1, 1);
+  const red = rgb(0.94, 0.27, 0.27);
 
-  // A4: 595 x 842 pts, 25mm margins ≈ 71pts
   const marginX = 71;
   const marginTop = 71;
   const pageW = 595;
@@ -38,27 +37,44 @@ export async function generatePDF(decision: string, result: AuditResult): Promis
     }
   }
 
+  const reframe = result.reframe_question || result.better_question || "";
+  const rationale = result.verdict_rationale || result.confidence_rationale || "";
+  const blindSpot = result.stakeholder_blind_spot || result.stakeholder_gap || "";
+  const test30 = result.validation_test_30_day || result.thirty_day_test || "";
+
   // Header
   const dateStr = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
   page.drawText("DECISION AUDIT", { x: marginX, y, size: 16, font: helveticaBold, color: black });
   const dateW = helvetica.widthOfTextAtSize(dateStr, 9);
   page.drawText(dateStr, { x: pageW - marginX - dateW, y: y + 2, size: 9, font: helvetica, color: muted });
   y -= 16;
-
   page.drawText("London Royal Academy | StratOS", { x: marginX, y, size: 8, font: helvetica, color: muted });
   y -= 12;
-
-  // Gold separator
   page.drawRectangle({ x: marginX, y, width: contentW, height: 1.5, color: gold });
   y -= 28;
 
-  // Decision Readiness Score
-  page.drawText("DECISION READINESS SCORE", { x: marginX, y, size: 9, font: helveticaBold, color: gold });
-  y -= 28;
-  page.drawText(`${result.confidence_score}/100`, { x: marginX, y, size: 32, font: helveticaBold, color: black });
-  y -= 14;
-  page.drawText(result.confidence_rationale, { x: marginX, y, size: 8, font: helvetica, color: muted });
-  y -= 28;
+  // Classification + Score
+  if (result.decision_domain) {
+    page.drawText(`DOMAIN: ${result.decision_domain}`, { x: marginX, y, size: 9, font: helveticaBold, color: gold });
+    const scoreText = `SCORE: ${result.confidence_score}/100`;
+    const scoreW = helveticaBold.widthOfTextAtSize(scoreText, 9);
+    page.drawText(scoreText, { x: pageW - marginX - scoreW, y, size: 9, font: helveticaBold, color: gold });
+    y -= 14;
+    if (result.decision_domain_approach) {
+      for (const line of wrapText(result.decision_domain_approach, 80)) {
+        page.drawText(line, { x: marginX, y, size: 8, font: helvetica, color: muted });
+        y -= 12;
+      }
+    }
+    y -= 14;
+  } else {
+    page.drawText("DECISION READINESS SCORE", { x: marginX, y, size: 9, font: helveticaBold, color: gold });
+    y -= 28;
+    page.drawText(`${result.confidence_score}/100`, { x: marginX, y, size: 32, font: helveticaBold, color: black });
+    y -= 14;
+    if (rationale) page.drawText(rationale, { x: marginX, y, size: 8, font: helvetica, color: muted });
+    y -= 28;
+  }
 
   // Decision text
   page.drawText("DECISION", { x: marginX, y, size: 7, font: helveticaBold, color: muted });
@@ -72,23 +88,182 @@ export async function generatePDF(decision: string, result: AuditResult): Promis
 
   // Verdict
   page.drawText(`VERDICT: ${result.verdict}`, { x: marginX, y, size: 13, font: helveticaBold, color: black });
-  y -= 28;
+  y -= 14;
+  if (rationale) {
+    for (const line of wrapText(rationale, 80)) {
+      checkPage(13);
+      page.drawText(line, { x: marginX, y, size: 8, font: helvetica, color: muted });
+      y -= 12;
+    }
+  }
+  y -= 14;
 
-  // Separator
+  // Reframe
+  if (reframe) {
+    checkPage(40);
+    page.drawText("THE REFRAME", { x: marginX, y, size: 7, font: helveticaBold, color: gold });
+    y -= 14;
+    for (const line of wrapText(`"${reframe}"`, 78)) {
+      checkPage(13);
+      page.drawText(line, { x: marginX, y, size: 10, font: helveticaOblique, color: black });
+      y -= 14;
+    }
+    y -= 14;
+  }
+
+  // Time Horizon
+  if (result.time_horizon) {
+    checkPage(60);
+    page.drawRectangle({ x: marginX, y, width: contentW, height: 0.5, color: gold });
+    y -= 18;
+    page.drawText("TIME HORIZON", { x: marginX, y, size: 7, font: helveticaBold, color: gold });
+    y -= 16;
+    for (const [label, value] of [["10 Minutes", result.time_horizon.ten_minutes], ["10 Months", result.time_horizon.ten_months], ["10 Years", result.time_horizon.ten_years]] as const) {
+      checkPage(28);
+      page.drawText(label.toUpperCase(), { x: marginX, y, size: 7, font: helveticaBold, color: muted });
+      y -= 12;
+      for (const line of wrapText(value, 80)) {
+        checkPage(12);
+        page.drawText(line, { x: marginX, y, size: 9, font: helvetica, color: black });
+        y -= 12;
+      }
+      y -= 8;
+    }
+    y -= 6;
+  }
+
+  // MECE Tree
+  if (result.mece_tree?.branches?.length) {
+    checkPage(40);
+    page.drawRectangle({ x: marginX, y, width: contentW, height: 0.5, color: gold });
+    y -= 18;
+    page.drawText("STRUCTURED ANALYSIS (MECE)", { x: marginX, y, size: 7, font: helveticaBold, color: gold });
+    y -= 16;
+    for (const branch of result.mece_tree.branches) {
+      checkPage(30);
+      page.drawText(branch.title, { x: marginX, y, size: 10, font: helveticaBold, color: black });
+      y -= 14;
+      for (const finding of branch.findings) {
+        for (const line of wrapText(`• ${finding}`, 76)) {
+          checkPage(13);
+          page.drawText(line, { x: marginX + 8, y, size: 9, font: helvetica, color: black });
+          y -= 12;
+        }
+      }
+      y -= 8;
+    }
+    y -= 6;
+  }
+
+  // Risk Surface
+  page.drawRectangle({ x: marginX, y, width: contentW, height: 0.5, color: gold });
+  y -= 18;
+  const riskFields: [string, string][] = [
+    ["Biggest Risk", result.biggest_risk],
+    ["Hidden Assumption", result.hidden_assumption],
+    ["Stakeholder Blind Spot", blindSpot],
+  ];
+  for (const [label, value] of riskFields) {
+    if (!value) continue;
+    checkPage(50);
+    page.drawText(label.toUpperCase(), { x: marginX, y, size: 7, font: helveticaBold, color: gold });
+    y -= 14;
+    for (const line of wrapText(value, 80)) {
+      checkPage(13);
+      page.drawText(line, { x: marginX, y, size: 9, font: helvetica, color: black });
+      y -= 13;
+    }
+    y -= 14;
+  }
+
+  // Pre-Mortem
+  if (result.pre_mortem_narrative) {
+    checkPage(50);
+    page.drawText("PRE-MORTEM: THE FAILURE SCENARIO", { x: marginX, y, size: 7, font: helveticaBold, color: red });
+    y -= 14;
+    for (const line of wrapText(result.pre_mortem_narrative, 78)) {
+      checkPage(13);
+      page.drawText(line, { x: marginX, y, size: 9, font: helveticaOblique, color: black });
+      y -= 13;
+    }
+    y -= 14;
+  }
+
+  // RAPID
+  if (result.rapid) {
+    checkPage(80);
+    page.drawRectangle({ x: marginX, y, width: contentW, height: 0.5, color: gold });
+    y -= 18;
+    page.drawText("DECISION ACCOUNTABILITY (RAPID)", { x: marginX, y, size: 7, font: helveticaBold, color: gold });
+    y -= 16;
+    for (const [letter, value] of [["R — Recommend", result.rapid.recommend], ["A — Agree", result.rapid.agree], ["P — Perform", result.rapid.perform], ["I — Input", result.rapid.input], ["D — Decide", result.rapid.decide]] as const) {
+      checkPage(20);
+      page.drawText(letter, { x: marginX, y, size: 8, font: helveticaBold, color: gold });
+      page.drawText(value, { x: marginX + 100, y, size: 9, font: helvetica, color: black });
+      y -= 16;
+    }
+    y -= 8;
+  }
+
+  // Second Order
+  if (result.second_order_chain) {
+    checkPage(40);
+    page.drawRectangle({ x: marginX, y, width: contentW, height: 0.5, color: gold });
+    y -= 18;
+    page.drawText("SECOND-ORDER EFFECTS", { x: marginX, y, size: 7, font: helveticaBold, color: gold });
+    y -= 14;
+    for (const line of wrapText(result.second_order_chain, 80)) {
+      checkPage(13);
+      page.drawText(line, { x: marginX, y, size: 9, font: helvetica, color: black });
+      y -= 13;
+    }
+    y -= 14;
+  }
+
+  // Opportunity Cost
+  if (result.opportunity_cost?.length) {
+    checkPage(40);
+    page.drawText("OPPORTUNITY COST", { x: marginX, y, size: 7, font: helveticaBold, color: gold });
+    y -= 14;
+    for (const cost of result.opportunity_cost) {
+      for (const line of wrapText(`• ${cost}`, 78)) {
+        checkPage(13);
+        page.drawText(line, { x: marginX + 4, y, size: 9, font: helvetica, color: black });
+        y -= 13;
+      }
+    }
+    y -= 14;
+  }
+
+  // Stakeholder Map
+  if (result.stakeholder_map?.length) {
+    checkPage(40);
+    page.drawText("STAKEHOLDER MAP", { x: marginX, y, size: 7, font: helveticaBold, color: gold });
+    y -= 16;
+    for (const s of result.stakeholder_map) {
+      checkPage(16);
+      page.drawText(`${s.role} — ${s.position} (${s.influence})`, { x: marginX, y, size: 9, font: helveticaBold, color: black });
+      y -= 12;
+      for (const line of wrapText(s.action, 78)) {
+        checkPage(12);
+        page.drawText(line, { x: marginX + 8, y, size: 8, font: helvetica, color: muted });
+        y -= 12;
+      }
+      y -= 6;
+    }
+    y -= 8;
+  }
+
+  // Deep dive
   page.drawRectangle({ x: marginX, y, width: contentW, height: 0.5, color: gold });
   y -= 24;
 
-  // Content sections
-  const fields: [string, string][] = [
-    ["Biggest Risk", result.biggest_risk],
-    ["Hidden Assumption", result.hidden_assumption],
-    ["The Question You Should Be Asking", result.better_question],
+  const deepFields: [string, string][] = [
     ["Devil's Advocate", result.devils_advocate],
-    ["Stakeholder Blind Spot", result.stakeholder_gap],
-    ["30-Day Validation Test", result.thirty_day_test],
+    ["30-Day Validation Test", test30],
   ];
-
-  for (const [label, value] of fields) {
+  for (const [label, value] of deepFields) {
+    if (!value) continue;
     checkPage(50);
     page.drawText(label.toUpperCase(), { x: marginX, y, size: 7, font: helveticaBold, color: gold });
     y -= 14;
@@ -100,13 +275,11 @@ export async function generatePDF(decision: string, result: AuditResult): Promis
     y -= 14;
   }
 
-  // List sections
   const lists: [string, string[]][] = [
     ["Assumptions to Validate", result.assumptions_to_validate || []],
     ["Risk Register", result.risk_register || []],
     ["Information Needed", result.information_needed || []],
   ];
-
   for (const [label, items] of lists) {
     if (items.length === 0) continue;
     checkPage(40);
@@ -123,7 +296,6 @@ export async function generatePDF(decision: string, result: AuditResult): Promis
   }
 
   addFooter(page);
-
   return doc.save();
 }
 

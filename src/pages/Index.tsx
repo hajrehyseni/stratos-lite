@@ -98,6 +98,11 @@ const Index = () => {
 
     (async () => {
       try {
+        const frameworks = selectFrameworks({
+          decision_type: dr.decision_type,
+          blast_radius: dr.blast_radius,
+          primary_constraint: dr.primary_constraint,
+        });
         const { data, error } = await supabase.functions.invoke("audit", {
           body: {
             decision: decision.trim(),
@@ -106,6 +111,7 @@ const Index = () => {
             blast_radius: dr.blast_radius,
             primary_constraint: dr.primary_constraint,
             success_vision: dr.success_vision,
+            frameworks: frameworkIds(frameworks),
           },
         });
         if (error) throw error;
