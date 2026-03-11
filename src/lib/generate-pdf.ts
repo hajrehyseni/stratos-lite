@@ -41,6 +41,7 @@ export async function generatePDF(decision: string, result: AuditResult): Promis
   const rationale = result.verdict_rationale || result.confidence_rationale || "";
   const blindSpot = result.stakeholder_blind_spot || result.stakeholder_gap || "";
   const test30 = result.validation_test_30_day || result.thirty_day_test || "";
+  const cynefinDomain = result.cynefin_domain || (result.decision_domain ? result.decision_domain.toLowerCase() : null);
 
   // Header
   const dateStr = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
@@ -53,28 +54,21 @@ export async function generatePDF(decision: string, result: AuditResult): Promis
   page.drawRectangle({ x: marginX, y, width: contentW, height: 1.5, color: gold });
   y -= 28;
 
-  // Classification + Score
-  if (result.decision_domain) {
-    page.drawText(`DOMAIN: ${result.decision_domain}`, { x: marginX, y, size: 9, font: helveticaBold, color: gold });
-    const scoreText = `SCORE: ${result.confidence_score}/100`;
-    const scoreW = helveticaBold.widthOfTextAtSize(scoreText, 9);
-    page.drawText(scoreText, { x: pageW - marginX - scoreW, y, size: 9, font: helveticaBold, color: gold });
-    y -= 14;
-    if (result.decision_domain_approach) {
-      for (const line of wrapText(result.decision_domain_approach, 80)) {
-        page.drawText(line, { x: marginX, y, size: 8, font: helvetica, color: muted });
-        y -= 12;
-      }
+  // Classification bar
+  const classLabels: Record<string, string> = { big_bet: "BIG-BET", cross_cutting: "CROSS-CUTTING", delegated: "DELEGATED" };
+  const classItems: string[] = [];
+  if (cynefinDomain) classItems.push(`DOMAIN: ${cynefinDomain.toUpperCase()}`);
+  if (result.decision_classification && classLabels[result.decision_classification]) classItems.push(classLabels[result.decision_classification]);
+  classItems.push(`SCORE: ${result.confidence_score}/100`);
+  page.drawText(classItems.join("  |  "), { x: marginX, y, size: 9, font: helveticaBold, color: gold });
+  y -= 14;
+  if (result.decision_domain_approach) {
+    for (const line of wrapText(result.decision_domain_approach, 80)) {
+      page.drawText(line, { x: marginX, y, size: 8, font: helvetica, color: muted });
+      y -= 12;
     }
-    y -= 14;
-  } else {
-    page.drawText("DECISION READINESS SCORE", { x: marginX, y, size: 9, font: helveticaBold, color: gold });
-    y -= 28;
-    page.drawText(`${result.confidence_score}/100`, { x: marginX, y, size: 32, font: helveticaBold, color: black });
-    y -= 14;
-    if (rationale) page.drawText(rationale, { x: marginX, y, size: 8, font: helvetica, color: muted });
-    y -= 28;
   }
+  y -= 14;
 
   // Decision text
   page.drawText("DECISION", { x: marginX, y, size: 7, font: helveticaBold, color: muted });
@@ -125,6 +119,56 @@ export async function generatePDF(decision: string, result: AuditResult): Promis
       for (const line of wrapText(value, 80)) {
         checkPage(12);
         page.drawText(line, { x: marginX, y, size: 9, font: helvetica, color: black });
+        y -= 12;
+      }
+      y -= 8;
+    }
+    y -= 6;
+  }
+
+  // Stakeholder Perspectives
+  if (result.stakeholder_perspectives?.length) {
+    checkPage(40);
+    page.drawRectangle({ x: marginX, y, width: contentW, height: 0.5, color: gold });
+    y -= 18;
+    page.drawText("STAKEHOLDER PERSPECTIVES", { x: marginX, y, size: 7, font: helveticaBold, color: gold });
+    y -= 16;
+    const ssmLabels: Record<string, string> = { problem_owner: "Problem Owner", problem_solver: "Problem Solver", client: "Client" };
+    for (const s of result.stakeholder_perspectives) {
+      checkPage(28);
+      page.drawText(`${s.role} (${ssmLabels[s.ssm_role] || s.ssm_role})`, { x: marginX, y, size: 10, font: helveticaBold, color: black });
+      y -= 14;
+      for (const line of wrapText(s.stance, 78)) {
+        checkPage(12);
+        page.drawText(line, { x: marginX + 8, y, size: 9, font: helvetica, color: muted });
+        y -= 12;
+      }
+      y -= 6;
+    }
+    y -= 6;
+  }
+
+  // Causal Clusters
+  if (result.causal_clusters?.length) {
+    checkPage(40);
+    page.drawRectangle({ x: marginX, y, width: contentW, height: 0.5, color: gold });
+    y -= 18;
+    page.drawText("CAUSAL CLUSTERS", { x: marginX, y, size: 7, font: helveticaBold, color: gold });
+    y -= 16;
+    for (const cluster of result.causal_clusters) {
+      checkPage(30);
+      page.drawText(cluster.name, { x: marginX, y, size: 10, font: helveticaBold, color: black });
+      y -= 14;
+      for (const concept of cluster.concepts) {
+        for (const line of wrapText(`• ${concept}`, 76)) {
+          checkPage(13);
+          page.drawText(line, { x: marginX + 8, y, size: 9, font: helvetica, color: black });
+          y -= 12;
+        }
+      }
+      for (const line of wrapText(cluster.key_link, 76)) {
+        checkPage(12);
+        page.drawText(line, { x: marginX + 8, y, size: 8, font: helveticaOblique, color: muted });
         y -= 12;
       }
       y -= 8;
@@ -189,6 +233,48 @@ export async function generatePDF(decision: string, result: AuditResult): Promis
     y -= 14;
   }
 
+  // Second Order Effects (new array)
+  if (result.second_order_effects?.length) {
+    checkPage(40);
+    page.drawRectangle({ x: marginX, y, width: contentW, height: 0.5, color: gold });
+    y -= 18;
+    page.drawText("CHAIN REACTIONS", { x: marginX, y, size: 7, font: helveticaBold, color: gold });
+    y -= 14;
+    for (const effect of result.second_order_effects) {
+      for (const line of wrapText(`→ ${effect}`, 78)) {
+        checkPage(13);
+        page.drawText(line, { x: marginX, y, size: 9, font: helvetica, color: black });
+        y -= 13;
+      }
+      y -= 4;
+    }
+    y -= 10;
+  }
+
+  // Recommendations
+  if (result.recommendations?.length) {
+    checkPage(40);
+    page.drawRectangle({ x: marginX, y, width: contentW, height: 0.5, color: gold });
+    y -= 18;
+    page.drawText("RECOMMENDED ACTIONS", { x: marginX, y, size: 7, font: helveticaBold, color: gold });
+    y -= 16;
+    for (const rec of result.recommendations) {
+      if (!rec.feasible) continue;
+      checkPage(40);
+      page.drawText(rec.action, { x: marginX, y, size: 10, font: helveticaBold, color: black });
+      y -= 14;
+      page.drawText(`Agreed by: ${rec.agreed_by}`, { x: marginX + 8, y, size: 8, font: helvetica, color: muted });
+      y -= 12;
+      for (const line of wrapText(rec.justification, 76)) {
+        checkPage(12);
+        page.drawText(line, { x: marginX + 8, y, size: 9, font: helvetica, color: black });
+        y -= 12;
+      }
+      y -= 10;
+    }
+    y -= 6;
+  }
+
   // RAPID
   if (result.rapid) {
     checkPage(80);
@@ -205,8 +291,8 @@ export async function generatePDF(decision: string, result: AuditResult): Promis
     y -= 8;
   }
 
-  // Second Order
-  if (result.second_order_chain) {
+  // Second Order (legacy)
+  if (!result.second_order_effects?.length && result.second_order_chain) {
     checkPage(40);
     page.drawRectangle({ x: marginX, y, width: contentW, height: 0.5, color: gold });
     y -= 18;

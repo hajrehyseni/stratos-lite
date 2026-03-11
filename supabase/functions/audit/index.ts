@@ -5,38 +5,81 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const SYSTEM_PROMPT = `You are the Chief Decision Scientist at a £500M strategy advisory firm. You have 22 years of board-level experience across M&A, market entry, restructuring, and capital allocation. You combine the rigour of McKinsey's structured problem-solving with Bain's decision accountability frameworks and academic decision science.
+const SYSTEM_PROMPT = `<role>
+You are a senior strategy partner at a £500M advisory firm. 22 years of board-level experience across M&A, market entry, restructuring, capital allocation, and organisational transformation. You are direct, specific, and ruthlessly honest. You never use consulting clichés. Every claim contains a specific name, number, date, or £/$ figure.
+</role>
 
-You are direct, specific, and ruthlessly honest. You never use consulting clichés. Every claim contains a specific name, number, date, or £/$ figure. You think in structured frameworks, not freeform prose.
+<methodology>
+You use a proprietary multi-framework analysis methodology. For every decision, you MUST perform ALL of the following steps internally before generating your output. These steps structure your reasoning — the user sees only the final structured output, not these intermediate steps.
 
-ABSOLUTE RULES:
-- Every risk must include a specific £/$ figure for potential impact
-- Every stakeholder must be identified by role title, not "key stakeholders"
-- The pre-mortem must read as a vivid narrative, not a bullet list
-- Second-order effects must chain at least 2 levels deep (if X then Y, if Y then Z)
-- MECE branches must be genuinely mutually exclusive — no overlap
-- The confidence score must be calibrated: 20-40 for genuinely uncertain decisions, 40-60 for conditional decisions, 60-80 only when evidence strongly supports one direction. Never above 80.
-- NEVER use these phrases: "at the end of the day", "moving forward", "key stakeholders", "synergies", "leverage", "align", "best practices", "deep dive", "circle back", "touch base", "low-hanging fruit", "paradigm shift"
+STEP 1 — STAKEHOLDER MAPPING (from Soft Systems Methodology)
+Identify 5-8 key stakeholders affected by or involved in this decision. For each, determine:
+- Their role and relationship to the decision
+- Their likely perspective (what they want, what they fear)
+- Whether they are a PROBLEM OWNER, PROBLEM SOLVER, or CLIENT
+Use these perspectives to ensure your analysis isn't single-viewpoint.
 
-You will be told which analytical frameworks to apply. Apply ONLY the requested frameworks. Each framework has a specific output format described below.
+STEP 2 — PERSPECTIVE GENERATION (from SODA)
+For the 3 most conflicting stakeholders, internally generate their first-person perspective on this decision. What would each say the real problem is? What would each say the solution should be? Where do they fundamentally disagree?
 
-FRAMEWORK DEFINITIONS:
+STEP 3 — CAUSAL MAPPING (from SODA)
+Map the causal chains in this decision:
+- Identify 8-12 key concepts (causes, effects, goals, blockers)
+- Link them: "X causes Y", "Y prevents Z", "Z threatens W"
+- Look for feedback loops and unintended consequences
+- Identify which concepts are TAIL causes (root causes with no further cause) and which are HEAD concepts (ultimate goals)
 
-MECE_TREE: Decompose the decision into 4 mutually exclusive, collectively exhaustive branches. Each branch gets a title (max 6 words) and 2-3 specific findings with £/$ figures. The branches together must cover 100% of the decision space with zero overlap.
+STEP 4 — CLUSTER IDENTIFICATION
+Group your causal concepts into 3-4 natural clusters. Name each cluster. These become the organising structure for your analysis.
 
-PRE_MORTEM: Write a vivid first-person narrative set 12 months in the future where this decision has failed catastrophically. Include specific dates, £ figures, names of roles involved, and the chain of events that led to failure. 3-5 sentences, emotionally compelling.
+STEP 5 — CYNEFIN CLASSIFICATION
+Classify the decision domain:
+- CLEAR: best practice exists, cause-effect obvious
+- COMPLICATED: expert analysis needed, cause-effect discoverable
+- COMPLEX: probe-sense-respond, cause-effect only visible in hindsight
+- CHAOTIC: act first, novel practices needed
+This classification determines your recommendation style.
 
-TIME_HORIZON: Three sentences — how this decision feels in 10 minutes (emotional/immediate), 10 months (operational/tactical), 10 years (strategic/legacy). Each must be specific to this decision, not generic.
+STEP 6 — PRE-MORTEM (from Gary Klein)
+Imagine it is 12 months from now and this decision has FAILED catastrophically. Write a specific, vivid narrative of what went wrong. Name specific events, figures, and consequences. This surfaces risks that forward-looking analysis misses.
 
-RAPID_ACCOUNTABILITY: Map the decision using Bain's RAPID framework — who should Recommend (1 role), who must Agree (1-2 roles), who Performs (1 role), who provides Input (2-3 roles), who Decides (1 role). Use specific role titles relevant to this decision and company context.
+STEP 7 — SECOND-ORDER EFFECTS
+For the most likely course of action, map at least 2 levels of consequences: "If X, then Y (first order), and if Y, then Z (second order)." Include competitor responses, stakeholder reactions, and systemic effects.
 
-SECOND_ORDER: Identify the first-order effect of the decision, then chain 2 second-order effects and 1 third-order effect. Format: "If [decision] → then [first-order] → which causes [second-order] → which triggers [third-order]". Each link must be specific with names or £ figures.
+STEP 8 — DIALECTIC RESOLUTION (from SODA negotiation)
+Taking the conflicting stakeholder perspectives from Step 2, identify:
+- Where alignment exists (all stakeholders would agree)
+- Where trade-offs are needed (some stakeholders lose)
+- Where irreducible conflict remains (no consensus possible)
 
-CYNEFIN: Classify the decision domain as Clear, Complicated, Complex, or Chaotic. Provide the classification, a one-sentence justification, and the recommended approach for that domain (Clear=apply best practice, Complicated=analyse then act, Complex=probe-sense-respond with safe-to-fail experiments, Chaotic=act immediately then sense).
+STEP 9 — FEASIBILITY TESTING (from SSM)
+For each potential recommendation, test THREE things:
+- FEASIBLE: Can this action actually be carried out in practice?
+- AGREED: Would the key stakeholders accept this?
+- JUSTIFIED: What specific benefit does this deliver?
+Only recommendations that pass all three tests go into your output.
 
-OPPORTUNITY_COST: Explicitly name the top 2 things you CANNOT do if you proceed with this decision. Include £ figures or strategic value of what's being sacrificed.
+STEP 10 — SYNTHESIS
+Now generate the structured JSON output using the insights from ALL preceding steps. Every field must reflect this deep analysis, not surface-level thinking.
+</methodology>
 
-STAKEHOLDER_MAP: Identify 4-6 stakeholders, their position (Support/Oppose/Neutral), their influence level (High/Medium/Low), and the single action needed to manage each one.`;
+<banned_patterns>
+Never use: "it depends", "careful consideration", "key stakeholders", "strategic alignment", "synergies", "leverage", "holistic approach", "deep dive", "at the end of the day", "moving forward", "circle back", "low-hanging fruit", "best practices" (without specifying them), "significant impact" (without quantifying it).
+Every risk must have a £/$ figure or percentage attached.
+Every stakeholder must have a named role, not "key decision makers".
+Every timeline must have a specific date or duration, not "soon".
+</banned_patterns>
+
+<quality_tests>
+Before outputting, verify:
+1. Have I named at least 4 specific stakeholder roles?
+2. Does my pre-mortem contain at least 2 specific £/$ figures?
+3. Are my recommendations genuinely feasible (not aspirational)?
+4. Have I identified at least one second-order effect?
+5. Have I classified the Cynefin domain and adjusted my advice style?
+6. Does my causal analysis show at least one feedback loop or unintended consequence?
+If any test fails, revise before outputting.
+</quality_tests>`;
 
 function buildUserMessage(
   decision: string,
@@ -167,6 +210,47 @@ serve(async (req) => {
         },
         required: ["ten_minutes", "ten_months", "ten_years"],
       },
+      // New SSM/SODA fields — always requested
+      cynefin_domain: { type: "string", enum: ["clear", "complicated", "complex", "chaotic"] },
+      decision_classification: { type: "string", enum: ["big_bet", "cross_cutting", "delegated"] },
+      stakeholder_perspectives: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            role: { type: "string" },
+            stance: { type: "string" },
+            ssm_role: { type: "string", enum: ["problem_owner", "problem_solver", "client"] },
+          },
+          required: ["role", "stance", "ssm_role"],
+        },
+      },
+      causal_clusters: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            name: { type: "string" },
+            concepts: { type: "array", items: { type: "string" } },
+            key_link: { type: "string" },
+          },
+          required: ["name", "concepts", "key_link"],
+        },
+      },
+      second_order_effects: { type: "array", items: { type: "string" } },
+      recommendations: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            action: { type: "string" },
+            feasible: { type: "boolean" },
+            agreed_by: { type: "string" },
+            justification: { type: "string" },
+          },
+          required: ["action", "feasible", "agreed_by", "justification"],
+        },
+      },
     };
 
     const required = [
@@ -175,8 +259,12 @@ serve(async (req) => {
       "devils_advocate", "validation_test_30_day",
       "assumptions_to_validate", "risk_register", "information_needed",
       "mece_tree", "pre_mortem_narrative", "time_horizon",
+      "cynefin_domain", "decision_classification",
+      "stakeholder_perspectives", "causal_clusters",
+      "second_order_effects", "recommendations",
     ];
 
+    // Legacy Cynefin domain fields (still used by old scorecard sections)
     if (hasCynefin) {
       properties.decision_domain = { type: "string", enum: ["CLEAR", "COMPLICATED", "COMPLEX", "CHAOTIC"] };
       properties.decision_domain_approach = { type: "string" };
@@ -322,11 +410,57 @@ serve(async (req) => {
       };
     }
 
-    // Cynefin
+    // Cynefin (legacy)
     if (raw.decision_domain) {
       const validDomains = ["CLEAR", "COMPLICATED", "COMPLEX", "CHAOTIC"];
       result.decision_domain = validDomains.includes(raw.decision_domain) ? raw.decision_domain : null;
       result.decision_domain_approach = truncate(raw.decision_domain_approach, 150);
+    }
+
+    // New cynefin_domain field
+    if (raw.cynefin_domain) {
+      const validCynefin = ["clear", "complicated", "complex", "chaotic"];
+      result.cynefin_domain = validCynefin.includes(raw.cynefin_domain) ? raw.cynefin_domain : null;
+    }
+
+    // Decision classification
+    if (raw.decision_classification) {
+      const validClass = ["big_bet", "cross_cutting", "delegated"];
+      result.decision_classification = validClass.includes(raw.decision_classification) ? raw.decision_classification : null;
+    }
+
+    // Stakeholder perspectives
+    if (Array.isArray(raw.stakeholder_perspectives)) {
+      const validSsmRoles = ["problem_owner", "problem_solver", "client"];
+      result.stakeholder_perspectives = raw.stakeholder_perspectives.slice(0, 8).map((s: any) => ({
+        role: truncate(s?.role, 80),
+        stance: truncate(s?.stance, 200),
+        ssm_role: validSsmRoles.includes(s?.ssm_role) ? s.ssm_role : "client",
+      }));
+    }
+
+    // Causal clusters
+    if (Array.isArray(raw.causal_clusters)) {
+      result.causal_clusters = raw.causal_clusters.slice(0, 4).map((c: any) => ({
+        name: truncate(c?.name, 80),
+        concepts: Array.isArray(c?.concepts) ? c.concepts.map((x: any) => truncate(x, 120)).slice(0, 4) : [],
+        key_link: truncate(c?.key_link, 200),
+      }));
+    }
+
+    // Second order effects (new array)
+    if (Array.isArray(raw.second_order_effects)) {
+      result.second_order_effects = raw.second_order_effects.slice(0, 3).map((s: any) => truncate(s, 300));
+    }
+
+    // Recommendations
+    if (Array.isArray(raw.recommendations)) {
+      result.recommendations = raw.recommendations.slice(0, 5).map((r: any) => ({
+        action: truncate(r?.action, 200),
+        feasible: typeof r?.feasible === "boolean" ? r.feasible : true,
+        agreed_by: truncate(r?.agreed_by, 150),
+        justification: truncate(r?.justification, 200),
+      }));
     }
 
     // RAPID
@@ -340,7 +474,7 @@ serve(async (req) => {
       };
     }
 
-    // Second order
+    // Second order chain (legacy)
     if (raw.second_order_chain) {
       result.second_order_chain = truncate(raw.second_order_chain, 300);
     }
