@@ -111,7 +111,7 @@ export default function JournalPage() {
                           {entry.result.confidence_score}
                         </span>
                         <span
-                          className="inline-block rounded-full flex-shrink-0"
+                          className="inline-block rounded-full flex-shrink-0 hidden sm:inline-block"
                           style={{ width: 8, height: 8, background: verdictColors[entry.result.verdict] || "#888" }}
                         />
                       </button>
