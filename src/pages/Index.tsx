@@ -90,6 +90,8 @@ const Index = () => {
   const handleLandingSubmit = (text: string) => {
     setDecision(text);
     if (!canRunAudit()) return;
+    // Save decision text for sessionStorage resume
+    sessionStorage.setItem("stratos_diag_decision", text);
     setLandingExiting(true);
     setTimeout(() => {
       setPhase("diagnostic");
