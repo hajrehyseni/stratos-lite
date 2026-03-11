@@ -101,6 +101,9 @@ export default function DashboardPage() {
 
   const cardBase = { background: "#0F0F0F", border: "1px solid #1A1A1A" };
 
+  if (loading) return null;
+  if (!user) return <Navigate to="/login" replace />;
+
   return (
     <>
       <NavBar journalCount={count} />
