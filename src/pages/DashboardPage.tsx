@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { NavBar } from "@/components/NavBar";
+import { useAuth } from "@/contexts/AuthContext";
 import { getJournalEntries } from "@/lib/journal";
 import type { JournalEntry, AuditResult } from "@/lib/types";
 import { ArrowRight } from "lucide-react";
@@ -15,6 +16,7 @@ const verdictColors: Record<string, string> = {
 const verdictLabels = ["PROCEED", "CONDITIONAL PROCEED", "DO NOT PROCEED", "DEFER — INFORMATION NEEDED"];
 
 export default function DashboardPage() {
+  const { user, loading } = useAuth();
   const entries = getJournalEntries();
   const count = entries.length;
 
@@ -98,6 +100,9 @@ export default function DashboardPage() {
   const [expanded, setExpanded] = useState<string | null>(null);
 
   const cardBase = { background: "#0F0F0F", border: "1px solid #1A1A1A" };
+
+  if (loading) return null;
+  if (!user) return <Navigate to="/login" replace />;
 
   return (
     <>

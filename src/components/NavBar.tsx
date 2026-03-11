@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { getJournalCount } from "@/lib/journal";
+import { useAuth } from "@/contexts/AuthContext";
+import { AccountMenu } from "@/components/AccountMenu";
 
 interface Props {
   journalCount?: number;
@@ -9,20 +11,13 @@ interface Props {
 export function NavBar({ journalCount }: Props) {
   const [scrolled, setScrolled] = useState(false);
   const count = journalCount ?? getJournalCount();
-  const [dashboardSeen, setDashboardSeen] = useState(() => {
-    try { return localStorage.getItem("stratos_dashboard_seen") === "true"; } catch { return false; }
-  });
+  const { user } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10);
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  const markDashboardSeen = () => {
-    localStorage.setItem("stratos_dashboard_seen", "true");
-    setDashboardSeen(true);
-  };
 
   return (
     <nav
@@ -43,29 +38,43 @@ export function NavBar({ journalCount }: Props) {
         </Link>
 
         <div className="flex items-center gap-4">
-          {count >= 1 && (
+          <Link
+            to="/pricing"
+            className="text-[13px] transition-colors hover:opacity-80"
+            style={{ color: "hsl(var(--muted-foreground))" }}
+          >
+            Pricing
+          </Link>
+
+          {user && count >= 1 && (
             <Link
               to="/journal"
               className="text-[13px] transition-colors hover:opacity-80"
-              style={{ color: "#888" }}
+              style={{ color: "hsl(var(--muted-foreground))" }}
             >
               Journal
             </Link>
           )}
-          {count >= 5 && (
+
+          {user && count >= 5 && (
             <Link
               to="/dashboard"
-              onClick={markDashboardSeen}
-              className="text-[13px] transition-colors hover:opacity-80 flex items-center gap-1.5"
-              style={{ color: "#C9A84C" }}
+              className="text-[13px] transition-colors hover:opacity-80"
+              style={{ color: "hsl(var(--primary))" }}
             >
-              {!dashboardSeen && (
-                <span
-                  className="inline-block rounded-full"
-                  style={{ width: 6, height: 6, background: "#C9A84C" }}
-                />
-              )}
               Dashboard
+            </Link>
+          )}
+
+          {user ? (
+            <AccountMenu />
+          ) : (
+            <Link
+              to="/login"
+              className="text-[13px] transition-colors hover:opacity-80"
+              style={{ color: "hsl(var(--foreground))" }}
+            >
+              Sign in
             </Link>
           )}
         </div>

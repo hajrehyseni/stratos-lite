@@ -7,7 +7,13 @@ import { NewProcessingState } from "@/components/NewProcessingState";
 import { AuditResult, AuditResultSchema } from "@/lib/types";
 import { saveJournalEntry, getJournalCount } from "@/lib/journal";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { STRIPE_TIERS } from "@/lib/stripe-config";
+import { UpgradeModal } from "@/components/UpgradeModal";
+import { SignupGate } from "@/components/SignupGate";
 import { toast } from "sonner";
+
+const ANON_AUDIT_KEY = "stratos_anon_audit_done";
 
 function generateId(): string {
   return Math.random().toString(36).substring(2, 8);
@@ -24,6 +30,7 @@ const SKIP_DEFAULTS: DiagnosticResult = {
 };
 
 const Index = () => {
+  const { user, subscription, refreshSubscription } = useAuth();
   const [phase, setPhase] = useState<Phase>("landing");
   const [decision, setDecision] = useState("");
   const [diagnosticResult, setDiagnosticResult] = useState<DiagnosticResult>(SKIP_DEFAULTS);
@@ -31,13 +38,37 @@ const Index = () => {
   const [auditId, setAuditId] = useState("");
   const [landingExiting, setLandingExiting] = useState(false);
   const [journalSaved, setJournalSaved] = useState(false);
+  const [showUpgrade, setShowUpgrade] = useState(false);
+  const [showSignupGate, setShowSignupGate] = useState(false);
 
   const apiResolved = useRef(false);
   const [apiResolvedState, setApiResolvedState] = useState(false);
   const apiResult = useRef<{ parsed: AuditResult; id: string } | null>(null);
 
+  // Check if user can run an audit
+  const canRunAudit = (): boolean => {
+    // Anonymous: allow 1 free audit
+    if (!user) {
+      const done = localStorage.getItem(ANON_AUDIT_KEY);
+      if (done) {
+        setShowSignupGate(true);
+        return false;
+      }
+      return true;
+    }
+
+    // Logged in: check plan limits
+    const tier = STRIPE_TIERS[subscription.plan];
+    if (subscription.auditCount >= tier.audits) {
+      setShowUpgrade(true);
+      return false;
+    }
+    return true;
+  };
+
   const handleLandingSubmit = (text: string) => {
     setDecision(text);
+    if (!canRunAudit()) return;
     setLandingExiting(true);
     setTimeout(() => {
       setPhase("diagnostic");
@@ -84,7 +115,28 @@ const Index = () => {
           id,
           decision: decision.trim(),
           result: parsed as any,
+          user_id: user?.id || null,
         });
+
+        // Increment audit count
+        if (user) {
+          const { data: subData } = await supabase
+            .from("subscriptions")
+            .select("audit_count")
+            .eq("user_id", user.id)
+            .single();
+          
+          if (subData) {
+            await supabase
+              .from("subscriptions")
+              .update({ audit_count: (subData.audit_count ?? 0) + 1 })
+              .eq("user_id", user.id);
+          }
+          refreshSubscription();
+        } else {
+          // Mark anonymous audit as done
+          localStorage.setItem(ANON_AUDIT_KEY, "true");
+        }
 
         apiResult.current = { parsed, id };
         apiResolved.current = true;
@@ -145,6 +197,32 @@ const Index = () => {
           onSaveToJournal={handleSaveToJournal}
           journalSaved={journalSaved}
         />
+        {/* Post-audit signup gate for anonymous users */}
+        {!user && (
+          <div className="px-4 pb-12">
+            <div
+              className="rounded-xl p-6 text-center mx-auto"
+              style={{ maxWidth: 720, background: "#0F0F0F", border: "1px solid rgba(201,168,76,0.2)" }}
+            >
+              <h3 style={{ fontSize: 18, fontWeight: 600, color: "hsl(var(--foreground))" }}>
+                Create a free account to save your decision history
+              </h3>
+              <p className="mt-2" style={{ fontSize: 14, color: "hsl(var(--muted-foreground))", lineHeight: 1.6 }}>
+                Unlock 3 audits and build your decision intelligence profile.
+              </p>
+              <a
+                href="/signup"
+                className="mt-4 inline-flex items-center justify-center rounded-lg font-semibold transition-all duration-200"
+                style={{
+                  height: 44, padding: "0 24px", fontSize: 14,
+                  background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))",
+                }}
+              >
+                Create Free Account
+              </a>
+            </div>
+          </div>
+        )}
       </>
     );
   }
@@ -181,6 +259,9 @@ const Index = () => {
           apiResolved={apiResolvedState}
         />
       )}
+
+      <UpgradeModal open={showUpgrade} onClose={() => setShowUpgrade(false)} />
+      <SignupGate open={showSignupGate} onClose={() => setShowSignupGate(false)} />
     </>
   );
 };

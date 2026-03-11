@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { getJournalEntries, deleteJournal } from "@/lib/journal";
 import type { JournalEntry } from "@/lib/types";
+import { useAuth } from "@/contexts/AuthContext";
 import { NavBar } from "@/components/NavBar";
 import { toast } from "sonner";
 import { Trash2 } from "lucide-react";
@@ -14,9 +15,13 @@ const verdictColors: Record<string, string> = {
 };
 
 export default function JournalPage() {
+  const { user, loading } = useAuth();
   const [entries, setEntries] = useState<JournalEntry[]>(getJournalEntries());
   const [showClear, setShowClear] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
+
+  if (loading) return null;
+  if (!user) return <Navigate to="/login" replace />;
 
   const handleClearJournal = () => {
     deleteJournal();
