@@ -16,11 +16,12 @@ const verdictColors: Record<string, string> = {
 
 export default function JournalPage() {
   const { user, loading } = useAuth();
-  if (loading) return null;
-  if (!user) return <Navigate to="/login" replace />;
   const [entries, setEntries] = useState<JournalEntry[]>(getJournalEntries());
   const [showClear, setShowClear] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
+
+  if (loading) return null;
+  if (!user) return <Navigate to="/login" replace />;
 
   const handleClearJournal = () => {
     deleteJournal();
