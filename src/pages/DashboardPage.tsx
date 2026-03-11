@@ -127,6 +127,43 @@ export default function DashboardPage() {
       <div className="min-h-screen px-4 sm:px-6 pb-16 pt-8">
         <div className="max-w-[960px] mx-auto space-y-8">
 
+          {/* Empty state */}
+          {count === 0 && (
+            <div className="flex flex-col items-center justify-center text-center" style={{ minHeight: "50vh" }}>
+              <div className="rounded-xl p-8 w-full" style={{ ...cardBase, maxWidth: 560 }}>
+                <h2 style={{ fontSize: 22, fontWeight: 600, color: "hsl(var(--foreground))" }}>
+                  Your Decision Intelligence Dashboard
+                </h2>
+                <p className="mt-3 mx-auto" style={{ fontSize: 14, color: "hsl(var(--muted-foreground))", lineHeight: 1.6, maxWidth: 420 }}>
+                  Run your first audit to see your confidence scores, risk patterns, and decision-making profile.
+                </p>
+                <Link
+                  to="/"
+                  className="mt-6 inline-flex items-center justify-center gap-2 rounded-lg btn-press transition-all duration-200"
+                  style={{
+                    height: 44, fontSize: 14, padding: "0 24px",
+                    background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))", fontWeight: 600,
+                  }}
+                >
+                  Run Your First Audit
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
+              {/* Ghost preview */}
+              <div className="mt-8 w-full grid grid-cols-2 sm:grid-cols-4 gap-3" style={{ maxWidth: 560, opacity: 0.3 }}>
+                {["Total Audits", "Avg Readiness", "Top Risk", "Streak"].map((label) => (
+                  <div key={label} className="rounded-xl p-5" style={cardBase}>
+                    <span style={{ fontSize: 28, fontWeight: 700, color: "#C9A84C" }}>—</span>
+                    <p style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.1em", color: "#555", marginTop: 4 }}>{label}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {count > 0 && (
+            <>
+
           {/* Section B: Metrics */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div className="rounded-xl p-5" style={cardBase}>
@@ -328,6 +365,8 @@ export default function DashboardPage() {
                 </div>
               </div>
             </div>
+          )}
+          </>
           )}
         </div>
       </div>

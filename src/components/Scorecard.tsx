@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Copy, Download, Check, BookmarkPlus, ChevronDown, Share2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import type { AuditResult } from "@/lib/types";
 import { generateBrief } from "@/lib/copy-brief";
 import { generatePDF } from "@/lib/generate-pdf";
 import { getJournalCount } from "@/lib/journal";
+import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
 interface ScorecardProps {
@@ -32,52 +33,42 @@ const verdictColor: Record<string, string> = {
 };
 
 const cynefinBadgeColors: Record<string, string> = {
-  clear: "#22c55e",
-  complicated: "#3b82f6",
-  complex: "#C9A84C",
-  chaotic: "#ef4444",
-  CLEAR: "#22c55e",
-  COMPLICATED: "#3b82f6",
-  COMPLEX: "#C9A84C",
-  CHAOTIC: "#ef4444",
+  clear: "#22c55e", complicated: "#3b82f6", complex: "#C9A84C", chaotic: "#ef4444",
+  CLEAR: "#22c55e", COMPLICATED: "#3b82f6", COMPLEX: "#C9A84C", CHAOTIC: "#ef4444",
 };
 
 const classificationLabels: Record<string, string> = {
-  big_bet: "BIG-BET DECISION",
-  cross_cutting: "CROSS-CUTTING",
-  delegated: "DELEGATED",
+  big_bet: "BIG-BET DECISION", cross_cutting: "CROSS-CUTTING", delegated: "DELEGATED",
 };
 
 const ssmRoleLabels: Record<string, string> = {
-  problem_owner: "Problem Owner",
-  problem_solver: "Problem Solver",
-  client: "Client",
+  problem_owner: "Problem Owner", problem_solver: "Problem Solver", client: "Client",
 };
 
 const ssmRoleColors: Record<string, string> = {
-  problem_owner: "#C9A84C",
-  problem_solver: "#3b82f6",
-  client: "#22c55e",
+  problem_owner: "#C9A84C", problem_solver: "#3b82f6", client: "#22c55e",
 };
 
 const positionColors: Record<string, string> = {
-  Support: "#22c55e",
-  Oppose: "#ef4444",
-  Neutral: "#888",
+  Support: "#22c55e", Oppose: "#ef4444", Neutral: "#888",
 };
 
 const cardBase = { background: "#0F0F0F", border: "1px solid #1A1A1A" };
 
-function SectionDivider({ label }: { label: string }) {
+function SectionDivider({ label, subtitle }: { label: string; subtitle?: string }) {
   return (
     <div className="relative my-8">
       <div style={{ height: 1, background: "#1A1A1A" }} />
-      <span
-        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 px-3"
-        style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.15em", color: "#555", background: "#080808" }}
-      >
-        {label}
-      </span>
+      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 px-3 text-center" style={{ background: "#080808" }}>
+        <span style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.15em", color: "hsl(var(--muted-foreground))" }}>
+          {label}
+        </span>
+        {subtitle && (
+          <span className="block" style={{ fontSize: 10, color: "hsl(var(--muted-foreground))", opacity: 0.5, marginTop: 1 }}>
+            {subtitle}
+          </span>
+        )}
+      </div>
     </div>
   );
 }
@@ -93,6 +84,8 @@ function CardLabel({ children }: { children: React.ReactNode }) {
 export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal, journalSaved, readOnly }: ScorecardProps) {
   const [copied, setCopied] = useState(false);
   const [deepDiveOpen, setDeepDiveOpen] = useState(false);
+  const [showConversionModal, setShowConversionModal] = useState(false);
+  const { user } = useAuth();
   const journalCount = getJournalCount();
 
   const reframe = result.reframe_question || result.better_question || "";
@@ -102,6 +95,14 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
 
   const cynefinDomain = result.cynefin_domain || (result.decision_domain ? result.decision_domain.toLowerCase() : null);
   const domainApproach = result.decision_domain_approach || null;
+
+  // Post-audit conversion modal for anonymous users
+  useEffect(() => {
+    if (!user && !readOnly) {
+      const timer = setTimeout(() => setShowConversionModal(true), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [user, readOnly]);
 
   const handleCopyBrief = async () => {
     const brief = generateBrief(decision, result);
@@ -154,6 +155,42 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
 
   return (
     <div className="min-h-screen px-4 pt-20 pb-16">
+      {/* Conversion modal overlay */}
+      {showConversionModal && !user && !readOnly && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)" }}>
+          <div className="rounded-xl p-8 mx-4" style={{ maxWidth: 440, background: "#0F0F0F", border: "1px solid rgba(201,168,76,0.3)" }}>
+            <h3 style={{ fontSize: 20, fontWeight: 600, color: "hsl(var(--foreground))", textAlign: "center" }}>
+              Save this audit to your decision journal
+            </h3>
+            <p className="mt-3 text-center" style={{ fontSize: 14, color: "hsl(var(--muted-foreground))", lineHeight: 1.6 }}>
+              Create a free account to keep your results, track decisions over time, and unlock 3 audits.
+            </p>
+            <a
+              href="/signup"
+              className="mt-6 w-full flex items-center justify-center gap-3 rounded-lg font-semibold transition-all duration-200"
+              style={{ height: 48, fontSize: 14, background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))" }}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+              Continue with Google
+            </a>
+            <a
+              href="/signup"
+              className="mt-3 w-full flex items-center justify-center rounded-lg transition-all duration-200"
+              style={{ height: 44, fontSize: 14, border: "1px solid #1A1A1A", color: "hsl(var(--foreground))" }}
+            >
+              Sign up with email
+            </a>
+            <button
+              onClick={() => setShowConversionModal(false)}
+              className="mt-4 w-full text-center transition-opacity hover:opacity-80"
+              style={{ fontSize: 13, color: "hsl(var(--muted-foreground))", background: "none", border: "none" }}
+            >
+              Skip for now
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="scorecard-entrance" style={{ maxWidth: 720, margin: "0 auto" }}>
         {readOnly && (
           <div className="text-center mb-8 rounded-lg py-2 px-4" style={{ background: "rgba(201,168,76,0.08)", border: "1px solid rgba(201,168,76,0.15)" }}>
@@ -163,35 +200,8 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
           </div>
         )}
 
-        {/* ═══ SECTION 0: CLASSIFICATION BAR ═══ */}
-        <div className="flex items-center gap-3 mb-8 flex-wrap">
-          {cynefinDomain && (
-            <span
-              className="inline-flex items-center rounded-full px-3 py-1 text-xs font-bold"
-              style={{
-                background: `${cynefinBadgeColors[cynefinDomain] || "#888"}15`,
-                border: `1px solid ${cynefinBadgeColors[cynefinDomain] || "#888"}40`,
-                color: cynefinBadgeColors[cynefinDomain] || "#888",
-                letterSpacing: "0.05em",
-                textTransform: "uppercase",
-              }}
-            >
-              {cynefinDomain}
-            </span>
-          )}
-          {result.decision_classification && classificationLabels[result.decision_classification] && (
-            <span
-              className="inline-flex items-center rounded-full px-3 py-1 text-xs font-bold"
-              style={{
-                background: "rgba(232,228,223,0.05)",
-                border: "1px solid rgba(232,228,223,0.15)",
-                color: "rgba(232,228,223,0.7)",
-                letterSpacing: "0.05em",
-              }}
-            >
-              {classificationLabels[result.decision_classification]}
-            </span>
-          )}
+        {/* ═══ TIER 1: VERDICT + SCORE (first!) ═══ */}
+        <div className="flex items-center gap-3 mb-4 flex-wrap">
           <div className="ml-auto flex items-baseline gap-1">
             <span style={{ fontSize: 40, fontWeight: 700, color: "#C9A84C", lineHeight: 1 }}>
               {result.confidence_score}
@@ -199,22 +209,20 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
             <span style={{ fontSize: 16, fontWeight: 400, color: "rgba(232,228,223,0.3)" }}>/100</span>
           </div>
         </div>
-        {domainApproach && (
-          <p className="mb-6 -mt-4" style={{ fontSize: 12, color: "rgba(232,228,223,0.4)" }}>
-            {domainApproach}
-          </p>
-        )}
-        <div className="mb-8" style={{ width: "100%", height: 4, borderRadius: 2, background: "rgba(232,228,223,0.06)", overflow: "hidden" }}>
+        <div className="mb-4" style={{ width: "100%", height: 4, borderRadius: 2, background: "rgba(232,228,223,0.06)", overflow: "hidden" }}>
           <div className="bar-fill" style={{ height: "100%", width: `${result.confidence_score}%`, borderRadius: 2, background: "#C9A84C" }} />
         </div>
+        <p className="mb-6" style={{ fontSize: 13, color: "rgba(232,228,223,0.4)" }}>
+          {getReadinessInterpretation(result.confidence_score)}
+        </p>
 
-        {/* ═══ SECTION 1: EXECUTIVE SUMMARY ═══ */}
         <div className="rounded-lg px-6 py-5 mb-3" style={{ ...cardBase, borderLeft: `4px solid ${verdictColor[result.verdict] || "#C9A84C"}` }}>
           <CardLabel>Verdict</CardLabel>
           <p style={{ fontSize: 20, fontWeight: 500, color: "#E8E4DF", lineHeight: 1.7 }}>{result.verdict}</p>
           {rationale && <p className="mt-2" style={{ fontSize: 13, color: "rgba(232,228,223,0.4)" }}>{rationale}</p>}
         </div>
 
+        {/* ═══ TIER 2: EXECUTIVE SUMMARY / REFRAME ═══ */}
         {reframe && (
           <div className="rounded-lg px-6 py-5 mb-3 reframe-glow" style={{ ...cardBase, borderTop: "1px solid rgba(201,168,76,0.3)" }}>
             <p style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.15em", color: "#666", marginBottom: 8 }}>THE REFRAME</p>
@@ -224,6 +232,45 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
           </div>
         )}
 
+        {/* ═══ TIER 3: CLASSIFICATION BAR (moved down) ═══ */}
+        {(cynefinDomain || result.decision_classification) && (
+          <div className="flex items-center gap-3 mb-3 flex-wrap">
+            {cynefinDomain && (
+              <span
+                className="inline-flex items-center rounded-full px-3 py-1 text-xs font-bold"
+                style={{
+                  background: `${cynefinBadgeColors[cynefinDomain] || "#888"}15`,
+                  border: `1px solid ${cynefinBadgeColors[cynefinDomain] || "#888"}40`,
+                  color: cynefinBadgeColors[cynefinDomain] || "#888",
+                  letterSpacing: "0.05em",
+                  textTransform: "uppercase",
+                }}
+              >
+                {cynefinDomain}
+              </span>
+            )}
+            {result.decision_classification && classificationLabels[result.decision_classification] && (
+              <span
+                className="inline-flex items-center rounded-full px-3 py-1 text-xs font-bold"
+                style={{
+                  background: "rgba(232,228,223,0.05)",
+                  border: "1px solid rgba(232,228,223,0.15)",
+                  color: "rgba(232,228,223,0.7)",
+                  letterSpacing: "0.05em",
+                }}
+              >
+                {classificationLabels[result.decision_classification]}
+              </span>
+            )}
+          </div>
+        )}
+        {domainApproach && (
+          <p className="mb-6" style={{ fontSize: 12, color: "rgba(232,228,223,0.4)" }}>
+            {domainApproach}
+          </p>
+        )}
+
+        {/* Time Horizon */}
         {result.time_horizon && (
           <div className="rounded-lg px-6 py-5 mb-3" style={cardBase}>
             <CardLabel>Time Horizon Check</CardLabel>
@@ -245,10 +292,60 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
           </div>
         )}
 
-        {/* ═══ SECTION 2: STAKEHOLDER PERSPECTIVES ═══ */}
+        {/* ═══ TIER 4: DECISION BREAKDOWN (MECE) ═══ */}
+        {result.mece_tree?.branches && result.mece_tree.branches.length > 0 && (
+          <>
+            <SectionDivider label="Decision Breakdown" subtitle="(MECE Analysis)" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {result.mece_tree.branches.map((branch, i) => (
+                <div key={i} className="rounded-lg px-5 py-4" style={{ ...cardBase, borderLeft: "3px solid rgba(201,168,76,0.4)" }}>
+                  <p style={{ fontSize: 13, fontWeight: 600, color: "#E8E4DF", marginBottom: 8 }}>{branch.title}</p>
+                  <ul className="space-y-1.5">
+                    {branch.findings.map((f, j) => (
+                      <li key={j} className="flex gap-2" style={{ fontSize: 13, color: "rgba(232,228,223,0.7)", lineHeight: 1.6 }}>
+                        <span style={{ color: "rgba(201,168,76,0.5)", flexShrink: 0 }}>•</span>{f}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
+        {/* ═══ TIER 5: WHAT COULD GO WRONG (Risk Surface + Pre-Mortem) ═══ */}
+        {(result.biggest_risk || result.hidden_assumption || blindSpot || result.pre_mortem_narrative) && (
+          <>
+            <SectionDivider label="What Could Go Wrong" subtitle="(Risk Matrix)" />
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
+              {[
+                { label: "Biggest Risk", value: result.biggest_risk },
+                { label: "Hidden Assumption", value: result.hidden_assumption },
+                { label: "Stakeholder Blind Spot", value: blindSpot },
+              ].filter(c => c.value).map((card) => (
+                <div key={card.label} className="rounded-lg px-5 py-4" style={cardBase}>
+                  <CardLabel>{card.label}</CardLabel>
+                  <p style={{ fontSize: 14, fontWeight: 400, color: "#E8E4DF", lineHeight: 1.7 }}>{card.value}</p>
+                </div>
+              ))}
+            </div>
+
+            {result.pre_mortem_narrative && (
+              <div className="rounded-lg px-6 py-5 mb-3" style={{ ...cardBase, borderLeft: "4px solid #ef4444" }}>
+                <CardLabel>Failure Scenario</CardLabel>
+                <span className="block mb-2" style={{ fontSize: 10, color: "hsl(var(--muted-foreground))", opacity: 0.5 }}>(Pre-Mortem)</span>
+                <p style={{ fontSize: 15, fontStyle: "italic", color: "#E8E4DF", lineHeight: 1.7 }}>
+                  {result.pre_mortem_narrative}
+                </p>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* ═══ TIER 6: WHO'S AFFECTED & HOW (Stakeholder Perspectives) ═══ */}
         {result.stakeholder_perspectives && result.stakeholder_perspectives.length > 0 && (
           <>
-            <SectionDivider label="Stakeholder Perspectives" />
+            <SectionDivider label="Who's Affected & How" subtitle="(Stakeholder Analysis)" />
             <div className="rounded-lg overflow-hidden" style={{ ...cardBase, borderLeft: "3px solid rgba(201,168,76,0.4)" }}>
               {result.stakeholder_perspectives.map((s, i) => (
                 <div key={i} className="px-5 py-4" style={{ borderBottom: i < result.stakeholder_perspectives!.length - 1 ? "1px solid #1A1A1A" : "none" }}>
@@ -273,10 +370,10 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
           </>
         )}
 
-        {/* ═══ SECTION 3: CAUSAL CLUSTERS ═══ */}
+        {/* ═══ TIER 7: ROOT CAUSES & DRIVERS (Causal Clusters) ═══ */}
         {result.causal_clusters && result.causal_clusters.length > 0 && (
           <>
-            <SectionDivider label="Causal Clusters" />
+            <SectionDivider label="Root Causes & Drivers" subtitle="(Causal Analysis)" />
             <div className="space-y-3">
               {result.causal_clusters.map((cluster, i) => (
                 <div key={i} className="rounded-lg px-5 py-4" style={{ ...cardBase, borderLeft: "3px solid rgba(201,168,76,0.4)" }}>
@@ -305,61 +402,41 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
           </>
         )}
 
-        {/* ═══ SECTION 4: RISK SURFACE ═══ */}
-        <SectionDivider label="Strategic Risk Surface" />
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
-          {[
-            { label: "Biggest Risk", value: result.biggest_risk },
-            { label: "Hidden Assumption", value: result.hidden_assumption },
-            { label: "Stakeholder Blind Spot", value: blindSpot },
-          ].filter(c => c.value).map((card) => (
-            <div key={card.label} className="rounded-lg px-5 py-4" style={cardBase}>
-              <CardLabel>{card.label}</CardLabel>
-              <p style={{ fontSize: 14, fontWeight: 400, color: "#E8E4DF", lineHeight: 1.7 }}>{card.value}</p>
-            </div>
-          ))}
-        </div>
-
-        {result.pre_mortem_narrative && (
-          <div className="rounded-lg px-6 py-5 mb-3" style={{ ...cardBase, borderLeft: "4px solid #ef4444" }}>
-            <CardLabel>12-Month Failure Scenario</CardLabel>
-            <p style={{ fontSize: 15, fontStyle: "italic", color: "#E8E4DF", lineHeight: 1.7 }}>
-              {result.pre_mortem_narrative}
-            </p>
-          </div>
-        )}
-
-        {/* Second-Order Effects (new array format) */}
+        {/* ═══ TIER 8: RIPPLE EFFECTS (Second-Order) ═══ */}
         {result.second_order_effects && result.second_order_effects.length > 0 && (
-          <div className="rounded-lg px-6 py-5 mb-3" style={cardBase}>
-            <CardLabel>Chain Reactions</CardLabel>
-            <div className="space-y-2">
-              {result.second_order_effects.map((effect, i) => (
-                <div key={i} className="flex gap-2" style={{ fontSize: 14, color: "#E8E4DF", lineHeight: 1.7 }}>
-                  <span style={{ color: "#C9A84C", fontWeight: 700, flexShrink: 0 }}>→</span>
-                  <span>{effect}</span>
-                </div>
-              ))}
+          <>
+            <SectionDivider label="Ripple Effects" subtitle="(Second-Order Analysis)" />
+            <div className="rounded-lg px-6 py-5 mb-3" style={cardBase}>
+              <div className="space-y-2">
+                {result.second_order_effects.map((effect, i) => (
+                  <div key={i} className="flex gap-2" style={{ fontSize: 14, color: "#E8E4DF", lineHeight: 1.7 }}>
+                    <span style={{ color: "#C9A84C", fontWeight: 700, flexShrink: 0 }}>→</span>
+                    <span>{effect}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+          </>
         )}
 
         {/* Legacy second_order_chain */}
         {!result.second_order_effects?.length && result.second_order_chain && (
-          <div className="rounded-lg px-6 py-5 mb-3" style={cardBase}>
-            <CardLabel>Second-Order Effects</CardLabel>
-            <div className="flex flex-wrap items-center gap-2" style={{ fontSize: 14, color: "#E8E4DF", lineHeight: 1.7 }}>
-              {result.second_order_chain.split("→").map((part, i, arr) => (
-                <span key={i} className="flex items-center gap-2">
-                  <span>{part.trim()}</span>
-                  {i < arr.length - 1 && <span style={{ color: "#C9A84C", fontWeight: 700, fontSize: 16 }}>→</span>}
-                </span>
-              ))}
+          <>
+            <SectionDivider label="Ripple Effects" subtitle="(Second-Order Analysis)" />
+            <div className="rounded-lg px-6 py-5 mb-3" style={cardBase}>
+              <div className="flex flex-wrap items-center gap-2" style={{ fontSize: 14, color: "#E8E4DF", lineHeight: 1.7 }}>
+                {result.second_order_chain.split("→").map((part, i, arr) => (
+                  <span key={i} className="flex items-center gap-2">
+                    <span>{part.trim()}</span>
+                    {i < arr.length - 1 && <span style={{ color: "#C9A84C", fontWeight: 700, fontSize: 16 }}>→</span>}
+                  </span>
+                ))}
+              </div>
             </div>
-          </div>
+          </>
         )}
 
-        {/* ═══ SECTION 5: RECOMMENDED ACTIONS ═══ */}
+        {/* ═══ TIER 9: RECOMMENDED ACTIONS ═══ */}
         {result.recommendations && result.recommendations.filter(r => r.feasible).length > 0 && (
           <>
             <SectionDivider label="Recommended Actions" />
@@ -385,28 +462,7 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
           </>
         )}
 
-        {/* ═══ MECE ISSUE TREE ═══ */}
-        {result.mece_tree?.branches && result.mece_tree.branches.length > 0 && (
-          <>
-            <SectionDivider label="Structured Analysis" />
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {result.mece_tree.branches.map((branch, i) => (
-                <div key={i} className="rounded-lg px-5 py-4" style={{ ...cardBase, borderLeft: "3px solid rgba(201,168,76,0.4)" }}>
-                  <p style={{ fontSize: 13, fontWeight: 600, color: "#E8E4DF", marginBottom: 8 }}>{branch.title}</p>
-                  <ul className="space-y-1.5">
-                    {branch.findings.map((f, j) => (
-                      <li key={j} className="flex gap-2" style={{ fontSize: 13, color: "rgba(232,228,223,0.7)", lineHeight: 1.6 }}>
-                        <span style={{ color: "rgba(201,168,76,0.5)", flexShrink: 0 }}>•</span>{f}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </>
-        )}
-
-        {/* ═══ RAPID ═══ */}
+        {/* RAPID */}
         {result.rapid && (
           <>
             <SectionDivider label="Decision Accountability (RAPID)" />
@@ -435,7 +491,7 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
           </>
         )}
 
-        {/* ═══ OPPORTUNITY COST ═══ */}
+        {/* Opportunity Cost */}
         {result.opportunity_cost && result.opportunity_cost.length > 0 && (
           <>
             <SectionDivider label="Opportunity Cost" />
@@ -452,7 +508,7 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
           </>
         )}
 
-        {/* ═══ STAKEHOLDER MAP ═══ */}
+        {/* Stakeholder Map */}
         {result.stakeholder_map && result.stakeholder_map.length > 0 && (
           <>
             <SectionDivider label="Stakeholder Map" />
@@ -518,7 +574,7 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
           </div>
         </div>
 
-        {/* ═══ ACTIONS ═══ */}
+        {/* ═══ TIER 10: ACTIONS ═══ */}
         {!readOnly && (
           <>
             <div className="flex flex-col sm:flex-row gap-3 mt-10">

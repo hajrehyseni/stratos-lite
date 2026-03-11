@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Check, ArrowLeft } from "lucide-react";
+import { Check, ArrowLeft, ArrowRight } from "lucide-react";
 
 export interface DiagnosticResult {
   stakes: string;
@@ -13,7 +13,10 @@ interface Props {
   decision: string;
   onComplete: (result: DiagnosticResult) => void;
   onSkip: () => void;
+  onBackToLanding?: () => void;
 }
+
+const SESSION_KEY = "stratos_diag_state";
 
 const SKIP_DEFAULTS: DiagnosticResult = {
   stakes: "",
@@ -85,13 +88,30 @@ function StageLabel({ current }: { current: Stage }) {
   );
 }
 
-export function NewDiagnosticFlow({ decision, onComplete, onSkip }: Props) {
-  const [stage, setStage] = useState<Stage>(1);
-  const [stakes, setStakes] = useState("");
-  const [decisionType, setDecisionType] = useState<string | null>(null);
-  const [blastRadius, setBlastRadius] = useState<string | null>(null);
-  const [constraint, setConstraint] = useState<string | null>(null);
-  const [successVision, setSuccessVision] = useState("");
+function saveSessionState(data: { stage: Stage; stakes: string; decisionType: string | null; blastRadius: string | null; constraint: string | null; successVision: string }) {
+  try { sessionStorage.setItem(SESSION_KEY, JSON.stringify(data)); } catch {}
+}
+
+export function clearDiagnosticSession() {
+  try { sessionStorage.removeItem(SESSION_KEY); } catch {}
+}
+
+function loadSessionState(): { stage: Stage; stakes: string; decisionType: string | null; blastRadius: string | null; constraint: string | null; successVision: string } | null {
+  try {
+    const raw = sessionStorage.getItem(SESSION_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch { return null; }
+}
+
+export function NewDiagnosticFlow({ decision, onComplete, onSkip, onBackToLanding }: Props) {
+  const saved = loadSessionState();
+  const [stage, setStage] = useState<Stage>(saved?.stage || 1);
+  const [stakes, setStakes] = useState(saved?.stakes || "");
+  const [decisionType, setDecisionType] = useState<string | null>(saved?.decisionType || null);
+  const [blastRadius, setBlastRadius] = useState<string | null>(saved?.blastRadius || null);
+  const [constraint, setConstraint] = useState<string | null>(saved?.constraint || null);
+  const [successVision, setSuccessVision] = useState(saved?.successVision || "");
   const [visible, setVisible] = useState(false);
   const [stageKey, setStageKey] = useState(0);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -103,6 +123,11 @@ export function NewDiagnosticFlow({ decision, onComplete, onSkip }: Props) {
   useEffect(() => {
     setStageKey((k) => k + 1);
   }, [stage]);
+
+  // Persist to sessionStorage on every change
+  useEffect(() => {
+    saveSessionState({ stage, stakes, decisionType, blastRadius, constraint, successVision });
+  }, [stage, stakes, decisionType, blastRadius, constraint, successVision]);
 
   const progressSegments = [true, stage >= 2, stage >= 3];
 
@@ -119,6 +144,7 @@ export function NewDiagnosticFlow({ decision, onComplete, onSkip }: Props) {
   }, [stage, decisionType, blastRadius]);
 
   const handleFinalSubmit = () => {
+    clearDiagnosticSession();
     onComplete({
       stakes,
       decision_type: decisionType || SKIP_DEFAULTS.decision_type,
@@ -128,10 +154,16 @@ export function NewDiagnosticFlow({ decision, onComplete, onSkip }: Props) {
     });
   };
 
-  const handleSkip = () => onSkip();
+  const handleSkip = () => {
+    clearDiagnosticSession();
+    onSkip();
+  };
 
   const handleBack = () => {
-    if (stage === 2) setStage(1);
+    if (stage === 1 && onBackToLanding) {
+      clearDiagnosticSession();
+      onBackToLanding();
+    } else if (stage === 2) setStage(1);
     else if (stage === 3) setStage(2);
   };
 
@@ -174,17 +206,15 @@ export function NewDiagnosticFlow({ decision, onComplete, onSkip }: Props) {
           ))}
         </div>
 
-        {/* Back arrow for stages 2 & 3 */}
-        {stage > 1 && (
-          <button
-            onClick={handleBack}
-            className="flex items-center gap-1 mb-6 text-muted-foreground hover:text-foreground transition-colors duration-200"
-            style={{ fontSize: 13, background: "none", border: "none", padding: 0 }}
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back
-          </button>
-        )}
+        {/* Back arrow — always available */}
+        <button
+          onClick={handleBack}
+          className="flex items-center gap-1 mb-6 text-muted-foreground hover:text-foreground transition-colors duration-200"
+          style={{ fontSize: 13, background: "none", border: "none", padding: 0 }}
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back
+        </button>
 
         {/* Decision summary (always visible) */}
         <div className="mb-6">
@@ -212,9 +242,7 @@ export function NewDiagnosticFlow({ decision, onComplete, onSkip }: Props) {
               onChange={(e) => setStakes(e.target.value.slice(0, 500))}
               placeholder="e.g. We lose our market window, £3M sunk cost, board loses confidence in leadership..."
               rows={3}
-              style={{
-                ...textareaStyle,
-              }}
+              style={textareaStyle}
               onFocus={(e) => {
                 e.currentTarget.style.borderColor = "hsl(40 46% 54%)";
                 e.currentTarget.style.boxShadow = "0 0 0 2px rgba(201,168,76,0.2)";
@@ -230,16 +258,21 @@ export function NewDiagnosticFlow({ decision, onComplete, onSkip }: Props) {
             <div className="flex items-center gap-4 mt-4">
               <button
                 onClick={handleStakesSubmit}
-                className="flex items-center justify-center rounded-full transition-all duration-200"
+                className="flex items-center justify-center gap-2 rounded-full transition-all duration-200"
                 style={{
-                  width: 44,
                   height: 44,
+                  paddingLeft: 20,
+                  paddingRight: 16,
                   background: "hsl(40 46% 54%)",
                   border: "none",
                   cursor: "pointer",
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: "hsl(var(--primary-foreground))",
                 }}
               >
-                <ArrowLeft className="w-5 h-5 rotate-180 text-primary-foreground" />
+                Next
+                <ArrowRight className="w-4 h-4" />
               </button>
             </div>
             <div className="mt-6">
@@ -259,7 +292,6 @@ export function NewDiagnosticFlow({ decision, onComplete, onSkip }: Props) {
           <div key={`stage-${stageKey}`} style={{ animation: "slideInFromBottom 300ms ease forwards" }}>
             <StageLabel current={2} />
 
-            {/* Question A: Decision Type */}
             <h2 className="text-foreground" style={{ fontSize: 22, fontWeight: 600, marginTop: 8, marginBottom: 16 }}>
               What kind of decision is this?
             </h2>
@@ -277,7 +309,6 @@ export function NewDiagnosticFlow({ decision, onComplete, onSkip }: Props) {
               ))}
             </div>
 
-            {/* Question B: Blast Radius */}
             <h2 className="text-foreground" style={{ fontSize: 22, fontWeight: 600, marginBottom: 16 }}>
               Who gets affected if this goes sideways?
             </h2>
@@ -312,7 +343,6 @@ export function NewDiagnosticFlow({ decision, onComplete, onSkip }: Props) {
           <div key={`stage-${stageKey}`} style={{ animation: "slideInFromBottom 300ms ease forwards" }}>
             <StageLabel current={3} />
 
-            {/* Question A: Primary Constraint */}
             <h2 className="text-foreground" style={{ fontSize: 22, fontWeight: 600, marginTop: 8, marginBottom: 16 }}>
               What's the constraint that makes this hard?
             </h2>
@@ -330,7 +360,6 @@ export function NewDiagnosticFlow({ decision, onComplete, onSkip }: Props) {
               ))}
             </div>
 
-            {/* Question B: Success Vision */}
             <h2 className="text-foreground" style={{ fontSize: 22, fontWeight: 600, marginBottom: 16 }}>
               If this decision goes perfectly, what does the world look like in 12 months?
             </h2>

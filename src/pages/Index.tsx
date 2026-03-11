@@ -1,8 +1,8 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { NavBar } from "@/components/NavBar";
 import { Scorecard } from "@/components/Scorecard";
 import { HomepageLanding } from "@/components/HomepageLanding";
-import { NewDiagnosticFlow, DiagnosticResult } from "@/components/NewDiagnosticFlow";
+import { NewDiagnosticFlow, DiagnosticResult, clearDiagnosticSession } from "@/components/NewDiagnosticFlow";
 import { NewProcessingState } from "@/components/NewProcessingState";
 import { AuditResult, AuditResultSchema } from "@/lib/types";
 import { saveJournalEntry, getJournalCount } from "@/lib/journal";
@@ -41,6 +41,18 @@ const Index = () => {
   const [journalSaved, setJournalSaved] = useState(false);
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [showSignupGate, setShowSignupGate] = useState(false);
+
+  // Check for prefill from 404 page
+  useEffect(() => {
+    const prefill = sessionStorage.getItem("stratos_prefill");
+    if (prefill) {
+      sessionStorage.removeItem("stratos_prefill");
+      setDecision(prefill);
+      if (prefill.length >= 10) {
+        setPhase("diagnostic");
+      }
+    }
+  }, []);
 
   const apiResolved = useRef(false);
   const [apiResolvedState, setApiResolvedState] = useState(false);
@@ -158,6 +170,7 @@ const Index = () => {
 
   const handleProcessingDone = useCallback(() => {
     if (apiResult.current) {
+      clearDiagnosticSession();
       setResult(apiResult.current.parsed);
       setAuditId(apiResult.current.id);
       setJournalSaved(false);
@@ -165,12 +178,18 @@ const Index = () => {
     }
   }, []);
 
+  const handleBackToLanding = () => {
+    setPhase("landing");
+    // decision text stays pre-filled in landing via state
+  };
+
   const handleReset = (prefill?: string) => {
     setResult(null);
     setDecision(prefill || "");
     setAuditId("");
     setJournalSaved(false);
     setDiagnosticResult(SKIP_DEFAULTS);
+    clearDiagnosticSession();
     if (prefill && prefill.length >= 20) {
       setPhase("diagnostic");
     } else {
@@ -255,6 +274,7 @@ const Index = () => {
           decision={decision}
           onComplete={handleDiagnosticComplete}
           onSkip={handleSkipDiagnostic}
+          onBackToLanding={handleBackToLanding}
         />
       )}
 
@@ -264,6 +284,7 @@ const Index = () => {
           scale={diagnosticResult.blast_radius as any}
           onApiReady={handleProcessingDone}
           apiResolved={apiResolvedState}
+          decisionText={decision}
         />
       )}
 
