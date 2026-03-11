@@ -284,6 +284,7 @@ const Index = () => {
           scale={diagnosticResult.blast_radius as any}
           onApiReady={handleProcessingDone}
           apiResolved={apiResolvedState}
+          decisionText={decision}
         />
       )}
 

@@ -187,6 +187,12 @@ input::placeholder {
   color: rgba(255,255,255,0.3);
 }
 
+/* Mobile nav slide-in */
+@keyframes slideInFromRight {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
 /* Diagnostic grid responsive */
 @media (max-width: 480px) {
   .diagnostic-grid {
