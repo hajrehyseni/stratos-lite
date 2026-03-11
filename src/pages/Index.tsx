@@ -42,7 +42,7 @@ const Index = () => {
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [showSignupGate, setShowSignupGate] = useState(false);
 
-  // Check for prefill from 404 page
+  // Restore diagnostic flow from sessionStorage on mount
   useEffect(() => {
     const prefill = sessionStorage.getItem("stratos_prefill");
     if (prefill) {
@@ -51,6 +51,14 @@ const Index = () => {
       if (prefill.length >= 10) {
         setPhase("diagnostic");
       }
+      return;
+    }
+    // Resume in-progress diagnostic flow
+    const savedDiag = sessionStorage.getItem("stratos_diag_state");
+    const savedDecision = sessionStorage.getItem("stratos_diag_decision");
+    if (savedDiag && savedDecision) {
+      setDecision(savedDecision);
+      setPhase("diagnostic");
     }
   }, []);
 
