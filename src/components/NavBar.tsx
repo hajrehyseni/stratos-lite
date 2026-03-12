@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { getJournalCount } from "@/lib/journal";
 import { useAuth } from "@/contexts/AuthContext";
@@ -14,6 +14,8 @@ export function NavBar({ journalCount }: Props) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const count = journalCount ?? getJournalCount();
   const { user } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10);
@@ -21,40 +23,60 @@ export function NavBar({ journalCount }: Props) {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Close mobile menu on route change
   useEffect(() => {
     setMobileOpen(false);
-  }, []);
+  }, [location.pathname]);
 
-  const navLinkStyle = { fontSize: 13, color: "hsl(var(--muted-foreground))" };
+  const handleCTA = () => {
+    if (location.pathname === "/") {
+      const input = document.querySelector<HTMLInputElement>("#hero-input");
+      if (input) {
+        input.scrollIntoView({ behavior: "smooth", block: "center" });
+        setTimeout(() => input.focus(), 400);
+      }
+    } else {
+      navigate("/");
+    }
+  };
+
+  const ctaLabel = user ? "New Audit" : "Try Free Audit";
 
   return (
     <>
       <nav
         className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
         style={{
-          backgroundColor: scrolled ? "rgba(8,8,8,0.95)" : "transparent",
+          backgroundColor: scrolled ? "rgba(8,8,8,0.92)" : "transparent",
           backdropFilter: scrolled ? "blur(12px)" : "none",
-          borderBottom: scrolled ? "1px solid #1A1A1A" : "1px solid transparent",
+          WebkitBackdropFilter: scrolled ? "blur(12px)" : "none",
+          borderBottom: scrolled ? "1px solid rgba(255,255,255,0.05)" : "1px solid transparent",
         }}
       >
-        <div className="max-w-[720px] mx-auto px-4 h-16 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <Link
             to="/"
-            className="text-[18px] font-semibold hover:opacity-80 transition-opacity"
-            style={{ color: "#fff", letterSpacing: "-0.01em" }}
+            className="text-lg font-semibold tracking-tight hover:opacity-80 transition-opacity"
+            style={{ color: "hsl(var(--foreground))" }}
           >
             StratOS
           </Link>
 
           {/* Desktop nav */}
-          <div className="hidden md:flex items-center gap-4">
-            <Link to="/pricing" className="transition-colors hover:opacity-80" style={navLinkStyle}>
+          <div className="hidden md:flex items-center gap-6">
+            <Link
+              to="/pricing"
+              className="text-sm transition-colors hover:opacity-80"
+              style={{ color: "hsl(var(--muted-foreground))" }}
+            >
               Pricing
             </Link>
 
             {user && count >= 1 && (
-              <Link to="/journal" className="transition-colors hover:opacity-80" style={navLinkStyle}>
+              <Link
+                to="/journal"
+                className="text-sm transition-colors hover:opacity-80"
+                style={{ color: "hsl(var(--muted-foreground))" }}
+              >
                 Journal
               </Link>
             )}
@@ -62,21 +84,39 @@ export function NavBar({ journalCount }: Props) {
             {user && count >= 5 && (
               <Link
                 to="/dashboard"
-                className="transition-colors hover:opacity-80 flex items-center gap-1.5"
-                style={{ fontSize: 13, color: "hsl(var(--primary))" }}
+                className="text-sm transition-colors hover:opacity-80 flex items-center gap-1.5"
+                style={{ color: "hsl(var(--primary))" }}
               >
                 Dashboard
-                <span className="inline-block rounded-full" style={{ width: 6, height: 6, background: "hsl(var(--primary))" }} />
+                <span
+                  className="inline-block rounded-full"
+                  style={{ width: 6, height: 6, background: "hsl(var(--primary))" }}
+                />
               </Link>
             )}
 
-            {user ? (
-              <AccountMenu />
-            ) : (
-              <Link to="/login" className="transition-colors hover:opacity-80" style={{ fontSize: 13, color: "hsl(var(--foreground))" }}>
+            {!user && (
+              <Link
+                to="/login"
+                className="text-sm transition-colors hover:opacity-80"
+                style={{ color: "hsl(var(--foreground))" }}
+              >
                 Sign in
               </Link>
             )}
+
+            {user && <AccountMenu />}
+
+            <button
+              onClick={handleCTA}
+              className="rounded-full px-5 py-2 text-sm font-semibold transition-all duration-150 hover:scale-[1.02] active:scale-[0.98]"
+              style={{
+                background: "hsl(var(--primary))",
+                color: "hsl(var(--primary-foreground))",
+              }}
+            >
+              {ctaLabel}
+            </button>
           </div>
 
           {/* Mobile hamburger */}
@@ -94,33 +134,36 @@ export function NavBar({ journalCount }: Props) {
       {/* Mobile slide-in panel */}
       {mobileOpen && (
         <>
-          {/* Backdrop */}
           <div
             className="fixed inset-0 z-[60] bg-black/60"
             onClick={() => setMobileOpen(false)}
           />
-          {/* Panel */}
           <div
-            className="fixed top-0 right-0 bottom-0 z-[70] flex flex-col"
+            className="fixed top-0 right-0 bottom-0 z-[70] flex flex-col animate-slide-in-right"
             style={{
               width: 280,
               background: "#0A0A0A",
-              borderLeft: "1px solid #1A1A1A",
-              animation: "slideInFromRight 200ms ease forwards",
+              borderLeft: "1px solid rgba(255,255,255,0.05)",
             }}
           >
             <div className="flex items-center justify-between px-4 h-16">
-              <span style={{ fontSize: 14, fontWeight: 600, color: "hsl(var(--foreground))" }}>Menu</span>
-              <button onClick={() => setMobileOpen(false)} aria-label="Close menu" style={{ color: "hsl(var(--foreground))" }}>
+              <span className="text-sm font-semibold" style={{ color: "hsl(var(--foreground))" }}>
+                Menu
+              </span>
+              <button
+                onClick={() => setMobileOpen(false)}
+                aria-label="Close menu"
+                style={{ color: "hsl(var(--foreground))" }}
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <div className="flex flex-col gap-1 px-4">
+            <div className="flex flex-col gap-1 px-4 flex-1">
               <Link
                 to="/pricing"
                 onClick={() => setMobileOpen(false)}
-                className="py-3 transition-colors hover:opacity-80"
-                style={navLinkStyle}
+                className="py-3 text-sm transition-colors hover:opacity-80"
+                style={{ color: "hsl(var(--muted-foreground))" }}
               >
                 Pricing
               </Link>
@@ -129,8 +172,8 @@ export function NavBar({ journalCount }: Props) {
                 <Link
                   to="/journal"
                   onClick={() => setMobileOpen(false)}
-                  className="py-3 transition-colors hover:opacity-80"
-                  style={navLinkStyle}
+                  className="py-3 text-sm transition-colors hover:opacity-80"
+                  style={{ color: "hsl(var(--muted-foreground))" }}
                 >
                   Journal
                 </Link>
@@ -140,14 +183,14 @@ export function NavBar({ journalCount }: Props) {
                 <Link
                   to="/dashboard"
                   onClick={() => setMobileOpen(false)}
-                  className="py-3 transition-colors hover:opacity-80"
-                  style={{ fontSize: 13, color: "hsl(var(--primary))" }}
+                  className="py-3 text-sm transition-colors hover:opacity-80"
+                  style={{ color: "hsl(var(--primary))" }}
                 >
                   Dashboard
                 </Link>
               )}
 
-              <div style={{ height: 1, background: "#1A1A1A", margin: "8px 0" }} />
+              <div style={{ height: 1, background: "rgba(255,255,255,0.05)", margin: "8px 0" }} />
 
               {user ? (
                 <div className="py-3">
@@ -157,12 +200,29 @@ export function NavBar({ journalCount }: Props) {
                 <Link
                   to="/login"
                   onClick={() => setMobileOpen(false)}
-                  className="py-3 transition-colors hover:opacity-80"
-                  style={{ fontSize: 13, color: "hsl(var(--foreground))" }}
+                  className="py-3 text-sm transition-colors hover:opacity-80"
+                  style={{ color: "hsl(var(--foreground))" }}
                 >
                   Sign in
                 </Link>
               )}
+            </div>
+
+            {/* Bottom CTA */}
+            <div className="px-4 pb-6">
+              <button
+                onClick={() => {
+                  setMobileOpen(false);
+                  handleCTA();
+                }}
+                className="w-full rounded-full py-3 text-sm font-semibold transition-all duration-150 active:scale-[0.98]"
+                style={{
+                  background: "hsl(var(--primary))",
+                  color: "hsl(var(--primary-foreground))",
+                }}
+              >
+                {ctaLabel}
+              </button>
             </div>
           </div>
         </>
