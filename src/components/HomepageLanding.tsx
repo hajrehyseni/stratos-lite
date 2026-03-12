@@ -4,7 +4,6 @@ import { TrustStrip } from "@/components/TrustStrip";
 import { SystemSections } from "@/components/SystemSections";
 import { MidPageCTA } from "@/components/MidPageCTA";
 import { TestimonialWall } from "@/components/TestimonialWall";
-import { SocialProofLogos } from "@/components/SocialProofLogos";
 import { FAQAccordion } from "@/components/FAQAccordion";
 import { Footer } from "@/components/Footer";
 
@@ -47,13 +46,11 @@ export function HomepageLanding({ onSubmit }: Props) {
   const trustRef = useRef<HTMLDivElement>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
   const testimonialsRef = useRef<HTMLDivElement>(null);
-  const socialRef = useRef<HTMLDivElement>(null);
   const faqRef = useRef<HTMLDivElement>(null);
 
   useFadeUp(trustRef);
   useFadeUp(ctaRef);
   useFadeUp(testimonialsRef);
-  useFadeUp(socialRef);
   useFadeUp(faqRef);
 
   const canSubmit = value.trim().length >= 10;
@@ -78,7 +75,6 @@ export function HomepageLanding({ onSubmit }: Props) {
     const newVal = e.target.value;
     if (!hasTyped && newVal.length > 0) {
       setHasTyped(true);
-      // Pulse the submit button once
       submitRef.current?.classList.add("pulse-once");
       setTimeout(() => submitRef.current?.classList.remove("pulse-once"), 400);
     }
@@ -94,18 +90,18 @@ export function HomepageLanding({ onSubmit }: Props) {
   return (
     <div className="flex flex-col page-enter">
       {/* Hero section */}
-      <div className="flex flex-col items-center px-4" style={{ minHeight: "85vh", justifyContent: "center", paddingTop: 80 }}>
+      <div className="flex flex-col items-center px-4 sm:px-6 pt-28 sm:pt-32 pb-12 md:pb-20" style={{ minHeight: "85vh", justifyContent: "center" }}>
         <div className="w-full flex flex-col items-center" style={{ maxWidth: 1120 }}>
           <h1
-            className="text-center text-3xl sm:text-4xl md:text-5xl lg:text-6xl"
-            style={{ fontWeight: 700, lineHeight: 1.1, letterSpacing: "-0.02em", color: "#FFFFFF", maxWidth: 768 }}
+            className="text-center text-4xl sm:text-5xl lg:text-6xl"
+            style={{ fontWeight: 800, lineHeight: 1.08, letterSpacing: "-0.02em", color: "hsl(var(--text-primary))", maxWidth: 768 }}
           >
             What's the decision you can't afford to get wrong?
           </h1>
 
           <p
-            className="text-center text-base md:text-lg mt-5 mx-auto"
-            style={{ color: "#6B7280", maxWidth: 560, lineHeight: 1.6 }}
+            className="text-center text-lg md:text-xl mt-6 mx-auto"
+            style={{ color: "hsl(var(--text-secondary))", maxWidth: 560, lineHeight: 1.6 }}
           >
             The strategic frameworks behind every Fortune 500 board decision
           </p>
@@ -117,16 +113,16 @@ export function HomepageLanding({ onSubmit }: Props) {
               <div
                 className={`relative flex items-center ${shake ? "input-shake" : ""}`}
                 style={{
-                  height: 56,
+                  height: 60,
                   borderRadius: 9999,
-                  background: "rgba(255,255,255,0.06)",
+                  background: "hsla(0, 0%, 100%, 0.06)",
                   border: shake
-                    ? "1px solid hsl(0, 84%, 60%)"
+                    ? "1.5px solid hsl(var(--destructive))"
                     : isFocused
-                    ? "1px solid hsl(16, 100%, 62%)"
-                    : "1px solid rgba(255,255,255,0.12)",
+                    ? "1.5px solid hsl(var(--primary))"
+                    : "1.5px solid hsla(0, 0%, 100%, 0.15)",
                   boxShadow: isFocused
-                    ? "0 0 0 3px hsla(16, 100%, 62%, 0.15)"
+                    ? "0 0 0 4px hsla(16, 100%, 62%, 0.12)"
                     : "none",
                   transition: "border-color 0.2s ease, box-shadow 0.2s ease",
                   paddingLeft: 24,
@@ -146,10 +142,10 @@ export function HomepageLanding({ onSubmit }: Props) {
                   placeholder="Describe your decision..."
                   className="w-full bg-transparent outline-none"
                   style={{
-                    fontSize: 16,
+                    fontSize: 17,
                     fontWeight: 400,
-                    color: "#FFFFFF",
-                    height: 48,
+                    color: "hsl(var(--text-primary))",
+                    height: 52,
                   }}
                 />
                 <button
@@ -158,15 +154,16 @@ export function HomepageLanding({ onSubmit }: Props) {
                   disabled={!canSubmit}
                   className="flex-shrink-0 flex items-center justify-center gap-2 rounded-full transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                   style={{
-                    height: 44,
-                    paddingLeft: 20,
-                    paddingRight: 16,
-                    background: canSubmit ? "hsl(16, 100%, 62%)" : "hsla(16, 100%, 62%, 0.3)",
+                    height: 48,
+                    paddingLeft: 24,
+                    paddingRight: 20,
+                    background: canSubmit ? "hsl(var(--primary))" : "hsla(16, 100%, 62%, 0.25)",
                     opacity: canSubmit ? 1 : 0.5,
                     cursor: canSubmit ? "pointer" : "default",
-                    color: "#FFFFFF",
-                    fontSize: 14,
+                    color: "hsl(var(--primary-foreground))",
+                    fontSize: 15,
                     fontWeight: 600,
+                    boxShadow: canSubmit ? "0 4px 16px hsla(16, 100%, 62%, 0.3)" : "none",
                   }}
                   aria-label="Audit this decision"
                 >
@@ -181,15 +178,15 @@ export function HomepageLanding({ onSubmit }: Props) {
               <div
                 className={`relative flex items-center ${shake ? "input-shake" : ""}`}
                 style={{
-                  height: 48,
+                  height: 56,
                   borderRadius: 9999,
-                  background: "rgba(255,255,255,0.06)",
+                  background: "hsla(0, 0%, 100%, 0.06)",
                   border: shake
-                    ? "1px solid hsl(0, 84%, 60%)"
+                    ? "1.5px solid hsl(var(--destructive))"
                     : isFocused
-                    ? "1px solid hsl(16, 100%, 62%)"
-                    : "1px solid rgba(255,255,255,0.12)",
-                  boxShadow: isFocused ? "0 0 0 3px hsla(16, 100%, 62%, 0.15)" : "none",
+                    ? "1.5px solid hsl(var(--primary))"
+                    : "1.5px solid hsla(0, 0%, 100%, 0.15)",
+                  boxShadow: isFocused ? "0 0 0 4px hsla(16, 100%, 62%, 0.12)" : "none",
                   transition: "border-color 0.2s ease, box-shadow 0.2s ease",
                   paddingLeft: 20,
                   paddingRight: 20,
@@ -206,7 +203,7 @@ export function HomepageLanding({ onSubmit }: Props) {
                   onKeyDown={handleKeyDown}
                   placeholder="Describe your decision..."
                   className="w-full bg-transparent outline-none"
-                  style={{ fontSize: 16, color: "#FFFFFF", height: 44 }}
+                  style={{ fontSize: 17, color: "hsl(var(--text-primary))", height: 48 }}
                 />
               </div>
               <button
@@ -214,12 +211,13 @@ export function HomepageLanding({ onSubmit }: Props) {
                 disabled={!canSubmit}
                 className="w-full flex items-center justify-center gap-2 rounded-full transition-all duration-200 active:scale-[0.98]"
                 style={{
-                  height: 48,
-                  background: canSubmit ? "hsl(16, 100%, 62%)" : "hsla(16, 100%, 62%, 0.3)",
+                  height: 52,
+                  background: canSubmit ? "hsl(var(--primary))" : "hsla(16, 100%, 62%, 0.25)",
                   opacity: canSubmit ? 1 : 0.5,
-                  color: "#FFFFFF",
-                  fontSize: 15,
+                  color: "hsl(var(--primary-foreground))",
+                  fontSize: 16,
                   fontWeight: 600,
+                  boxShadow: canSubmit ? "0 4px 16px hsla(16, 100%, 62%, 0.3)" : "none",
                 }}
               >
                 Audit this decision
@@ -228,20 +226,21 @@ export function HomepageLanding({ onSubmit }: Props) {
             </div>
           </div>
 
-          {/* Example decision chips */}
-          <div className="mt-3 flex gap-2 overflow-x-auto scrollbar-hide pb-2 w-full justify-center flex-wrap md:flex-nowrap px-1" style={{ maxWidth: 672 }}>
+          {/* Example decision chips — horizontal scroll on mobile */}
+          <div className="mt-4 flex gap-2.5 overflow-x-auto scrollbar-hide pb-2 w-full justify-center flex-wrap md:flex-nowrap px-1" style={{ maxWidth: 672 }}>
             {exampleChips.map((chip) => (
               <button
                 key={chip}
                 onClick={() => handleChipClick(chip)}
-                className="flex-shrink-0 rounded-full px-4 py-2 text-sm transition-all duration-200"
+                className="flex-shrink-0 rounded-full px-5 py-2.5 text-base transition-all duration-200"
                 style={{
                   background: "transparent",
-                  border: "1px solid rgba(255,255,255,0.12)",
-                  color: "#6B7280",
+                  border: "1px solid hsla(0, 0%, 100%, 0.15)",
+                  color: "hsl(var(--text-secondary))",
+                  minHeight: 44,
                 }}
-                onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.25)"; e.currentTarget.style.color = "#FFFFFF"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)"; e.currentTarget.style.color = "#6B7280"; }}
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = "hsla(0, 0%, 100%, 0.35)"; e.currentTarget.style.color = "hsl(var(--text-primary))"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = "hsla(0, 0%, 100%, 0.15)"; e.currentTarget.style.color = "hsl(var(--text-secondary))"; }}
               >
                 {chip}
               </button>
@@ -249,7 +248,7 @@ export function HomepageLanding({ onSubmit }: Props) {
           </div>
 
           {/* Consolidated trust line */}
-          <p className="text-center mt-4 text-sm" style={{ color: "#6B7280" }}>
+          <p className="text-center mt-5 text-base" style={{ color: "hsl(var(--text-secondary))" }}>
             ✓ Free · No signup · 30 seconds · 🔒 Private &amp; encrypted
           </p>
         </div>
@@ -271,11 +270,6 @@ export function HomepageLanding({ onSubmit }: Props) {
       {/* Testimonials */}
       <div ref={testimonialsRef} className="fade-up-section">
         <TestimonialWall />
-      </div>
-
-      {/* Social Proof */}
-      <div ref={socialRef} className="fade-up-section">
-        <SocialProofLogos />
       </div>
 
       {/* FAQ */}

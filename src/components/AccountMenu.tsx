@@ -48,50 +48,51 @@ export function AccountMenu() {
         onClick={() => setOpen(!open)}
         className="flex items-center gap-1.5 transition-opacity hover:opacity-80"
         aria-label="Account menu"
+        style={{ minHeight: 44 }}
       >
         <span
           className="flex items-center justify-center rounded-full"
-          style={{ width: 28, height: 28, background: "hsl(16, 100%, 62%)", color: "#FFFFFF", fontSize: 12, fontWeight: 600 }}
+          style={{ width: 32, height: 32, background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))", fontSize: 13, fontWeight: 700 }}
         >
           {initial}
         </span>
-        <ChevronDown className="w-3.5 h-3.5" style={{ color: "#6B7280" }} />
+        <ChevronDown className="w-4 h-4" style={{ color: "hsl(var(--text-tertiary))" }} />
       </button>
 
       {open && (
         <div
-          className="absolute right-0 top-full mt-2 rounded-lg overflow-hidden shadow-xl z-50"
-          style={{ width: 220, background: "hsl(228, 35%, 14%)", border: "1px solid rgba(255,255,255,0.1)" }}
+          className="absolute right-0 top-full mt-2 rounded-xl overflow-hidden shadow-xl z-50"
+          style={{ width: 240, background: "hsl(228, 35%, 14%)", border: "1px solid hsla(0, 0%, 100%, 0.1)" }}
         >
-          <div className="px-4 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
-            <p className="truncate text-sm" style={{ color: "#FFFFFF" }}>{user.email}</p>
-            <p style={{ fontSize: 11, color: "hsl(16, 100%, 62%)", marginTop: 2 }}>{tier.name} plan</p>
+          <div className="px-4 py-3" style={{ borderBottom: "1px solid hsla(0, 0%, 100%, 0.08)" }}>
+            <p className="truncate text-base" style={{ color: "hsl(var(--text-primary))" }}>{user.email}</p>
+            <p className="text-sm mt-0.5" style={{ color: "hsl(var(--primary))" }}>{tier.name} plan</p>
           </div>
 
           <button
             onClick={() => { navigate("/pricing"); setOpen(false); }}
-            className="w-full flex items-center gap-2.5 px-4 py-2.5 text-left hover:bg-white/[0.05] transition-colors"
-            style={{ fontSize: 13, color: "#FFFFFF" }}
+            className="w-full flex items-center gap-2.5 px-4 py-3 text-left hover:bg-white/[0.05] transition-colors"
+            style={{ fontSize: 14, color: "hsl(var(--text-primary))", minHeight: 44 }}
           >
-            <User className="w-4 h-4" style={{ color: "#6B7280" }} />
+            <User className="w-4 h-4" style={{ color: "hsl(var(--text-tertiary))" }} />
             Current Plan
           </button>
 
           {subscription.plan !== "free" && (
             <button
               onClick={handleBilling}
-              className="w-full flex items-center gap-2.5 px-4 py-2.5 text-left hover:bg-white/[0.05] transition-colors"
-              style={{ fontSize: 13, color: "#FFFFFF" }}
+              className="w-full flex items-center gap-2.5 px-4 py-3 text-left hover:bg-white/[0.05] transition-colors"
+              style={{ fontSize: 14, color: "hsl(var(--text-primary))", minHeight: 44 }}
             >
-              <CreditCard className="w-4 h-4" style={{ color: "#6B7280" }} />
+              <CreditCard className="w-4 h-4" style={{ color: "hsl(var(--text-tertiary))" }} />
               Manage Billing
             </button>
           )}
 
           <button
             onClick={handleSignOut}
-            className="w-full flex items-center gap-2.5 px-4 py-2.5 text-left hover:bg-white/[0.05] transition-colors"
-            style={{ fontSize: 13, color: "hsl(0, 84%, 60%)", borderTop: "1px solid rgba(255,255,255,0.08)" }}
+            className="w-full flex items-center gap-2.5 px-4 py-3 text-left hover:bg-white/[0.05] transition-colors"
+            style={{ fontSize: 14, color: "hsl(var(--destructive))", borderTop: "1px solid hsla(0, 0%, 100%, 0.08)", minHeight: 44 }}
           >
             <LogOut className="w-4 h-4" />
             Sign Out

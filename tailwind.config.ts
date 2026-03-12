@@ -53,10 +53,15 @@ export default {
         navy: {
           DEFAULT: "hsl(var(--navy))",
           light: "hsl(var(--navy-light))",
+          surface: "hsl(var(--navy-surface))",
         },
         success: "hsl(var(--success))",
         warning: "hsl(var(--warning))",
         coral: "hsl(var(--primary))",
+        "text-primary": "hsl(var(--text-primary))",
+        "text-secondary": "hsl(var(--text-secondary))",
+        "text-tertiary": "hsl(var(--text-tertiary))",
+        "text-faint": "hsl(var(--text-faint))",
       },
       borderRadius: {
         lg: "var(--radius)",

@@ -9,33 +9,37 @@ export function MidPageCTA() {
   };
 
   return (
-    <div className="px-4 sm:px-6 py-12 md:py-20">
+    <div className="px-4 sm:px-6 py-16 md:py-24">
       <div
-        className="rounded-2xl mx-auto p-8 md:p-12 text-center"
+        className="rounded-2xl mx-auto p-10 md:p-14 text-center"
         style={{
           maxWidth: 672,
-          background: "rgba(255,255,255,0.03)",
-          border: "1px solid rgba(255,255,255,0.08)",
+          background: "hsla(0, 0%, 100%, 0.03)",
+          border: "1px solid hsla(0, 0%, 100%, 0.08)",
         }}
       >
         <h3
-          className="text-xl md:text-2xl font-semibold mb-6"
-          style={{ color: "#FFFFFF" }}
+          className="text-2xl md:text-3xl font-bold mb-4"
+          style={{ color: "hsl(var(--text-primary))" }}
         >
-          Ready to audit your next big call?
+          Ready to make a better call?
         </h3>
+        <p className="text-base mb-8" style={{ color: "hsl(var(--text-secondary))" }}>
+          Your next big decision deserves more than instinct.
+        </p>
         <button
           onClick={handleClick}
-          className="rounded-full px-8 py-4 text-lg font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+          className="rounded-full px-10 py-4 text-lg font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
           style={{
-            background: "hsl(16, 100%, 62%)",
-            color: "#FFFFFF",
-            boxShadow: "0 0 20px hsla(16, 100%, 62%, 0.3)",
+            background: "hsl(var(--primary))",
+            color: "hsl(var(--primary-foreground))",
+            boxShadow: "0 4px 20px hsla(16, 100%, 62%, 0.3)",
+            minHeight: 52,
           }}
         >
-          Start your free audit ↑
+          Start free audit →
         </button>
-        <p className="mt-3 text-xs" style={{ color: "#6B7280" }}>
+        <p className="mt-4 text-sm" style={{ color: "hsl(var(--text-tertiary))" }}>
           No account needed
         </p>
       </div>

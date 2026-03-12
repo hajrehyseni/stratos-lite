@@ -18,32 +18,32 @@ export function SignupGate({ open, onClose }: Props) {
       onClick={onClose}
     >
       <div
-        className="relative rounded-xl p-8 w-full text-center"
-        style={{ maxWidth: 440, background: "hsl(228, 35%, 14%)", border: "1px solid rgba(255,255,255,0.1)" }}
+        className="relative rounded-2xl p-10 w-full text-center"
+        style={{ maxWidth: 460, background: "hsl(228, 35%, 14%)", border: "1px solid hsla(0, 0%, 100%, 0.1)" }}
         onClick={e => e.stopPropagation()}
       >
-        <button onClick={onClose} className="absolute top-4 right-4 p-2" style={{ color: "#6B7280" }} aria-label="Close">
+        <button onClick={onClose} className="absolute top-4 right-4 p-2" style={{ color: "hsl(var(--text-tertiary))", minWidth: 44, minHeight: 44 }} aria-label="Close">
           <X className="w-5 h-5" />
         </button>
 
-        <h2 className="mt-4" style={{ fontSize: 22, fontWeight: 600, color: "#FFFFFF" }}>
+        <h2 className="mt-4 text-xl font-bold" style={{ color: "hsl(var(--text-primary))" }}>
           Create a free account
         </h2>
-        <p className="mt-2 mx-auto" style={{ fontSize: 14, color: "#6B7280", maxWidth: 320, lineHeight: 1.6 }}>
+        <p className="mt-3 mx-auto text-base" style={{ color: "hsl(var(--text-secondary))", maxWidth: 320, lineHeight: 1.6 }}>
           Save your decision history and unlock 3 free audits. No credit card required.
         </p>
 
         <button
           onClick={() => { onClose(); navigate("/signup"); }}
-          className="mt-6 w-full rounded-full py-3 font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-          style={{ fontSize: 14, background: "hsl(16, 100%, 62%)", color: "#FFFFFF" }}
+          className="mt-8 w-full rounded-full py-3.5 font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+          style={{ fontSize: 16, background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))", boxShadow: "0 4px 16px hsla(16, 100%, 62%, 0.3)", minHeight: 52 }}
         >
           Create Free Account
         </button>
         <button
           onClick={() => { onClose(); navigate("/login"); }}
-          className="mt-3 w-full rounded-full py-3 transition-all duration-200"
-          style={{ fontSize: 14, border: "1px solid rgba(255,255,255,0.15)", color: "#6B7280", background: "transparent" }}
+          className="mt-3 w-full rounded-full py-3.5 transition-all duration-200"
+          style={{ fontSize: 15, border: "1px solid hsla(0, 0%, 100%, 0.15)", color: "hsl(var(--text-secondary))", background: "transparent", minHeight: 48 }}
         >
           Already have an account? Sign in
         </button>

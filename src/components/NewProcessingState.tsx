@@ -87,14 +87,14 @@ export function NewProcessingState({ lens, scale, onApiReady, apiResolved, decis
       <div className="w-full" style={{ maxWidth: 720 }}>
         {/* Decision text preview */}
         {truncated && (
-          <div className="flex justify-center mb-6">
+          <div className="flex justify-center mb-8">
             <span
-              className="inline-block rounded-full px-5 py-2 text-sm italic truncate"
+              className="inline-block rounded-full px-6 py-3 text-base italic truncate"
               style={{
-                maxWidth: 448,
-                background: "rgba(255,255,255,0.04)",
-                border: "1px solid rgba(255,255,255,0.08)",
-                color: "#6B7280",
+                maxWidth: 500,
+                background: "hsla(0, 0%, 100%, 0.04)",
+                border: "1px solid hsla(0, 0%, 100%, 0.08)",
+                color: "hsl(var(--text-secondary))",
               }}
             >
               {truncated}
@@ -105,26 +105,26 @@ export function NewProcessingState({ lens, scale, onApiReady, apiResolved, decis
         <div
           className="rounded-xl processing-glow"
           style={{
-            background: "rgba(255,255,255,0.04)",
-            border: "1px solid rgba(255,255,255,0.08)",
-            padding: "28px 24px",
+            background: "hsla(0, 0%, 100%, 0.04)",
+            border: "1px solid hsla(0, 0%, 100%, 0.08)",
+            padding: "32px 28px",
           }}
         >
-          <div className="flex items-center gap-2 mb-6">
+          <div className="flex items-center gap-2.5 mb-6">
             <span
               className="inline-block rounded-full"
               style={{
-                width: 8, height: 8,
-                background: "hsl(16, 100%, 62%)",
+                width: 10, height: 10,
+                background: "hsl(var(--primary))",
                 animation: "pulse-dot 1.5s ease-in-out infinite",
               }}
             />
-            <span className="text-xs font-medium" style={{ letterSpacing: "0.1em", color: "#6B7280" }}>
+            <span className="text-sm font-semibold" style={{ letterSpacing: "0.1em", color: "hsl(var(--text-secondary))" }}>
               Analysing
             </span>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-4">
             {lines.slice(0, visibleLines).map((line, i) => {
               const isComplete = completedLines.has(i);
               const isLast = i === visibleLines - 1 && !isComplete;
@@ -134,16 +134,16 @@ export function NewProcessingState({ lens, scale, onApiReady, apiResolved, decis
                   className="flex items-center gap-3"
                   style={{ animation: "fadeInSimple 400ms ease forwards" }}
                 >
-                  <span style={{ fontSize: 13, color: isComplete ? "hsl(160, 84%, 39%)" : "transparent", width: 16, flexShrink: 0, textAlign: "center" }}>
+                  <span style={{ fontSize: 14, color: isComplete ? "hsl(var(--success))" : "transparent", width: 18, flexShrink: 0, textAlign: "center" }}>
                     {isComplete ? "✓" : " "}
                   </span>
                   <span
-                    className="processing-line-text text-sm"
-                    style={{ color: isComplete ? "#6B7280" : "rgba(255,255,255,0.3)" }}
+                    className="processing-line-text text-base"
+                    style={{ color: isComplete ? "hsl(var(--text-tertiary))" : "hsl(var(--text-secondary))" }}
                   >
                     {line}
                     {isLast && (
-                      <span className="terminal-cursor" style={{ color: "hsl(16, 100%, 62%)" }}>│</span>
+                      <span className="terminal-cursor" style={{ color: "hsl(var(--primary))" }}>│</span>
                     )}
                   </span>
                 </div>
@@ -152,7 +152,7 @@ export function NewProcessingState({ lens, scale, onApiReady, apiResolved, decis
           </div>
         </div>
 
-        <p className="text-center mt-4 text-sm" style={{ color: "#6B7280" }}>
+        <p className="text-center mt-6 text-base" style={{ color: "hsl(var(--text-secondary))" }}>
           Applying 6 strategic frameworks...
         </p>
       </div>
