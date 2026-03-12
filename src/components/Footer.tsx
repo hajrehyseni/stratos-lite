@@ -14,7 +14,7 @@ export function Footer() {
               AI decision audits for executives
             </p>
             <p className="mt-4 text-xs" style={{ color: "hsl(var(--muted-foreground))", opacity: 0.5 }}>
-              © 2025 StratOS
+              © 2026 StratOS
             </p>
           </div>
 

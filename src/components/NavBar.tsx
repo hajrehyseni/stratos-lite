@@ -16,6 +16,7 @@ export function NavBar({ journalCount }: Props) {
   const { user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const isHome = location.pathname === "/";
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10);
@@ -28,7 +29,7 @@ export function NavBar({ journalCount }: Props) {
   }, [location.pathname]);
 
   const handleCTA = () => {
-    if (location.pathname === "/") {
+    if (isHome) {
       const input = document.querySelector<HTMLInputElement>("#hero-input");
       if (input) {
         input.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -119,15 +120,28 @@ export function NavBar({ journalCount }: Props) {
             </button>
           </div>
 
-          {/* Mobile hamburger */}
-          <button
-            className="md:hidden flex items-center justify-center"
-            onClick={() => setMobileOpen(true)}
-            aria-label="Open menu"
-            style={{ color: "hsl(var(--foreground))" }}
-          >
-            <Menu className="w-5 h-5" />
-          </button>
+          {/* Mobile: CTA + hamburger */}
+          <div className="md:hidden flex items-center gap-3">
+            {!isHome && (
+              <button
+                onClick={handleCTA}
+                className="rounded-full px-4 py-1.5 text-sm font-semibold transition-all duration-150 active:scale-[0.98]"
+                style={{
+                  background: "hsl(var(--primary))",
+                  color: "hsl(var(--primary-foreground))",
+                }}
+              >
+                {ctaLabel}
+              </button>
+            )}
+            <button
+              onClick={() => setMobileOpen(true)}
+              aria-label="Open menu"
+              style={{ color: "hsl(var(--foreground))" }}
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+          </div>
         </div>
       </nav>
 
@@ -159,6 +173,16 @@ export function NavBar({ journalCount }: Props) {
               </button>
             </div>
             <div className="flex flex-col gap-1 px-4 flex-1">
+              {!isHome && (
+                <Link
+                  to="/"
+                  onClick={() => setMobileOpen(false)}
+                  className="py-3 text-sm transition-colors hover:opacity-80"
+                  style={{ color: "hsl(var(--muted-foreground))" }}
+                >
+                  Home
+                </Link>
+              )}
               <Link
                 to="/pricing"
                 onClick={() => setMobileOpen(false)}
@@ -209,21 +233,23 @@ export function NavBar({ journalCount }: Props) {
             </div>
 
             {/* Bottom CTA */}
-            <div className="px-4 pb-6">
-              <button
-                onClick={() => {
-                  setMobileOpen(false);
-                  handleCTA();
-                }}
-                className="w-full rounded-full py-3 text-sm font-semibold transition-all duration-150 active:scale-[0.98]"
-                style={{
-                  background: "hsl(var(--primary))",
-                  color: "hsl(var(--primary-foreground))",
-                }}
-              >
-                {ctaLabel}
-              </button>
-            </div>
+            {!isHome && (
+              <div className="px-4 pb-6">
+                <button
+                  onClick={() => {
+                    setMobileOpen(false);
+                    handleCTA();
+                  }}
+                  className="w-full rounded-full py-3 text-sm font-semibold transition-all duration-150 active:scale-[0.98]"
+                  style={{
+                    background: "hsl(var(--primary))",
+                    color: "hsl(var(--primary-foreground))",
+                  }}
+                >
+                  {ctaLabel}
+                </button>
+              </div>
+            )}
           </div>
         </>
       )}
