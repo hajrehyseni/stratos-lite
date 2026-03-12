@@ -44,7 +44,6 @@ export function NewProcessingState({ lens, scale, onApiReady, apiResolved, decis
 
   useEffect(() => {
     if (!apiResolved) return;
-
     const remaining = lines.length - visibleLines;
     if (remaining > 0) {
       let i = 0;
@@ -60,20 +59,14 @@ export function NewProcessingState({ lens, scale, onApiReady, apiResolved, decis
           clearInterval(rapid);
           setTimeout(() => {
             setCompletedLines(new Set(lines.map((_, idx) => idx)));
-            setTimeout(() => {
-              setFadingOut(true);
-              setTimeout(onApiReady, 200);
-            }, 400);
+            setTimeout(() => { setFadingOut(true); setTimeout(onApiReady, 200); }, 400);
           }, 100);
         }
       }, 100);
       return () => clearInterval(rapid);
     } else {
       setCompletedLines(new Set(lines.map((_, idx) => idx)));
-      setTimeout(() => {
-        setFadingOut(true);
-        setTimeout(onApiReady, 200);
-      }, 400);
+      setTimeout(() => { setFadingOut(true); setTimeout(onApiReady, 200); }, 400);
     }
   }, [apiResolved]);
 
@@ -94,16 +87,26 @@ export function NewProcessingState({ lens, scale, onApiReady, apiResolved, decis
       <div className="w-full" style={{ maxWidth: 720 }}>
         {/* Decision text preview */}
         {truncated && (
-          <p className="text-center mb-4" style={{ fontSize: 13, color: "hsl(var(--muted-foreground))", fontStyle: "italic" }}>
-            {truncated}
-          </p>
+          <div className="flex justify-center mb-6">
+            <span
+              className="inline-block rounded-full px-5 py-2 text-sm italic truncate"
+              style={{
+                maxWidth: 448,
+                background: "#0F0F0F",
+                border: "1px solid rgba(255,255,255,0.1)",
+                color: "hsl(var(--muted-foreground))",
+              }}
+            >
+              {truncated}
+            </span>
+          </div>
         )}
 
         <div
-          className="rounded-xl"
+          className="rounded-xl processing-glow"
           style={{
             background: "#0F0F0F",
-            border: "1px solid #1A1A1A",
+            border: "1px solid rgba(255,255,255,0.1)",
             padding: "28px 24px",
           }}
         >
@@ -111,13 +114,12 @@ export function NewProcessingState({ lens, scale, onApiReady, apiResolved, decis
             <span
               className="inline-block rounded-full"
               style={{
-                width: 8,
-                height: 8,
-                background: "#C9A84C",
+                width: 8, height: 8,
+                background: "hsl(var(--primary))",
                 animation: "pulse-dot 1.5s ease-in-out infinite",
               }}
             />
-            <span style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.15em", color: "#666" }}>
+            <span className="text-[10px] uppercase" style={{ letterSpacing: "0.15em", color: "hsl(var(--muted-foreground))" }}>
               ANALYSING
             </span>
           </div>
@@ -132,16 +134,16 @@ export function NewProcessingState({ lens, scale, onApiReady, apiResolved, decis
                   className="flex items-center gap-3"
                   style={{ animation: "fadeInSimple 400ms ease forwards" }}
                 >
-                  <span style={{ fontSize: 13, color: isComplete ? "#C9A84C" : "transparent", width: 16, flexShrink: 0, textAlign: "center" }}>
+                  <span style={{ fontSize: 13, color: isComplete ? "hsl(var(--primary))" : "transparent", width: 16, flexShrink: 0, textAlign: "center" }}>
                     {isComplete ? "✓" : " "}
                   </span>
                   <span
-                    className="processing-line-text"
-                    style={{ fontSize: 14, color: isComplete ? "#666" : "#555" }}
+                    className="processing-line-text text-sm"
+                    style={{ color: isComplete ? "hsl(var(--muted-foreground))" : "rgba(255,255,255,0.3)" }}
                   >
                     {line}
                     {isLast && (
-                      <span className="terminal-cursor" style={{ color: "#C9A84C" }}>│</span>
+                      <span className="terminal-cursor" style={{ color: "hsl(var(--primary))" }}>│</span>
                     )}
                   </span>
                 </div>
@@ -149,6 +151,10 @@ export function NewProcessingState({ lens, scale, onApiReady, apiResolved, decis
             })}
           </div>
         </div>
+
+        <p className="text-center mt-4 text-sm" style={{ color: "hsl(var(--muted-foreground))" }}>
+          Applying 6 strategic frameworks...
+        </p>
       </div>
     </div>
   );
