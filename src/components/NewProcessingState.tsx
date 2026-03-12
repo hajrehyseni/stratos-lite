@@ -92,9 +92,9 @@ export function NewProcessingState({ lens, scale, onApiReady, apiResolved, decis
               className="inline-block rounded-full px-5 py-2 text-sm italic truncate"
               style={{
                 maxWidth: 448,
-                background: "#0F0F0F",
-                border: "1px solid rgba(255,255,255,0.1)",
-                color: "hsl(var(--muted-foreground))",
+                background: "rgba(255,255,255,0.04)",
+                border: "1px solid rgba(255,255,255,0.08)",
+                color: "#6B7280",
               }}
             >
               {truncated}
@@ -105,8 +105,8 @@ export function NewProcessingState({ lens, scale, onApiReady, apiResolved, decis
         <div
           className="rounded-xl processing-glow"
           style={{
-            background: "#0F0F0F",
-            border: "1px solid rgba(255,255,255,0.1)",
+            background: "rgba(255,255,255,0.04)",
+            border: "1px solid rgba(255,255,255,0.08)",
             padding: "28px 24px",
           }}
         >
@@ -115,12 +115,12 @@ export function NewProcessingState({ lens, scale, onApiReady, apiResolved, decis
               className="inline-block rounded-full"
               style={{
                 width: 8, height: 8,
-                background: "hsl(var(--primary))",
+                background: "hsl(16, 100%, 62%)",
                 animation: "pulse-dot 1.5s ease-in-out infinite",
               }}
             />
-            <span className="text-[10px] uppercase" style={{ letterSpacing: "0.15em", color: "hsl(var(--muted-foreground))" }}>
-              ANALYSING
+            <span className="text-xs font-medium" style={{ letterSpacing: "0.1em", color: "#6B7280" }}>
+              Analysing
             </span>
           </div>
 
@@ -134,16 +134,16 @@ export function NewProcessingState({ lens, scale, onApiReady, apiResolved, decis
                   className="flex items-center gap-3"
                   style={{ animation: "fadeInSimple 400ms ease forwards" }}
                 >
-                  <span style={{ fontSize: 13, color: isComplete ? "hsl(var(--primary))" : "transparent", width: 16, flexShrink: 0, textAlign: "center" }}>
+                  <span style={{ fontSize: 13, color: isComplete ? "hsl(160, 84%, 39%)" : "transparent", width: 16, flexShrink: 0, textAlign: "center" }}>
                     {isComplete ? "✓" : " "}
                   </span>
                   <span
                     className="processing-line-text text-sm"
-                    style={{ color: isComplete ? "hsl(var(--muted-foreground))" : "rgba(255,255,255,0.3)" }}
+                    style={{ color: isComplete ? "#6B7280" : "rgba(255,255,255,0.3)" }}
                   >
                     {line}
                     {isLast && (
-                      <span className="terminal-cursor" style={{ color: "hsl(var(--primary))" }}>│</span>
+                      <span className="terminal-cursor" style={{ color: "hsl(16, 100%, 62%)" }}>│</span>
                     )}
                   </span>
                 </div>
@@ -152,7 +152,7 @@ export function NewProcessingState({ lens, scale, onApiReady, apiResolved, decis
           </div>
         </div>
 
-        <p className="text-center mt-4 text-sm" style={{ color: "hsl(var(--muted-foreground))" }}>
+        <p className="text-center mt-4 text-sm" style={{ color: "#6B7280" }}>
           Applying 6 strategic frameworks...
         </p>
       </div>

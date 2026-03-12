@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-/* <!-- PLACEHOLDER TESTIMONIALS --> */
+/* <!-- PLACEHOLDER TESTIMONIALS — From early users --> */
 const testimonials = [
   {
     quote: "This replaced the 3-hour board prep I used to dread. The risk surface alone saved us from a bad acquisition.",
@@ -9,31 +9,20 @@ const testimonials = [
     role: "VP Strategy, Series B Fintech",
   },
   {
-    quote: "I've used McKinsey frameworks for 20 years. StratOS captures 80% of that value in 30 seconds.",
+    quote: "StratOS captures 80% of McKinsey's value in 30 seconds. The best pre-meeting prep I've found.",
     name: "James Wright",
     role: "Managing Director",
   },
   {
-    quote: "We run every major decision through StratOS now. The stakeholder analysis caught a blind spot we all missed.",
+    quote: "The stakeholder analysis caught a political blind spot we all missed. We run every major decision through it.",
     name: "Priya Sharma",
     role: "COO, HealthTech Scale-up",
   },
-  {
-    quote: "Finally, an AI tool that doesn't just summarise — it actually challenges your thinking.",
-    name: "Michael Torres",
-    role: "Founder & CEO",
-  },
-  {
-    quote: "The confidence score gave me the language to tell the board 'not yet' on a deal everyone was excited about.",
-    name: "Rebecca Liu",
-    role: "CFO",
-  },
-  {
-    quote: "I ran our market expansion through StratOS and it flagged an assumption I'd missed in 6 months of analysis.",
-    name: "Daniel Okafor",
-    role: "VP Operations",
-  },
 ];
+
+function truncate(text: string, max: number) {
+  return text.length > max ? text.slice(0, max) + "..." : text;
+}
 
 export function TestimonialWall() {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -66,15 +55,15 @@ export function TestimonialWall() {
   }, []);
 
   return (
-    <div className="py-20 md:py-28">
+    <div className="py-12 md:py-20">
       <h2
-        className="text-3xl font-semibold text-center mb-3"
-        style={{ color: "hsl(var(--foreground))" }}
+        className="text-2xl md:text-3xl font-semibold text-center mb-3"
+        style={{ color: "#FFFFFF" }}
       >
         Trusted by leaders making high-stakes calls
       </h2>
-      <p className="text-center mb-12 text-base" style={{ color: "hsl(var(--muted-foreground))" }}>
-        Join 2,400+ executives who audit before they act
+      <p className="text-center text-sm mb-4" style={{ color: "#6B7280" }}>
+        From early users
       </p>
 
       <div className="relative">
@@ -91,22 +80,20 @@ export function TestimonialWall() {
                 minWidth: 320,
                 maxWidth: 400,
                 width: "85vw",
-                background: "#0F0F0F",
-                border: "1px solid rgba(255,255,255,0.1)",
-                borderLeft: "2px solid hsl(var(--primary))",
+                background: "rgba(255,255,255,0.04)",
+                border: "1px solid rgba(255,255,255,0.08)",
+                borderLeft: "2px solid hsl(16, 100%, 62%)",
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(201,168,76,0.3)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.borderLeftColor = "hsl(40, 46%, 54%)"; }}
             >
-              <div className="mb-4" style={{ color: "hsl(var(--primary))", fontSize: 14, letterSpacing: 2 }}>
+              <div className="mb-4" style={{ color: "hsl(38, 92%, 50%)", fontSize: 14, letterSpacing: 2 }}>
                 ★★★★★
               </div>
-              <p className="text-base italic leading-relaxed mb-6" style={{ color: "hsl(var(--muted-foreground))", lineHeight: 1.65 }}>
-                "{t.quote}"
+              <p className="text-base italic leading-relaxed mb-6" style={{ color: "#9CA3AF", lineHeight: 1.6 }}>
+                "{truncate(t.quote, 120)}"
               </p>
-              <div style={{ height: 1, background: "rgba(255,255,255,0.05)", marginBottom: 16 }} />
-              <p className="font-semibold text-sm" style={{ color: "hsl(var(--foreground))" }}>{t.name}</p>
-              <p className="text-sm mt-0.5" style={{ color: "hsl(var(--muted-foreground))" }}>{t.role}</p>
+              <div style={{ height: 1, background: "rgba(255,255,255,0.06)", marginBottom: 16 }} />
+              <p className="font-semibold text-sm" style={{ color: "#FFFFFF" }}>{t.name}</p>
+              <p className="text-sm mt-0.5" style={{ color: "#6B7280" }}>{t.role}</p>
             </div>
           ))}
         </div>
@@ -114,19 +101,19 @@ export function TestimonialWall() {
         {/* Navigation arrows */}
         <button
           onClick={() => scroll(-1)}
-          className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 items-center justify-center rounded-full w-10 h-10 transition-all duration-150 hover:scale-[1.05]"
-          style={{ background: "rgba(15,15,15,0.9)", border: "1px solid rgba(255,255,255,0.1)" }}
+          className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 items-center justify-center rounded-full w-10 h-10 transition-all duration-200 hover:scale-[1.05]"
+          style={{ background: "hsla(228, 35%, 16%, 0.9)", border: "1px solid rgba(255,255,255,0.1)" }}
           aria-label="Previous testimonial"
         >
-          <ChevronLeft className="w-5 h-5" style={{ color: "hsl(var(--foreground))" }} />
+          <ChevronLeft className="w-5 h-5" style={{ color: "#FFFFFF" }} />
         </button>
         <button
           onClick={() => scroll(1)}
-          className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 items-center justify-center rounded-full w-10 h-10 transition-all duration-150 hover:scale-[1.05]"
-          style={{ background: "rgba(15,15,15,0.9)", border: "1px solid rgba(255,255,255,0.1)" }}
+          className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 items-center justify-center rounded-full w-10 h-10 transition-all duration-200 hover:scale-[1.05]"
+          style={{ background: "hsla(228, 35%, 16%, 0.9)", border: "1px solid rgba(255,255,255,0.1)" }}
           aria-label="Next testimonial"
         >
-          <ChevronRight className="w-5 h-5" style={{ color: "hsl(var(--foreground))" }} />
+          <ChevronRight className="w-5 h-5" style={{ color: "#FFFFFF" }} />
         </button>
       </div>
 
@@ -139,7 +126,7 @@ export function TestimonialWall() {
             style={{
               width: activeIdx === i ? 16 : 6,
               height: 6,
-              background: activeIdx === i ? "hsl(var(--primary))" : "rgba(255,255,255,0.15)",
+              background: activeIdx === i ? "hsl(16, 100%, 62%)" : "rgba(255,255,255,0.15)",
             }}
           />
         ))}

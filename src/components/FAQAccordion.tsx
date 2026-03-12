@@ -32,10 +32,10 @@ export function FAQAccordion() {
   const [openIdx, setOpenIdx] = useState<number | null>(null);
 
   return (
-    <div className="py-20 md:py-28 px-4">
+    <div className="py-12 md:py-20 px-4">
       <h2
-        className="text-3xl font-semibold text-center mb-12"
-        style={{ color: "hsl(var(--foreground))" }}
+        className="text-2xl md:text-3xl font-semibold text-center mb-12"
+        style={{ color: "#FFFFFF" }}
       >
         Questions leaders ask
       </h2>
@@ -43,20 +43,20 @@ export function FAQAccordion() {
         {faqs.map((faq, i) => {
           const isOpen = openIdx === i;
           return (
-            <div key={i} style={{ borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
+            <div key={i} style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
               <button
                 onClick={() => setOpenIdx(isOpen ? null : i)}
                 className="w-full flex items-center justify-between py-5 text-left transition-colors"
-                style={{ background: "none", border: "none" }}
+                style={{ background: "none", border: "none", minHeight: 44 }}
               >
                 <span
                   className="text-base font-medium pr-4"
-                  style={{ color: isOpen ? "hsl(var(--primary))" : "hsl(var(--foreground))" }}
+                  style={{ color: isOpen ? "hsl(16, 100%, 62%)" : "#FFFFFF" }}
                 >
                   {faq.q}
                 </span>
-                <span className="flex-shrink-0" style={{ color: isOpen ? "hsl(var(--primary))" : "hsl(var(--foreground))" }}>
-                  {isOpen ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+                <span className="flex-shrink-0 transition-transform duration-300" style={{ color: isOpen ? "hsl(16, 100%, 62%)" : "#FFFFFF", transform: isOpen ? "rotate(45deg)" : "rotate(0deg)" }}>
+                  <Plus className="w-4 h-4" />
                 </span>
               </button>
               <div
@@ -68,7 +68,7 @@ export function FAQAccordion() {
               >
                 <p
                   className="pb-5 text-base leading-relaxed"
-                  style={{ color: "hsl(var(--muted-foreground))", lineHeight: 1.65 }}
+                  style={{ color: "#6B7280", lineHeight: 1.6 }}
                 >
                   {faq.a}
                 </p>
