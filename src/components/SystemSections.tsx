@@ -25,11 +25,11 @@ function useFadeIn(ref: React.RefObject<HTMLDivElement | null>) {
 function DiagnoseMockup() {
   const cards = ["Market Opportunity", "Financial Risk", "Team Readiness", "Competitive Timing"];
   return (
-    <div className="rounded-2xl p-5 opacity-50" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", maxWidth: 280 }}>
-      <div className="grid grid-cols-2 gap-2">
+    <div className="rounded-2xl p-5" style={{ background: "hsla(0, 0%, 100%, 0.04)", border: "1px solid hsla(0, 0%, 100%, 0.08)", maxWidth: 300 }}>
+      <div className="grid grid-cols-2 gap-2.5">
         {cards.map((c) => (
-          <div key={c} className="rounded-lg px-3 py-2" style={{ background: "rgba(255,255,255,0.04)", borderLeft: "3px solid hsl(16, 100%, 62%)" }}>
-            <span className="text-xs" style={{ color: "#FFFFFF" }}>{c}</span>
+          <div key={c} className="rounded-lg px-3 py-2.5" style={{ background: "hsla(0, 0%, 100%, 0.04)", borderLeft: "3px solid hsl(var(--primary))" }}>
+            <span className="text-sm" style={{ color: "hsl(var(--text-primary))" }}>{c}</span>
           </div>
         ))}
       </div>
@@ -39,19 +39,19 @@ function DiagnoseMockup() {
 
 function AssessMockup() {
   const risks = [
-    { text: "Integration timeline exceeds 12-month window", color: "hsl(0, 84%, 60%)" },
-    { text: "Target's engineering team will stay post-acquisition", color: "hsl(38, 92%, 50%)" },
+    { text: "Integration timeline exceeds 12-month window", color: "hsl(var(--destructive))" },
+    { text: "Target's engineering team will stay post-acquisition", color: "hsl(var(--warning))" },
     { text: "CTO opposes but hasn't voiced it yet", color: "hsl(217, 91%, 60%)" },
   ];
   return (
-    <div className="space-y-2 opacity-50" style={{ maxWidth: 280 }}>
+    <div className="space-y-2.5" style={{ maxWidth: 300 }}>
       {risks.map((r, i) => (
         <div
           key={i}
           className="rounded-lg px-4 py-3"
-          style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderLeft: `3px solid ${r.color}` }}
+          style={{ background: "hsla(0, 0%, 100%, 0.04)", border: "1px solid hsla(0, 0%, 100%, 0.08)", borderLeft: `3px solid ${r.color}` }}
         >
-          <span className="text-xs" style={{ color: "#6B7280" }}>{r.text}</span>
+          <span className="text-sm" style={{ color: "hsl(var(--text-secondary))" }}>{r.text}</span>
         </div>
       ))}
     </div>
@@ -60,17 +60,17 @@ function AssessMockup() {
 
 function DecideMockup() {
   return (
-    <div className="rounded-2xl p-5 opacity-50" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", maxWidth: 280 }}>
+    <div className="rounded-2xl p-5" style={{ background: "hsla(0, 0%, 100%, 0.04)", border: "1px solid hsla(0, 0%, 100%, 0.08)", maxWidth: 300 }}>
       <div className="flex items-baseline gap-1 mb-2">
-        <span className="text-3xl font-bold" style={{ color: "hsl(16, 100%, 62%)" }}>72</span>
-        <span className="text-sm" style={{ color: "#6B7280" }}>/100</span>
+        <span className="text-4xl font-extrabold" style={{ color: "hsl(var(--primary))" }}>72</span>
+        <span className="text-base" style={{ color: "hsl(var(--text-tertiary))" }}>/100</span>
       </div>
-      <div className="w-full h-1.5 rounded-full mb-3" style={{ background: "rgba(255,255,255,0.06)" }}>
-        <div className="h-full rounded-full" style={{ width: "72%", background: "hsl(16, 100%, 62%)" }} />
+      <div className="w-full h-2 rounded-full mb-3" style={{ background: "hsla(0, 0%, 100%, 0.06)" }}>
+        <div className="h-full rounded-full" style={{ width: "72%", background: "hsl(var(--primary))" }} />
       </div>
       <div
-        className="inline-flex rounded-full px-2.5 py-0.5 text-[10px] font-bold"
-        style={{ background: "hsla(38, 92%, 50%, 0.12)", border: "1px solid hsla(38, 92%, 50%, 0.3)", color: "hsl(38, 92%, 50%)" }}
+        className="inline-flex rounded-full px-3 py-1 text-xs font-bold"
+        style={{ background: "hsla(38, 92%, 50%, 0.12)", border: "1px solid hsla(38, 92%, 50%, 0.3)", color: "hsl(var(--warning))" }}
       >
         Conditional Proceed
       </div>
@@ -114,34 +114,35 @@ export function SystemSections() {
           <div
             key={s.num}
             ref={ref}
-            className="py-12 md:py-20 grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-center"
+            className="py-16 md:py-24 grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-center"
           >
             <div className={reversed ? "md:order-2" : ""}>
-              <div className="flex items-center gap-3 mb-4">
+              <div className="flex items-center gap-3 mb-5">
                 <span
-                  className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold"
-                  style={{ background: "hsla(16, 100%, 62%, 0.12)", color: "hsl(16, 100%, 62%)" }}
+                  className="inline-flex items-center justify-center rounded-lg font-extrabold"
+                  style={{ width: 36, height: 36, background: "hsla(16, 100%, 62%, 0.12)", color: "hsl(var(--primary))", fontSize: 14 }}
                 >
                   {s.num}
                 </span>
                 <span
-                  className="text-xs font-medium"
-                  style={{ letterSpacing: "0.1em", color: "hsl(16, 100%, 62%)" }}
+                  className="text-sm font-semibold uppercase"
+                  style={{ letterSpacing: "0.1em", color: "hsl(var(--primary))" }}
                 >
                   {s.tag}
                 </span>
               </div>
               <h2
-                className="text-2xl md:text-3xl mb-4"
-                style={{ fontWeight: 600, color: "#FFFFFF", lineHeight: 1.2 }}
+                className="text-2xl sm:text-3xl font-bold mb-4"
+                style={{ color: "hsl(var(--text-primary))", lineHeight: 1.2 }}
               >
                 {s.heading}
               </h2>
-              <p className="text-base leading-relaxed" style={{ color: "#6B7280", lineHeight: 1.6 }}>
+              <p className="text-base leading-relaxed" style={{ color: "hsl(var(--text-secondary))", lineHeight: 1.7 }}>
                 {s.body}
               </p>
             </div>
-            <div className={`${reversed ? "md:order-1" : ""} flex justify-center md:justify-start`}>
+            {/* Mockup visuals — hidden on mobile to save space */}
+            <div className={`${reversed ? "md:order-1" : ""} hidden md:flex justify-center`}>
               {s.visual}
             </div>
           </div>

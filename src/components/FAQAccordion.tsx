@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { Plus, X } from "lucide-react";
+import { Plus } from "lucide-react";
 
 const faqs = [
   {
     q: "Is my decision data private?",
-    a: "Completely. Your data stays in your browser session. We don't store decisions on any server — ever. When you close the tab, the analysis is gone unless you save it to your journal.",
+    a: "Your data is encrypted and stored securely. We take privacy seriously — your strategic decisions are never shared or used for training.",
   },
   {
     q: "How is this different from asking ChatGPT?",
@@ -16,7 +16,7 @@ const faqs = [
   },
   {
     q: "What frameworks does StratOS use?",
-    a: "Six proven strategic frameworks: MECE for decision decomposition, Risk Matrix for threat assessment, Stakeholder Analysis for political mapping, Cynefin for decision classification, Pre-Mortem for failure anticipation, and RAPID for role clarity. Each audit applies the frameworks most relevant to your decision type.",
+    a: "Six proven strategic frameworks: MECE for decision decomposition, Risk Matrix for threat assessment, Stakeholder Analysis for political mapping, Cynefin for decision classification, Pre-Mortem for failure anticipation, and RAPID for role clarity.",
   },
   {
     q: "Is this free?",
@@ -32,10 +32,10 @@ export function FAQAccordion() {
   const [openIdx, setOpenIdx] = useState<number | null>(null);
 
   return (
-    <div className="py-12 md:py-20 px-4">
+    <div className="py-16 md:py-24 px-4">
       <h2
-        className="text-2xl md:text-3xl font-semibold text-center mb-12"
-        style={{ color: "#FFFFFF" }}
+        className="text-2xl sm:text-3xl font-bold text-center mb-12"
+        style={{ color: "hsl(var(--text-primary))" }}
       >
         Questions leaders ask
       </h2>
@@ -43,32 +43,32 @@ export function FAQAccordion() {
         {faqs.map((faq, i) => {
           const isOpen = openIdx === i;
           return (
-            <div key={i} style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+            <div key={i} style={{ borderBottom: "1px solid hsla(0, 0%, 100%, 0.08)" }}>
               <button
                 onClick={() => setOpenIdx(isOpen ? null : i)}
                 className="w-full flex items-center justify-between py-5 text-left transition-colors"
-                style={{ background: "none", border: "none", minHeight: 44 }}
+                style={{ background: "none", border: "none", minHeight: 56 }}
               >
                 <span
-                  className="text-base font-medium pr-4"
-                  style={{ color: isOpen ? "hsl(16, 100%, 62%)" : "#FFFFFF" }}
+                  className="text-lg font-semibold pr-4"
+                  style={{ color: isOpen ? "hsl(var(--primary))" : "hsl(var(--text-primary))" }}
                 >
                   {faq.q}
                 </span>
-                <span className="flex-shrink-0 transition-transform duration-300" style={{ color: isOpen ? "hsl(16, 100%, 62%)" : "#FFFFFF", transform: isOpen ? "rotate(45deg)" : "rotate(0deg)" }}>
-                  <Plus className="w-4 h-4" />
+                <span className="flex-shrink-0 transition-transform duration-300" style={{ color: isOpen ? "hsl(var(--primary))" : "hsl(var(--text-primary))", transform: isOpen ? "rotate(45deg)" : "rotate(0deg)" }}>
+                  <Plus className="w-5 h-5" />
                 </span>
               </button>
               <div
                 className="overflow-hidden transition-all duration-300 ease-in-out"
                 style={{
-                  maxHeight: isOpen ? 300 : 0,
+                  maxHeight: isOpen ? 400 : 0,
                   opacity: isOpen ? 1 : 0,
                 }}
               >
                 <p
-                  className="pb-5 text-base leading-relaxed"
-                  style={{ color: "#6B7280", lineHeight: 1.6 }}
+                  className="pb-6 text-base leading-relaxed"
+                  style={{ color: "hsl(var(--text-secondary))", lineHeight: 1.7 }}
                 >
                   {faq.a}
                 </p>

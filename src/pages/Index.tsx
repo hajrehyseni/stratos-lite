@@ -53,7 +53,6 @@ const Index = () => {
       }
       return;
     }
-    // Resume in-progress diagnostic flow
     const savedDiag = sessionStorage.getItem("stratos_diag_state");
     const savedDecision = sessionStorage.getItem("stratos_diag_decision");
     if (savedDiag && savedDecision) {
@@ -66,9 +65,7 @@ const Index = () => {
   const [apiResolvedState, setApiResolvedState] = useState(false);
   const apiResult = useRef<{ parsed: AuditResult; id: string } | null>(null);
 
-  // Check if user can run an audit
   const canRunAudit = (): boolean => {
-    // Anonymous: allow 1 free audit
     if (!user) {
       const done = localStorage.getItem(ANON_AUDIT_KEY);
       if (done) {
@@ -77,8 +74,6 @@ const Index = () => {
       }
       return true;
     }
-
-    // Logged in: check plan limits
     const tier = STRIPE_TIERS[subscription.plan];
     if (subscription.auditCount >= tier.audits) {
       setShowUpgrade(true);
@@ -90,7 +85,6 @@ const Index = () => {
   const handleLandingSubmit = (text: string) => {
     setDecision(text);
     if (!canRunAudit()) return;
-    // Save decision text for sessionStorage resume
     sessionStorage.setItem("stratos_diag_decision", text);
     setLandingExiting(true);
     setTimeout(() => {
@@ -147,7 +141,6 @@ const Index = () => {
           user_id: user?.id || null,
         });
 
-        // Increment audit count
         if (user) {
           const { data: subData } = await supabase
             .from("subscriptions")
@@ -163,7 +156,6 @@ const Index = () => {
           }
           refreshSubscription();
         } else {
-          // Mark anonymous audit as done
           localStorage.setItem(ANON_AUDIT_KEY, "true");
         }
 
@@ -237,32 +229,6 @@ const Index = () => {
           onSaveToJournal={handleSaveToJournal}
           journalSaved={journalSaved}
         />
-        {/* Post-audit signup gate for anonymous users */}
-        {!user && (
-          <div className="px-4 pb-12">
-            <div
-              className="rounded-xl p-6 text-center mx-auto"
-              style={{ maxWidth: 720, background: "#0F0F0F", border: "1px solid rgba(201,168,76,0.2)" }}
-            >
-              <h3 style={{ fontSize: 18, fontWeight: 600, color: "hsl(var(--foreground))" }}>
-                Create a free account to save your decision history
-              </h3>
-              <p className="mt-2" style={{ fontSize: 14, color: "hsl(var(--muted-foreground))", lineHeight: 1.6 }}>
-                Unlock 3 audits and build your decision intelligence profile.
-              </p>
-              <a
-                href="/signup"
-                className="mt-4 inline-flex items-center justify-center rounded-lg font-semibold transition-all duration-200"
-                style={{
-                  height: 44, padding: "0 24px", fontSize: 14,
-                  background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))",
-                }}
-              >
-                Create Free Account
-              </a>
-            </div>
-          </div>
-        )}
       </>
     );
   }
