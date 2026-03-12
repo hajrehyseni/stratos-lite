@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Plus, X } from "lucide-react";
 
 const faqs = [
   {
@@ -15,7 +16,7 @@ const faqs = [
   },
   {
     q: "What frameworks does StratOS use?",
-    a: "Six proven strategic frameworks: MECE (Mutually Exclusive, Collectively Exhaustive) for decision decomposition, Risk Matrix for threat assessment, Stakeholder Analysis for political mapping, Cynefin for decision classification, Pre-Mortem for failure anticipation, and RAPID for role clarity. Each audit applies the frameworks most relevant to your decision type.",
+    a: "Six proven strategic frameworks: MECE for decision decomposition, Risk Matrix for threat assessment, Stakeholder Analysis for political mapping, Cynefin for decision classification, Pre-Mortem for failure anticipation, and RAPID for role clarity. Each audit applies the frameworks most relevant to your decision type.",
   },
   {
     q: "Is this free?",
@@ -54,11 +55,8 @@ export function FAQAccordion() {
                 >
                   {faq.q}
                 </span>
-                <span
-                  className="flex-shrink-0 text-lg font-light"
-                  style={{ color: isOpen ? "hsl(var(--primary))" : "hsl(var(--foreground))", width: 20, textAlign: "center" }}
-                >
-                  {isOpen ? "−" : "+"}
+                <span className="flex-shrink-0" style={{ color: isOpen ? "hsl(var(--primary))" : "hsl(var(--foreground))" }}>
+                  {isOpen ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
                 </span>
               </button>
               <div
@@ -69,8 +67,8 @@ export function FAQAccordion() {
                 }}
               >
                 <p
-                  className="pb-5 text-sm leading-relaxed"
-                  style={{ color: "hsl(var(--muted-foreground))" }}
+                  className="pb-5 text-base leading-relaxed"
+                  style={{ color: "hsl(var(--muted-foreground))", lineHeight: 1.65 }}
                 >
                   {faq.a}
                 </p>

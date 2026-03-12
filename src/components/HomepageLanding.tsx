@@ -1,4 +1,5 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import { ArrowRight } from "lucide-react";
 import { TrustStrip } from "@/components/TrustStrip";
 import { SystemSections } from "@/components/SystemSections";
 import { MidPageCTA } from "@/components/MidPageCTA";
@@ -17,11 +18,41 @@ const exampleChips = [
   "Should we pivot our product strategy?",
 ];
 
+function useFadeUp(ref: React.RefObject<HTMLDivElement | null>) {
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          el.classList.add("visible");
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.15 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+}
+
 export function HomepageLanding({ onSubmit }: Props) {
   const [value, setValue] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const [shake, setShake] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const trustRef = useRef<HTMLDivElement>(null);
+  const ctaRef = useRef<HTMLDivElement>(null);
+  const testimonialsRef = useRef<HTMLDivElement>(null);
+  const socialRef = useRef<HTMLDivElement>(null);
+  const faqRef = useRef<HTMLDivElement>(null);
+
+  useFadeUp(trustRef);
+  useFadeUp(ctaRef);
+  useFadeUp(testimonialsRef);
+  useFadeUp(socialRef);
+  useFadeUp(faqRef);
 
   const canSubmit = value.trim().length >= 10;
 
@@ -52,7 +83,7 @@ export function HomepageLanding({ onSubmit }: Props) {
       <div className="flex flex-col items-center px-4" style={{ minHeight: "90vh", justifyContent: "center" }}>
         <div className="w-full flex flex-col items-center" style={{ maxWidth: 820 }}>
           <h1
-            className="text-center text-4xl md:text-5xl lg:text-6xl font-semibold"
+            className="text-center text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold"
             style={{ lineHeight: 1.1, letterSpacing: "-0.03em", color: "hsl(var(--foreground))", maxWidth: 768 }}
           >
             What's the decision you can't afford to get wrong?
@@ -60,7 +91,7 @@ export function HomepageLanding({ onSubmit }: Props) {
 
           <p
             className="text-center text-base md:text-lg mt-5 mx-auto"
-            style={{ color: "hsl(var(--muted-foreground))", maxWidth: 560 }}
+            style={{ color: "hsl(var(--muted-foreground))", maxWidth: 560, lineHeight: 1.6 }}
           >
             The strategic frameworks behind every Fortune 500 board decision
           </p>
@@ -108,78 +139,76 @@ export function HomepageLanding({ onSubmit }: Props) {
               <button
                 onClick={handleSubmit}
                 disabled={!canSubmit}
-                className="flex-shrink-0 flex items-center justify-center gap-1.5 rounded-full transition-all duration-150 hover:scale-[1.02] active:scale-[0.98]"
+                className="flex-shrink-0 flex items-center justify-center rounded-full transition-all duration-150 hover:scale-[1.02] active:scale-[0.98]"
                 style={{
+                  width: 42,
                   height: 42,
-                  padding: "0 18px",
                   background: canSubmit ? "hsl(var(--primary))" : "rgba(201,168,76,0.3)",
                   opacity: canSubmit ? 1 : 0.3,
                   cursor: canSubmit ? "pointer" : "default",
-                  fontSize: 14,
-                  fontWeight: 600,
                   color: "hsl(var(--primary-foreground))",
-                  whiteSpace: "nowrap",
                 }}
                 aria-label="Submit decision"
               >
-                Audit →
+                <ArrowRight className="w-5 h-5" />
               </button>
             </div>
           </div>
 
-          {/* Trust checkmarks */}
-          <div className="flex items-center justify-center gap-4 mt-4 flex-wrap">
-            {["Free", "No signup", "30 seconds"].map((t) => (
-              <span key={t} className="flex items-center gap-1.5 text-sm">
-                <span style={{ color: "hsl(var(--primary))" }}>✓</span>
-                <span style={{ color: "hsl(var(--muted-foreground))" }}>{t}</span>
-              </span>
-            ))}
-          </div>
-
-          <p className="text-center mt-3 text-xs" style={{ color: "hsl(var(--muted-foreground))", opacity: 0.5 }}>
-            🔒 Your data never leaves your device
-          </p>
-
           {/* Example decision chips */}
-          <div className="mt-6 flex gap-3 overflow-x-auto scrollbar-hide pb-2 w-full justify-center flex-wrap md:flex-nowrap">
+          <div className="mt-2 flex gap-2 overflow-x-auto scrollbar-hide pb-2 w-full justify-center flex-wrap md:flex-nowrap px-1">
             {exampleChips.map((chip) => (
               <button
                 key={chip}
                 onClick={() => handleChipClick(chip)}
-                className="flex-shrink-0 rounded-full px-4 py-2 text-sm transition-all duration-200 hover:text-white"
+                className="flex-shrink-0 rounded-full px-4 py-2 text-sm transition-all duration-200 hover:text-foreground"
                 style={{
                   background: "transparent",
-                  border: "1px solid rgba(255,255,255,0.1)",
+                  border: "1px solid rgba(201,168,76,0.15)",
                   color: "hsl(var(--muted-foreground))",
                 }}
                 onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(201,168,76,0.4)"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(201,168,76,0.15)"; }}
               >
                 {chip}
               </button>
             ))}
           </div>
+
+          {/* Consolidated trust line */}
+          <p className="text-center mt-3 text-sm" style={{ color: "hsl(var(--muted-foreground))" }}>
+            ✓ Free · No signup · 30 seconds · 🔒 Data stays on your device
+          </p>
         </div>
       </div>
 
       {/* Trust Strip */}
-      <TrustStrip />
+      <div ref={trustRef} className="fade-up-section">
+        <TrustStrip />
+      </div>
 
       {/* System Sections */}
       <SystemSections />
 
       {/* Mid-page CTA */}
-      <MidPageCTA />
+      <div ref={ctaRef} className="fade-up-section">
+        <MidPageCTA />
+      </div>
 
       {/* Testimonials */}
-      <TestimonialWall />
+      <div ref={testimonialsRef} className="fade-up-section">
+        <TestimonialWall />
+      </div>
 
       {/* Social Proof */}
-      <SocialProofLogos />
+      <div ref={socialRef} className="fade-up-section">
+        <SocialProofLogos />
+      </div>
 
       {/* FAQ */}
-      <FAQAccordion />
+      <div ref={faqRef} className="fade-up-section">
+        <FAQAccordion />
+      </div>
 
       {/* Footer */}
       <Footer />
