@@ -577,107 +577,101 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
         {/* ═══ TIER 10: ACTIONS ═══ */}
         {!readOnly && (
           <>
-            <div className="flex flex-col sm:flex-row gap-3 mt-10">
+            {/* PRIMARY CTA */}
+            {onSaveToJournal && !journalSaved ? (
+              <div className="mt-10">
+                <button
+                  onClick={onSaveToJournal}
+                  className="w-full flex items-center justify-center gap-2 rounded-xl font-semibold transition-all duration-150 hover:scale-[1.01] active:scale-[0.98]"
+                  style={{
+                    height: 48, fontSize: 15,
+                    background: "#C9A84C", color: "#080808",
+                  }}
+                >
+                  <BookmarkPlus className="w-4 h-4" />
+                  Save to Your Decision Journal →
+                </button>
+                <p className="text-center mt-2" style={{ fontSize: 12, color: "hsl(var(--muted-foreground))" }}>
+                  Track this. Get reminded in 30 days.
+                </p>
+              </div>
+            ) : journalSaved ? (
+              <div className="mt-10">
+                <div
+                  className="w-full flex items-center justify-center gap-2 rounded-xl"
+                  style={{ height: 48, background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.3)" }}
+                >
+                  <Check className="w-4 h-4" style={{ color: "#22c55e" }} />
+                  <span style={{ fontSize: 14, color: "#22c55e" }}>Saved — review in 30 days</span>
+                </div>
+                <button
+                  onClick={() => onReset()}
+                  className="w-full mt-3 flex items-center justify-center gap-2 rounded-xl font-semibold transition-all duration-150 hover:scale-[1.01] active:scale-[0.98]"
+                  style={{
+                    height: 48, fontSize: 14,
+                    background: "transparent", color: "#C9A84C",
+                    border: "1px solid #C9A84C",
+                  }}
+                >
+                  Audit Another Decision →
+                </button>
+              </div>
+            ) : null}
+
+            {/* SECONDARY ROW */}
+            <div className="flex items-center justify-center gap-3 mt-6">
               <button
                 onClick={handleCopyBrief}
-                className="flex-1 flex items-center justify-center gap-2 transition-all duration-200"
-                style={{ ...btnStyle, border: "1px solid #1A1A1A", background: "transparent", color: "rgba(232,228,223,0.8)" }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = "#0F0F0F"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-all duration-150 hover:scale-[1.02] active:scale-[0.98]"
+                style={{ border: "1px solid rgba(255,255,255,0.1)", background: "transparent", color: "hsl(var(--muted-foreground))" }}
               >
-                {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                 Copy Brief
               </button>
               <button
                 onClick={handleDownloadPDF}
-                className="flex-1 flex items-center justify-center gap-2 transition-all duration-200"
-                style={{ ...btnStyle, border: "1px solid #1A1A1A", background: "transparent", color: "rgba(232,228,223,0.8)" }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = "#0F0F0F"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-all duration-150 hover:scale-[1.02] active:scale-[0.98]"
+                style={{ border: "1px solid rgba(255,255,255,0.1)", background: "transparent", color: "hsl(var(--muted-foreground))" }}
               >
-                <Download className="w-4 h-4" />
-                Download PDF
+                <Download className="w-3.5 h-3.5" />
+                PDF
               </button>
               <button
                 onClick={handleShare}
-                className="flex-1 flex items-center justify-center gap-2 transition-all duration-200"
-                style={{ ...btnStyle, border: "1px solid #1A1A1A", background: "transparent", color: "rgba(232,228,223,0.8)" }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = "#0F0F0F"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-all duration-150 hover:scale-[1.02] active:scale-[0.98]"
+                style={{ border: "1px solid rgba(255,255,255,0.1)", background: "transparent", color: "hsl(var(--muted-foreground))" }}
               >
-                <Share2 className="w-4 h-4" />
-                Share Link
+                <Share2 className="w-3.5 h-3.5" />
+                Share
               </button>
-              {onSaveToJournal && !journalSaved && (
-                <button
-                  onClick={onSaveToJournal}
-                  className="flex-1 flex items-center justify-center gap-2 transition-all duration-200"
-                  style={{ ...btnStyle, border: "1px solid #C9A84C", background: "transparent", color: "#C9A84C" }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = "#C9A84C"; e.currentTarget.style.color = "#080808"; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#C9A84C"; }}
-                >
-                  <BookmarkPlus className="w-4 h-4" />
-                  Save to Journal
-                </button>
-              )}
-              {journalSaved && (
-                <div
-                  className="flex-1 flex items-center justify-center gap-2"
-                  style={{ ...btnStyle, border: "1px solid rgba(201,168,76,0.3)", color: "rgba(201,168,76,0.6)" }}
-                >
-                  <Check className="w-4 h-4" />
-                  Saved
-                </div>
-              )}
             </div>
 
-            <div className="mt-8 rounded-xl p-6" style={cardBase}>
-              {journalSaved ? (
-                <div className="flex items-center justify-center gap-3 py-2">
-                  <Check className="w-5 h-5" style={{ color: "#C9A84C" }} />
-                  <span style={{ fontSize: 14, color: "#888" }}>Tracking — you'll be reminded in 30 days</span>
-                </div>
-              ) : (
-                <>
-                  <h3 style={{ fontSize: 16, fontWeight: 600, color: "#E8E4DF", marginBottom: 8 }}>Track This Decision</h3>
-                  <p style={{ fontSize: 14, color: "#888", lineHeight: 1.6, maxWidth: 520, marginBottom: 16 }}>
-                    In 30 days, StratOS will ask you what actually happened. After 5 tracked decisions, you'll unlock your Decision Pattern Profile.
-                  </p>
-                  <button
-                    onClick={onSaveToJournal}
-                    className="flex items-center justify-center gap-2 transition-all duration-200 btn-press w-full sm:w-auto"
-                    style={{
-                      height: 44, fontSize: 14, borderRadius: 8,
-                      border: "1px solid #C9A84C", background: "transparent", color: "#C9A84C",
-                      fontWeight: 600, padding: "0 24px", textTransform: "uppercase", letterSpacing: "0.08em",
-                    }}
-                    onMouseEnter={(e) => { e.currentTarget.style.background = "#C9A84C"; e.currentTarget.style.color = "#080808"; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#C9A84C"; }}
-                  >
-                    <BookmarkPlus className="w-4 h-4" />
-                    Save & Track for 30 Days
-                  </button>
-                  <p className="mt-3" style={{ fontSize: 11, color: "#555" }}>Private. Stored locally. Only you can see this.</p>
-                </>
-              )}
-            </div>
-
-            <div className="mt-6 rounded-xl text-center" style={{ ...cardBase, borderStyle: "dashed", padding: 32 }}>
-              <span style={{ fontSize: 24, color: "rgba(201,168,76,0.5)" }}>⟳</span>
-              <h3 className="mt-3" style={{ fontSize: 18, color: "#E8E4DF" }}>What if you're wrong?</h3>
-              <p className="mt-2" style={{ fontSize: 14, color: "#666" }}>Run the same audit from the opposite position.</p>
+            {/* AUDIT THE OPPOSITE */}
+            <div
+              className="mt-10 rounded-2xl text-center"
+              style={{
+                padding: "32px 24px",
+                background: "rgba(8,8,8,0.5)",
+                border: "1px dashed rgba(201,168,76,0.3)",
+              }}
+            >
+              <h3 style={{ fontSize: 20, fontWeight: 600, color: "hsl(var(--foreground))" }}>
+                ↕ What if you chose the opposite?
+              </h3>
+              <p className="mt-2" style={{ fontSize: 14, color: "hsl(var(--muted-foreground))" }}>
+                Stress-test your thinking from the other side
+              </p>
               <button
                 onClick={handleAuditOpposite}
-                className="mt-4 inline-flex items-center justify-center gap-2 transition-all duration-200 btn-press"
+                className="mt-5 inline-flex items-center justify-center gap-2 rounded-full font-semibold transition-all duration-150 hover:scale-[1.02] active:scale-[0.98]"
                 style={{
-                  height: 44, fontSize: 14, borderRadius: 9999,
+                  height: 44, fontSize: 14, padding: "0 28px",
                   border: "1px solid #C9A84C", background: "transparent", color: "#C9A84C",
-                  fontWeight: 600, padding: "0 28px", textTransform: "uppercase", letterSpacing: "0.08em",
                 }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = "#C9A84C"; e.currentTarget.style.color = "#080808"; e.currentTarget.style.transform = "scale(1.02)"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#C9A84C"; e.currentTarget.style.transform = "scale(1)"; }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = "#C9A84C"; e.currentTarget.style.color = "#080808"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#C9A84C"; }}
               >
-                Audit the Opposite
+                Audit the Opposite →
               </button>
             </div>
 
