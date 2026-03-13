@@ -119,7 +119,7 @@ export default function PricingPage() {
                       </div>
                     ) : key === "free" ? (
                       <button
-                        onClick={() => !user && navigate("/signup")}
+                        onClick={() => navigate("/")}
                         className="w-full rounded-full py-3.5 text-base font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                         style={{
                           color: "hsl(var(--text-primary))",
@@ -128,7 +128,7 @@ export default function PricingPage() {
                           minHeight: 48,
                         }}
                       >
-                        {user ? "Included" : ctaLabel}
+                        Get Started Free
                       </button>
                     ) : (
                       <button
