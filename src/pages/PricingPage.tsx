@@ -42,7 +42,7 @@ export default function PricingPage() {
         body: { price_id: tier.price_id },
       });
       if (error) throw error;
-      if (data?.url) window.open(data.url, "_blank");
+      if (data?.url) window.location.href = data.url;
     } catch (e: any) {
       toast.error(e?.message || "Failed to create checkout session");
     }
