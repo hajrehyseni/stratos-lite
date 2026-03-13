@@ -90,7 +90,7 @@ export function HomepageLanding({ onSubmit }: Props) {
   return (
     <div className="flex flex-col page-enter">
       {/* Hero section */}
-      <div className="flex flex-col items-center px-4 sm:px-6 pt-28 sm:pt-32 pb-12 md:pb-20" style={{ minHeight: "85vh", justifyContent: "center" }}>
+      <div className="flex flex-col items-center px-4 sm:px-6 pt-28 sm:pt-36 pb-16 md:pb-24" style={{ minHeight: "85vh", justifyContent: "center" }}>
         <div className="w-full flex flex-col items-center" style={{ maxWidth: 1120 }}>
           <h1
             className="text-center text-4xl sm:text-5xl lg:text-6xl"
@@ -226,29 +226,29 @@ export function HomepageLanding({ onSubmit }: Props) {
             </div>
           </div>
 
-          {/* Example decision chips — horizontal scroll on mobile */}
-          <div className="mt-4 flex gap-2.5 overflow-x-auto scrollbar-hide pb-2 w-full justify-center flex-wrap md:flex-nowrap px-1" style={{ maxWidth: 672 }}>
+          {/* Example decision chips */}
+          <div className="mt-5 flex gap-2.5 overflow-x-auto scrollbar-hide pb-2 w-full justify-center flex-wrap md:flex-nowrap px-1" style={{ maxWidth: 672 }}>
             {exampleChips.map((chip) => (
               <button
                 key={chip}
                 onClick={() => handleChipClick(chip)}
-                className="flex-shrink-0 rounded-full px-5 py-2.5 text-base transition-all duration-200"
+                className="flex-shrink-0 rounded-full px-4 py-2 text-sm transition-all duration-200"
                 style={{
                   background: "transparent",
-                  border: "1px solid hsla(0, 0%, 100%, 0.15)",
-                  color: "hsl(var(--text-secondary))",
+                  border: "1px solid hsla(0, 0%, 100%, 0.12)",
+                  color: "hsl(var(--text-tertiary))",
                   minHeight: 44,
                 }}
-                onMouseEnter={(e) => { e.currentTarget.style.borderColor = "hsla(0, 0%, 100%, 0.35)"; e.currentTarget.style.color = "hsl(var(--text-primary))"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderColor = "hsla(0, 0%, 100%, 0.15)"; e.currentTarget.style.color = "hsl(var(--text-secondary))"; }}
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = "hsla(0, 0%, 100%, 0.3)"; e.currentTarget.style.color = "hsl(var(--text-secondary))"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = "hsla(0, 0%, 100%, 0.12)"; e.currentTarget.style.color = "hsl(var(--text-tertiary))"; }}
               >
                 {chip}
               </button>
             ))}
           </div>
 
-          {/* Consolidated trust line */}
-          <p className="text-center mt-5 text-base" style={{ color: "hsl(var(--text-secondary))" }}>
+          {/* Trust line */}
+          <p className="text-center mt-4 text-sm" style={{ color: "hsl(var(--text-tertiary))" }}>
             ✓ Free · No signup · 30 seconds · 🔒 Private &amp; encrypted
           </p>
         </div>
