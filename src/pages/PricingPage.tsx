@@ -42,7 +42,7 @@ export default function PricingPage() {
         body: { price_id: tier.price_id },
       });
       if (error) throw error;
-      if (data?.url) window.open(data.url, "_blank");
+      if (data?.url) window.location.href = data.url;
     } catch (e: any) {
       toast.error(e?.message || "Failed to create checkout session");
     }
@@ -113,13 +113,21 @@ export default function PricingPage() {
                   </ul>
 
                   <div className="mt-8">
-                    {isCurrent ? (
+                    {isCurrent && key === "free" ? (
+                      <button
+                        onClick={() => navigate("/")}
+                        className="w-full text-center rounded-full py-3.5 text-base font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                        style={{ border: "1px solid hsla(0, 0%, 100%, 0.2)", color: "hsl(var(--text-primary))", background: "transparent", minHeight: 48 }}
+                      >
+                        Get Started Free
+                      </button>
+                    ) : isCurrent ? (
                       <div className="w-full text-center rounded-full py-3.5 text-base font-semibold" style={{ border: "1px solid hsla(0, 0%, 100%, 0.2)", color: "hsl(var(--text-primary))" }}>
                         Current Plan
                       </div>
                     ) : key === "free" ? (
                       <button
-                        onClick={() => !user && navigate("/signup")}
+                        onClick={() => navigate("/")}
                         className="w-full rounded-full py-3.5 text-base font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                         style={{
                           color: "hsl(var(--text-primary))",
@@ -128,7 +136,7 @@ export default function PricingPage() {
                           minHeight: 48,
                         }}
                       >
-                        {user ? "Included" : ctaLabel}
+                        Get Started Free
                       </button>
                     ) : (
                       <button
