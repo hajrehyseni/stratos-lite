@@ -113,7 +113,15 @@ export default function PricingPage() {
                   </ul>
 
                   <div className="mt-8">
-                    {isCurrent ? (
+                    {isCurrent && key === "free" ? (
+                      <button
+                        onClick={() => navigate("/")}
+                        className="w-full text-center rounded-full py-3.5 text-base font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                        style={{ border: "1px solid hsla(0, 0%, 100%, 0.2)", color: "hsl(var(--text-primary))", background: "transparent", minHeight: 48 }}
+                      >
+                        Get Started Free
+                      </button>
+                    ) : isCurrent ? (
                       <div className="w-full text-center rounded-full py-3.5 text-base font-semibold" style={{ border: "1px solid hsla(0, 0%, 100%, 0.2)", color: "hsl(var(--text-primary))" }}>
                         Current Plan
                       </div>
