@@ -14,7 +14,7 @@ export function NavBar({ journalCount }: Props) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const count = journalCount ?? getJournalCount();
-  const { user } = useAuth();
+  const { user, subscription } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const isHome = location.pathname === "/";
