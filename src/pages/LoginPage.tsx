@@ -33,17 +33,7 @@ export default function LoginPage() {
     if (error) toast.error(String(error));
   };
 
-  const handleForgotPassword = async () => {
-    if (!email) {
-      toast.error("Enter your email first");
-      return;
-    }
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: window.location.origin,
-    });
-    if (error) toast.error(error.message);
-    else toast.success("Password reset email sent");
-  };
+  // Forgot password is now handled by /forgot-password page
 
   return (
     <>

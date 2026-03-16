@@ -5,10 +5,12 @@ import { STRIPE_TIERS, type PlanType } from "@/lib/stripe-config";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { Check, Shield, ArrowRight } from "lucide-react";
+import { Check, Shield, ArrowRight, ArrowDown } from "lucide-react";
 import { getJournalCount } from "@/lib/journal";
+import { useState } from "react";
 
 const perAudit: Record<PlanType, string> = { free: "£0 per audit", pro: "£0.76 per audit", executive: "£0.41 per audit" };
+const annualPerAudit: Record<PlanType, string> = { free: "£0 per audit", pro: "£0.61 per audit", executive: "£0.33 per audit" };
 
 const comparisonRows = [
   { label: "Monthly audits", free: "3 total", pro: "25", exec: "120" },
@@ -33,6 +35,7 @@ const frameworks = [
 export default function PricingPage() {
   const { user, subscription } = useAuth();
   const navigate = useNavigate();
+  const [annual, setAnnual] = useState(false);
 
   const handleCheckout = async (plan: "pro" | "executive") => {
     if (!user) { navigate("/signup"); return; }
@@ -48,10 +51,16 @@ export default function PricingPage() {
     }
   };
 
-  const plans: { key: PlanType; highlight: boolean; ctaLabel: string }[] = [
+  const getPrice = (key: PlanType) => {
+    const base = STRIPE_TIERS[key].price;
+    if (!annual || base === 0) return base;
+    return Math.round(base * 0.8 * 100) / 100;
+  };
+
+  const plans: { key: PlanType; highlight: boolean; ctaLabel: string; subtext?: string }[] = [
     { key: "free", highlight: false, ctaLabel: "Get Started Free" },
-    { key: "pro", highlight: true, ctaLabel: "Start Pro trial" },
-    { key: "executive", highlight: false, ctaLabel: "Go Executive" },
+    { key: "pro", highlight: true, ctaLabel: "Start Pro trial", subtext: "7-day free trial · Cancel anytime" },
+    { key: "executive", highlight: false, ctaLabel: "Go Executive", subtext: "Best for teams making 100+ decisions/month" },
   ];
 
   return (
@@ -60,7 +69,7 @@ export default function PricingPage() {
       <div className="min-h-screen px-4 pt-28 pb-20 page-enter">
         <div style={{ maxWidth: 1120 }} className="mx-auto">
           {/* Header */}
-          <div className="text-center mb-14">
+          <div className="text-center mb-10">
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight" style={{ color: "hsl(var(--text-primary))" }}>
               Simple pricing for better decisions
             </h1>
@@ -69,11 +78,49 @@ export default function PricingPage() {
             </p>
           </div>
 
+          {/* Monthly / Annual toggle */}
+          <div className="flex items-center justify-center gap-3 mb-10">
+            <span className="text-sm font-medium" style={{ color: annual ? "hsl(var(--text-tertiary))" : "hsl(var(--text-primary))" }}>Monthly</span>
+            <button
+              onClick={() => setAnnual(!annual)}
+              className="relative rounded-full transition-colors"
+              style={{ width: 48, height: 26, background: annual ? "hsl(var(--primary))" : "hsla(0, 0%, 100%, 0.15)" }}
+              aria-label="Toggle annual billing"
+            >
+              <span
+                className="absolute top-1 rounded-full transition-transform duration-200"
+                style={{
+                  width: 18, height: 18, background: "hsl(var(--text-primary))",
+                  left: annual ? 26 : 4,
+                }}
+              />
+            </button>
+            <span className="text-sm font-medium" style={{ color: annual ? "hsl(var(--text-primary))" : "hsl(var(--text-tertiary))" }}>
+              Annual
+              <span className="ml-1.5 rounded-full px-2 py-0.5 text-xs font-bold" style={{ background: "hsla(160, 84%, 39%, 0.15)", color: "hsl(var(--success))" }}>
+                Save 20%
+              </span>
+            </span>
+          </div>
+
+          {/* Compare anchor */}
+          <div className="text-center mb-10">
+            <button
+              onClick={() => document.getElementById("comparison-table")?.scrollIntoView({ behavior: "smooth" })}
+              className="inline-flex items-center gap-1.5 text-sm font-medium transition-opacity hover:opacity-80"
+              style={{ color: "hsl(var(--text-tertiary))" }}
+            >
+              Compare all features
+              <ArrowDown className="w-4 h-4" />
+            </button>
+          </div>
+
           {/* Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {plans.map(({ key, highlight, ctaLabel }) => {
+            {plans.map(({ key, highlight, ctaLabel, subtext }) => {
               const tier = STRIPE_TIERS[key];
               const isCurrent = subscription.plan === key;
+              const price = getPrice(key);
 
               return (
                 <div
@@ -97,10 +144,17 @@ export default function PricingPage() {
                   <h3 className="text-xl font-bold" style={{ color: "hsl(var(--text-primary))" }}>{tier.name}</h3>
 
                   <div className="mt-4 flex items-baseline gap-1">
-                    <span className="text-5xl font-extrabold" style={{ color: "hsl(var(--text-primary))" }}>£{tier.price}</span>
+                    <span className="text-5xl font-extrabold" style={{ color: "hsl(var(--text-primary))" }}>
+                      £{price % 1 === 0 ? price : price.toFixed(2)}
+                    </span>
                     {tier.price > 0 && <span className="text-base" style={{ color: "hsl(var(--text-secondary))" }}>/month</span>}
                   </div>
-                  <p className="mt-1 text-sm" style={{ color: "hsl(var(--text-tertiary))" }}>{perAudit[key]}</p>
+                  {annual && tier.price > 0 && (
+                    <p className="text-sm mt-0.5" style={{ color: "hsl(var(--success))" }}>
+                      £{(price * 12).toFixed(0)} billed annually
+                    </p>
+                  )}
+                  <p className="mt-1 text-sm" style={{ color: "hsl(var(--text-tertiary))" }}>{annual ? annualPerAudit[key] : perAudit[key]}</p>
                   <p className="mt-1 text-sm" style={{ color: "hsl(var(--text-tertiary))" }}>{tier.label}</p>
 
                   <ul className="mt-6 space-y-3 flex-1">
@@ -113,15 +167,7 @@ export default function PricingPage() {
                   </ul>
 
                   <div className="mt-8">
-                    {isCurrent && key === "free" ? (
-                      <button
-                        onClick={() => navigate("/")}
-                        className="w-full text-center rounded-full py-3.5 text-base font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-                        style={{ border: "1px solid hsla(0, 0%, 100%, 0.2)", color: "hsl(var(--text-primary))", background: "transparent", minHeight: 48 }}
-                      >
-                        Get Started Free
-                      </button>
-                    ) : isCurrent ? (
+                    {isCurrent && key !== "free" ? (
                       <div className="w-full text-center rounded-full py-3.5 text-base font-semibold" style={{ border: "1px solid hsla(0, 0%, 100%, 0.2)", color: "hsl(var(--text-primary))" }}>
                         Current Plan
                       </div>
@@ -143,15 +189,20 @@ export default function PricingPage() {
                         onClick={() => handleCheckout(key as "pro" | "executive")}
                         className="w-full rounded-full py-3.5 text-base font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                         style={{
-                          background: highlight ? "hsl(var(--primary))" : "transparent",
-                          color: highlight ? "hsl(var(--primary-foreground))" : "hsl(var(--text-primary))",
-                          border: highlight ? "none" : "1px solid hsla(0, 0%, 100%, 0.2)",
+                          background: highlight ? "hsl(var(--primary))" : "hsl(var(--text-primary))",
+                          color: highlight ? "hsl(var(--primary-foreground))" : "hsl(228, 35%, 16%)",
+                          border: "none",
                           boxShadow: highlight ? "0 4px 20px hsla(16, 100%, 62%, 0.3)" : "none",
                           minHeight: 48,
                         }}
                       >
                         {ctaLabel}
                       </button>
+                    )}
+                    {subtext && (
+                      <p className="text-center mt-3 text-xs" style={{ color: "hsl(var(--text-tertiary))" }}>
+                        {subtext}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -182,7 +233,7 @@ export default function PricingPage() {
           </div>
 
           {/* Comparison table */}
-          <div className="mt-16 overflow-x-auto">
+          <div id="comparison-table" className="mt-16 overflow-x-auto scroll-mt-24">
             <table className="w-full" style={{ maxWidth: 768, margin: "0 auto" }}>
               <thead>
                 <tr style={{ borderBottom: "1px solid hsla(0, 0%, 100%, 0.1)" }}>

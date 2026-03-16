@@ -19,6 +19,8 @@ export function NavBar({ journalCount }: Props) {
   const navigate = useNavigate();
   const isHome = location.pathname === "/";
 
+  const tier = STRIPE_TIERS[subscription.plan];
+
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10);
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -30,15 +32,19 @@ export function NavBar({ journalCount }: Props) {
   }, [location.pathname]);
 
   const handleCTA = () => {
-    if (isHome) {
-      const input = document.querySelector<HTMLInputElement>("#hero-input")
-        || document.querySelector<HTMLInputElement>("#hero-input-mobile");
-      if (input) {
-        input.scrollIntoView({ behavior: "smooth", block: "center" });
-        setTimeout(() => input.focus(), 400);
+    if (user) {
+      if (isHome) {
+        const input = document.querySelector<HTMLInputElement>("#hero-input")
+          || document.querySelector<HTMLInputElement>("#hero-input-mobile");
+        if (input) {
+          input.scrollIntoView({ behavior: "smooth", block: "center" });
+          setTimeout(() => input.focus(), 400);
+        }
+      } else {
+        navigate("/");
       }
     } else {
-      navigate("/");
+      navigate("/signup");
     }
   };
 
@@ -62,7 +68,7 @@ export function NavBar({ journalCount }: Props) {
             StratOS
           </Link>
 
-          {/* Desktop nav — hidden below md */}
+          {/* Desktop nav */}
           <div className="hidden md:flex items-center gap-6">
             <Link
               to="/pricing"
@@ -72,24 +78,23 @@ export function NavBar({ journalCount }: Props) {
               Pricing
             </Link>
 
-            {user && count >= 1 && (
-              <Link
-                to="/journal"
-                className="text-base transition-colors hover:opacity-80"
-                style={{ color: "hsl(var(--text-secondary))" }}
-              >
-                Journal
-              </Link>
-            )}
-
-            {user && count >= 5 && (
-              <Link
-                to="/dashboard"
-                className="text-base transition-colors hover:opacity-80"
-                style={{ color: "hsl(var(--text-secondary))" }}
-              >
-                Dashboard
-              </Link>
+            {user && (
+              <>
+                <Link
+                  to="/dashboard"
+                  className="text-base transition-colors hover:opacity-80"
+                  style={{ color: "hsl(var(--text-secondary))" }}
+                >
+                  Dashboard
+                </Link>
+                <Link
+                  to="/journal"
+                  className="text-base transition-colors hover:opacity-80"
+                  style={{ color: "hsl(var(--text-secondary))" }}
+                >
+                  Journal
+                </Link>
+              </>
             )}
 
             {!user && (
@@ -108,13 +113,12 @@ export function NavBar({ journalCount }: Props) {
                   className="rounded-full px-2.5 py-0.5 text-xs font-medium"
                   style={{ background: "hsla(0, 0%, 100%, 0.08)", color: "hsl(var(--text-secondary))" }}
                 >
-                  {subscription.auditCount}/{STRIPE_TIERS[subscription.plan].audits}
+                  {subscription.auditCount}/{tier.audits}
                 </span>
                 <AccountMenu />
               </div>
             )}
 
-            {/* Single nav CTA — ghost/outlined, never coral */}
             <button
               onClick={handleCTA}
               className="rounded-full px-5 py-2.5 text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
@@ -131,7 +135,7 @@ export function NavBar({ journalCount }: Props) {
             </button>
           </div>
 
-          {/* Mobile: hamburger only — hidden at md+ */}
+          {/* Mobile hamburger */}
           <div className="md:hidden flex items-center">
             <button
               onClick={() => setMobileOpen(true)}
@@ -175,44 +179,36 @@ export function NavBar({ journalCount }: Props) {
             </div>
             <div className="flex flex-col gap-1 px-5 flex-1">
               {!isHome && (
-                <Link
-                  to="/"
-                  onClick={() => setMobileOpen(false)}
+                <Link to="/" onClick={() => setMobileOpen(false)}
                   className="py-4 text-base transition-colors hover:opacity-80"
-                  style={{ color: "hsl(var(--text-secondary))", minHeight: 44 }}
-                >
+                  style={{ color: "hsl(var(--text-secondary))", minHeight: 44 }}>
                   Home
                 </Link>
               )}
-              <Link
-                to="/pricing"
-                onClick={() => setMobileOpen(false)}
+              <Link to="/pricing" onClick={() => setMobileOpen(false)}
                 className="py-4 text-base transition-colors hover:opacity-80"
-                style={{ color: "hsl(var(--text-secondary))", minHeight: 44 }}
-              >
+                style={{ color: "hsl(var(--text-secondary))", minHeight: 44 }}>
                 Pricing
               </Link>
 
-              {user && count >= 1 && (
-                <Link
-                  to="/journal"
-                  onClick={() => setMobileOpen(false)}
-                  className="py-4 text-base transition-colors hover:opacity-80"
-                  style={{ color: "hsl(var(--text-secondary))", minHeight: 44 }}
-                >
-                  Journal
-                </Link>
-              )}
-
-              {user && count >= 5 && (
-                <Link
-                  to="/dashboard"
-                  onClick={() => setMobileOpen(false)}
-                  className="py-4 text-base transition-colors hover:opacity-80"
-                  style={{ color: "hsl(var(--text-secondary))", minHeight: 44 }}
-                >
-                  Dashboard
-                </Link>
+              {user && (
+                <>
+                  <Link to="/dashboard" onClick={() => setMobileOpen(false)}
+                    className="py-4 text-base transition-colors hover:opacity-80"
+                    style={{ color: "hsl(var(--text-secondary))", minHeight: 44 }}>
+                    Dashboard
+                  </Link>
+                  <Link to="/journal" onClick={() => setMobileOpen(false)}
+                    className="py-4 text-base transition-colors hover:opacity-80"
+                    style={{ color: "hsl(var(--text-secondary))", minHeight: 44 }}>
+                    Journal
+                  </Link>
+                  <Link to="/settings" onClick={() => setMobileOpen(false)}
+                    className="py-4 text-base transition-colors hover:opacity-80"
+                    style={{ color: "hsl(var(--text-secondary))", minHeight: 44 }}>
+                    Settings
+                  </Link>
+                </>
               )}
 
               <div style={{ height: 1, background: "hsla(0, 0%, 100%, 0.08)", margin: "8px 0" }} />
@@ -222,24 +218,17 @@ export function NavBar({ journalCount }: Props) {
                   <AccountMenu />
                 </div>
               ) : (
-                <Link
-                  to="/login"
-                  onClick={() => setMobileOpen(false)}
+                <Link to="/login" onClick={() => setMobileOpen(false)}
                   className="py-4 text-base transition-colors hover:opacity-80"
-                  style={{ color: "hsl(var(--text-primary))", minHeight: 44 }}
-                >
+                  style={{ color: "hsl(var(--text-primary))", minHeight: 44 }}>
                   Sign in
                 </Link>
               )}
             </div>
 
-            {/* Bottom CTA in mobile menu — outlined ghost, NOT coral */}
             <div className="px-5 pb-6">
               <button
-                onClick={() => {
-                  setMobileOpen(false);
-                  handleCTA();
-                }}
+                onClick={() => { setMobileOpen(false); handleCTA(); }}
                 className="w-full rounded-full py-3.5 text-base font-semibold transition-all duration-200 active:scale-[0.98]"
                 style={{
                   background: "transparent",
