@@ -31,11 +31,27 @@ export default function SignupPage() {
     }
   };
 
+  const [googleLoading, setGoogleLoading] = useState(false);
+
   const handleGoogleSignup = async () => {
-    const { error } = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: `${window.location.origin}/welcome`,
-    });
-    if (error) toast.error(String(error));
+    setGoogleLoading(true);
+    try {
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: `${window.location.origin}/welcome`,
+      });
+      if (result.error) {
+        const msg = String(result.error);
+        if (msg.includes("configuration") || msg.includes("provider")) {
+          toast.error("Google login is not yet configured. Please use email/password to sign up.");
+        } else {
+          toast.error(msg);
+        }
+      }
+    } catch (e: any) {
+      toast.error(e?.message || "Google signup failed. Please try again.");
+    } finally {
+      setGoogleLoading(false);
+    }
   };
 
   const benefits = [
