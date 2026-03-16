@@ -488,7 +488,7 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
         {/* RAPID */}
         {result.rapid && (
           <>
-            <SectionDivider label="Decision Accountability (RAPID)" />
+            <SectionDivider label="Decision Accountability (RAPID)" id="section-rapid" />
             <div className="rounded-xl px-6 py-6" style={cardBase}>
               {[
                 { letter: "R", label: "Recommend", value: result.rapid.recommend },
