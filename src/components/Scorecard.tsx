@@ -136,7 +136,13 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
   };
 
   const handleDownloadPDF = async () => {
+    // PDF is a Pro+ feature
+    if (planName === "free" || !planName) {
+      toast.error("PDF export is a Pro feature. Upgrade to download.");
+      return;
+    }
     try {
+      toast.info("Generating PDF...");
       const bytes = await generatePDF(decision, result);
       const blob = new Blob([new Uint8Array(bytes)], { type: "application/pdf" });
       const url = URL.createObjectURL(blob);
