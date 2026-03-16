@@ -270,7 +270,8 @@ export function NewDiagnosticFlow({ decision, onComplete, onSkip, onBackToLandin
                 e.currentTarget.style.boxShadow = "none";
               }}
             />
-            <div className="flex justify-end mt-1">
+            <div className="flex items-center justify-between mt-1">
+              <span className="text-muted-foreground" style={{ fontSize: 11 }}>Write at least a sentence or two for best results</span>
               <span className="text-muted-foreground" style={{ fontSize: 11 }}>{stakes.length}/500</span>
             </div>
             <div className="flex items-center gap-4 mt-4">
