@@ -104,7 +104,7 @@ const sections = [
 
 export function SystemSections() {
   return (
-    <div style={{ maxWidth: 1120 }} className="mx-auto px-4 sm:px-6">
+    <div id="features" style={{ maxWidth: 1120 }} className="mx-auto px-4 sm:px-6 scroll-mt-20">
       {sections.map((s, i) => {
         const ref = useRef<HTMLDivElement>(null);
         useFadeIn(ref);
