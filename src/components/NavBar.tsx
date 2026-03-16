@@ -2,6 +2,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { getJournalCount } from "@/lib/journal";
 import { useAuth } from "@/contexts/AuthContext";
+import { STRIPE_TIERS } from "@/lib/stripe-config";
 import { AccountMenu } from "@/components/AccountMenu";
 import { Menu, X } from "lucide-react";
 
