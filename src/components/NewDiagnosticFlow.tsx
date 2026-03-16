@@ -80,10 +80,12 @@ function SelectableCard({
   );
 }
 
+const stageNames: Record<Stage, string> = { 1: "Stakes", 2: "Context", 3: "Constraints" };
+
 function StageLabel({ current }: { current: Stage }) {
   return (
     <p className="text-muted-foreground" style={{ fontSize: 10, fontWeight: 500, letterSpacing: "1.5px", textTransform: "uppercase" }}>
-      STAGE {current} OF 3
+      STAGE {current} OF 3 — {stageNames[current]}
     </p>
   );
 }
