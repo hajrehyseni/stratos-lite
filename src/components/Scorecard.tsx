@@ -158,12 +158,16 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
   };
 
   const handleShare = async () => {
+    if (!user) {
+      toast.error("Create an account to share audits");
+      return;
+    }
     try {
       const payload = { decision, result };
       const encoded = encodeURIComponent(JSON.stringify(payload));
       const url = `${window.location.origin}/r/${auditId}#${encoded}`;
       await navigator.clipboard.writeText(url);
-      toast.success("Share link copied to clipboard");
+      toast.success("Link copied! Anyone with this link can view this audit.");
     } catch {
       toast.error("Failed to copy share link");
     }
