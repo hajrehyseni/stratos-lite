@@ -42,6 +42,7 @@ export function HomepageLanding({ onSubmit, remainingAudits, hasUsedAudit }: Pro
   const [isFocused, setIsFocused] = useState(false);
   const [shake, setShake] = useState(false);
   const [hasTyped, setHasTyped] = useState(false);
+  const [showError, setShowError] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const submitRef = useRef<HTMLButtonElement>(null);
 
