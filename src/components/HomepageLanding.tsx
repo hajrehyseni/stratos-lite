@@ -60,9 +60,11 @@ export function HomepageLanding({ onSubmit, remainingAudits, hasUsedAudit }: Pro
 
   const handleSubmit = () => {
     if (canSubmit) {
+      setShowError(false);
       onSubmit(value.trim());
     } else {
       setShake(true);
+      setShowError(true);
       setTimeout(() => setShake(false), 600);
     }
   };
