@@ -108,14 +108,13 @@ export default function LoginPage() {
                 onFocus={(e) => { e.currentTarget.style.borderColor = "hsl(var(--primary))"; e.currentTarget.style.boxShadow = "0 0 0 3px hsla(16, 100%, 62%, 0.12)"; }}
                 onBlur={(e) => { e.currentTarget.style.borderColor = "hsla(0, 0%, 100%, 0.15)"; e.currentTarget.style.boxShadow = "none"; }}
               />
-              <button
-                type="button"
-                onClick={handleForgotPassword}
-                className="mt-2 text-base transition-opacity hover:opacity-80"
-                style={{ color: "hsl(var(--primary))", background: "none", border: "none", padding: 0, minHeight: 44 }}
+              <Link
+                to="/forgot-password"
+                className="mt-2 inline-block text-base transition-opacity hover:opacity-80"
+                style={{ color: "hsl(var(--primary))", minHeight: 44 }}
               >
                 Forgot password?
-              </button>
+              </Link>
             </div>
             <button
               type="submit" disabled={loading}
