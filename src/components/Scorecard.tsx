@@ -787,6 +787,18 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
           Supports decision thinking. Not legal or financial advice.
         </p>
       </div>
+
+      {/* Back to top */}
+      {showBackToTop && (
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          className="fixed bottom-6 right-6 z-50 flex items-center justify-center rounded-full shadow-lg transition-all duration-200 hover:scale-[1.05] active:scale-95"
+          style={{ width: 48, height: 48, background: "hsl(228, 35%, 20%)", border: "1px solid hsla(0, 0%, 100%, 0.12)", color: "hsl(var(--text-primary))" }}
+          aria-label="Back to top"
+        >
+          <ArrowUp className="w-5 h-5" />
+        </button>
+      )}
     </div>
   );
 }

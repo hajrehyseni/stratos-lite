@@ -255,7 +255,7 @@ const Index = () => {
             transition: "opacity 400ms ease, transform 400ms ease",
           }}
         >
-          <HomepageLanding onSubmit={handleLandingSubmit} />
+          <HomepageLanding onSubmit={handleLandingSubmit} remainingAudits={remainingAudits} hasUsedAudit={hasUsedAudit} />
         </div>
       )}
 

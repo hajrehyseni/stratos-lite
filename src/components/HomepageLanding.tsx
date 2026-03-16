@@ -263,6 +263,11 @@ export function HomepageLanding({ onSubmit, remainingAudits, hasUsedAudit }: Pro
           <p className="text-center mt-4 text-sm" style={{ color: "hsl(var(--text-tertiary))" }}>
             ✓ Free · No signup · 30 seconds · 🔒 Private &amp; encrypted
           </p>
+          {hasUsedAudit && remainingAudits !== undefined && remainingAudits > 0 && (
+            <p className="text-center mt-2 text-sm font-medium" style={{ color: "hsl(var(--warning))" }}>
+              You have {remainingAudits} free audit{remainingAudits !== 1 ? "s" : ""} remaining
+            </p>
+          )}
         </div>
       </div>
 
