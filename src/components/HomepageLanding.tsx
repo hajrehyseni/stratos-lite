@@ -9,6 +9,8 @@ import { Footer } from "@/components/Footer";
 
 interface Props {
   onSubmit: (decision: string) => void;
+  remainingAudits?: number;
+  hasUsedAudit?: boolean;
 }
 
 const exampleChips = [
@@ -35,11 +37,12 @@ function useFadeUp(ref: React.RefObject<HTMLDivElement | null>) {
   }, []);
 }
 
-export function HomepageLanding({ onSubmit }: Props) {
+export function HomepageLanding({ onSubmit, remainingAudits, hasUsedAudit }: Props) {
   const [value, setValue] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const [shake, setShake] = useState(false);
   const [hasTyped, setHasTyped] = useState(false);
+  const [showError, setShowError] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const submitRef = useRef<HTMLButtonElement>(null);
 
@@ -57,9 +60,11 @@ export function HomepageLanding({ onSubmit }: Props) {
 
   const handleSubmit = () => {
     if (canSubmit) {
+      setShowError(false);
       onSubmit(value.trim());
     } else {
       setShake(true);
+      setShowError(true);
       setTimeout(() => setShake(false), 600);
     }
   };
@@ -226,6 +231,13 @@ export function HomepageLanding({ onSubmit }: Props) {
             </div>
           </div>
 
+          {/* Inline validation error */}
+          {showError && !canSubmit && (
+            <p className="text-center mt-3 text-sm font-medium" style={{ color: "hsl(var(--destructive))" }}>
+              Describe a decision to get started (at least 10 characters)
+            </p>
+          )}
+
           {/* Example decision chips */}
           <div className="mt-5 flex gap-2.5 overflow-x-auto scrollbar-hide pb-2 w-full justify-center flex-wrap md:flex-nowrap px-1" style={{ maxWidth: 672 }}>
             {exampleChips.map((chip) => (
@@ -251,6 +263,11 @@ export function HomepageLanding({ onSubmit }: Props) {
           <p className="text-center mt-4 text-sm" style={{ color: "hsl(var(--text-tertiary))" }}>
             ✓ Free · No signup · 30 seconds · 🔒 Private &amp; encrypted
           </p>
+          {hasUsedAudit && remainingAudits !== undefined && remainingAudits > 0 && (
+            <p className="text-center mt-2 text-sm font-medium" style={{ color: "hsl(var(--warning))" }}>
+              You have {remainingAudits} free audit{remainingAudits !== 1 ? "s" : ""} remaining
+            </p>
+          )}
         </div>
       </div>
 

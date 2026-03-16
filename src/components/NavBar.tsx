@@ -2,6 +2,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { getJournalCount } from "@/lib/journal";
 import { useAuth } from "@/contexts/AuthContext";
+import { STRIPE_TIERS } from "@/lib/stripe-config";
 import { AccountMenu } from "@/components/AccountMenu";
 import { Menu, X } from "lucide-react";
 
@@ -13,7 +14,7 @@ export function NavBar({ journalCount }: Props) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const count = journalCount ?? getJournalCount();
-  const { user } = useAuth();
+  const { user, subscription } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const isHome = location.pathname === "/";
@@ -101,7 +102,17 @@ export function NavBar({ journalCount }: Props) {
               </Link>
             )}
 
-            {user && <AccountMenu />}
+            {user && (
+              <div className="flex items-center gap-2">
+                <span
+                  className="rounded-full px-2.5 py-0.5 text-xs font-medium"
+                  style={{ background: "hsla(0, 0%, 100%, 0.08)", color: "hsl(var(--text-secondary))" }}
+                >
+                  {subscription.auditCount}/{STRIPE_TIERS[subscription.plan].audits}
+                </span>
+                <AccountMenu />
+              </div>
+            )}
 
             {/* Single nav CTA — ghost/outlined, never coral */}
             <button

@@ -157,6 +157,8 @@ const Index = () => {
           refreshSubscription();
         } else {
           localStorage.setItem(ANON_AUDIT_KEY, "true");
+          const prevAnonCount = parseInt(localStorage.getItem("stratos_anon_audit_count") || "0", 10);
+          localStorage.setItem("stratos_anon_audit_count", String(prevAnonCount + 1));
         }
 
         apiResult.current = { parsed, id };
@@ -217,6 +219,12 @@ const Index = () => {
     toast.success("Saved to your private journal");
   };
 
+  // Compute remaining audits
+  const anonCount = parseInt(localStorage.getItem("stratos_anon_audit_count") || "0", 10);
+  const currentTier = STRIPE_TIERS[subscription.plan];
+  const remainingAudits = user ? Math.max(0, currentTier.audits - subscription.auditCount) : Math.max(0, 3 - anonCount);
+  const hasUsedAudit = user ? subscription.auditCount > 0 : anonCount > 0;
+
   if (phase === "result" && result) {
     return (
       <>
@@ -228,6 +236,8 @@ const Index = () => {
           onReset={handleReset}
           onSaveToJournal={handleSaveToJournal}
           journalSaved={journalSaved}
+          remainingAudits={remainingAudits}
+          planName={subscription.plan}
         />
       </>
     );
@@ -245,7 +255,7 @@ const Index = () => {
             transition: "opacity 400ms ease, transform 400ms ease",
           }}
         >
-          <HomepageLanding onSubmit={handleLandingSubmit} />
+          <HomepageLanding onSubmit={handleLandingSubmit} remainingAudits={remainingAudits} hasUsedAudit={hasUsedAudit} />
         </div>
       )}
 

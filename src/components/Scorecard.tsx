@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Copy, Download, Check, BookmarkPlus, ChevronDown, Share2 } from "lucide-react";
+import { Copy, Download, Check, BookmarkPlus, ChevronDown, Share2, ArrowUp } from "lucide-react";
 import { Link } from "react-router-dom";
 import type { AuditResult } from "@/lib/types";
 import { generateBrief } from "@/lib/copy-brief";
@@ -16,6 +16,8 @@ interface ScorecardProps {
   onSaveToJournal?: () => void;
   journalSaved?: boolean;
   readOnly?: boolean;
+  remainingAudits?: number;
+  planName?: string;
 }
 
 function getReadinessInterpretation(score: number): string {
@@ -61,9 +63,9 @@ const positionColors: Record<string, string> = {
 
 const cardBase = { background: "hsla(0, 0%, 100%, 0.04)", border: "1px solid hsla(0, 0%, 100%, 0.08)" };
 
-function SectionDivider({ label, subtitle }: { label: string; subtitle?: string }) {
+function SectionDivider({ label, subtitle, id }: { label: string; subtitle?: string; id?: string }) {
   return (
-    <div className="relative my-10">
+    <div className="relative my-10" id={id}>
       <div style={{ height: 1, background: "hsla(0, 0%, 100%, 0.08)" }} />
       <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 px-4 text-center" style={{ background: "hsl(var(--navy))" }}>
         <span style={{ fontSize: 12, textTransform: "uppercase", letterSpacing: "0.12em", color: "hsl(var(--text-secondary))", fontWeight: 600 }}>
@@ -87,10 +89,11 @@ function CardLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal, journalSaved, readOnly }: ScorecardProps) {
+export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal, journalSaved, readOnly, remainingAudits, planName }: ScorecardProps) {
   const [copied, setCopied] = useState(false);
   const [deepDiveOpen, setDeepDiveOpen] = useState(false);
   const [showConversionModal, setShowConversionModal] = useState(false);
+  const [showBackToTop, setShowBackToTop] = useState(false);
   const { user } = useAuth();
   const journalCount = getJournalCount();
 
@@ -102,13 +105,27 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
   const cynefinDomain = result.cynefin_domain || (result.decision_domain ? result.decision_domain.toLowerCase() : null);
   const domainApproach = result.decision_domain_approach || null;
 
-  // Show conversion modal after 3s delay for anonymous users
+  // Show conversion modal after 40% scroll OR 15 seconds for anonymous users
   useEffect(() => {
-    if (!user && !readOnly) {
-      const timer = setTimeout(() => setShowConversionModal(true), 3000);
-      return () => clearTimeout(timer);
-    }
+    if (user || readOnly) return;
+    const timer = setTimeout(() => setShowConversionModal(true), 15000);
+    const handleScroll = () => {
+      const scrollH = document.documentElement.scrollHeight - window.innerHeight;
+      if (scrollH > 0 && window.scrollY / scrollH > 0.4) {
+        setShowConversionModal(true);
+        window.removeEventListener("scroll", handleScroll);
+      }
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => { clearTimeout(timer); window.removeEventListener("scroll", handleScroll); };
   }, [user, readOnly]);
+
+  // Back to top visibility
+  useEffect(() => {
+    const handleScroll = () => setShowBackToTop(window.scrollY > window.innerHeight);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const handleCopyBrief = async () => {
     const brief = generateBrief(decision, result);
@@ -206,7 +223,27 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
           {getReadinessInterpretation(result.confidence_score)}
         </p>
 
-        <div className="rounded-xl px-6 py-6 mb-4" style={{ ...cardBase, borderLeft: `4px solid ${verdictColor[result.verdict] || "hsl(var(--warning))"}` }}>
+        {/* Section nav */}
+        <div className="sticky top-16 z-40 -mx-4 px-4 py-2 mb-6 flex gap-2 overflow-x-auto scrollbar-hide" style={{ background: "hsla(228, 35%, 16%, 0.95)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}>
+          {[
+            { id: "section-verdict", label: "Verdict" },
+            { id: "section-risks", label: "Risks" },
+            { id: "section-stakeholders", label: "Stakeholders" },
+            { id: "section-actions", label: "Actions" },
+            { id: "section-rapid", label: "RAPID" },
+          ].map((s) => (
+            <button
+              key={s.id}
+              onClick={() => document.getElementById(s.id)?.scrollIntoView({ behavior: "smooth", block: "start" })}
+              className="flex-shrink-0 rounded-full px-3.5 py-1.5 text-xs font-medium transition-all duration-200 hover:bg-white/10"
+              style={{ background: "hsla(0, 0%, 100%, 0.06)", color: "hsl(var(--text-secondary))", border: "1px solid hsla(0, 0%, 100%, 0.08)", minHeight: 32 }}
+            >
+              {s.label}
+            </button>
+          ))}
+        </div>
+
+        <div id="section-verdict" className="rounded-xl px-6 py-6 mb-4" style={{ ...cardBase, borderLeft: `4px solid ${verdictColor[result.verdict] || "hsl(var(--warning))"}` }}>
           <CardLabel>Verdict</CardLabel>
           <p className="text-xl font-semibold" style={{ color: "hsl(var(--text-primary))", lineHeight: 1.7 }}>{result.verdict}</p>
           {rationale && <p className="mt-2 text-base" style={{ color: "hsl(var(--text-secondary))" }}>{rationale}</p>}
@@ -304,7 +341,7 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
         {/* ═══ TIER 5: RISKS ═══ */}
         {(result.biggest_risk || result.hidden_assumption || blindSpot || result.pre_mortem_narrative) && (
           <>
-            <SectionDivider label="What Could Go Wrong" subtitle="(Risk Matrix)" />
+            <SectionDivider label="What Could Go Wrong" subtitle="(Risk Matrix)" id="section-risks" />
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
               {[
                 { label: "Biggest Risk", value: result.biggest_risk },
@@ -333,7 +370,7 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
         {/* ═══ TIER 6: STAKEHOLDERS ═══ */}
         {result.stakeholder_perspectives && result.stakeholder_perspectives.length > 0 && (
           <>
-            <SectionDivider label="Who's Affected & How" subtitle="(Stakeholder Analysis)" />
+            <SectionDivider label="Who's Affected & How" subtitle="(Stakeholder Analysis)" id="section-stakeholders" />
             <div className="rounded-xl overflow-hidden" style={{ ...cardBase, borderLeft: "3px solid hsla(16, 100%, 62%, 0.4)" }}>
               {result.stakeholder_perspectives.map((s, i) => (
                 <div key={i} className="px-5 py-5" style={{ borderBottom: i < result.stakeholder_perspectives!.length - 1 ? "1px solid hsla(0, 0%, 100%, 0.06)" : "none" }}>
@@ -425,7 +462,7 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
         {/* ═══ TIER 9: RECOMMENDATIONS ═══ */}
         {result.recommendations && result.recommendations.filter(r => r.feasible).length > 0 && (
           <>
-            <SectionDivider label="Recommended Actions" />
+            <SectionDivider label="Recommended Actions" id="section-actions" />
             <div className="space-y-3">
               {result.recommendations.filter(r => r.feasible).map((rec, i) => (
                 <div key={i} className="rounded-xl px-5 py-5" style={cardBase}>
@@ -451,7 +488,7 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
         {/* RAPID */}
         {result.rapid && (
           <>
-            <SectionDivider label="Decision Accountability (RAPID)" />
+            <SectionDivider label="Decision Accountability (RAPID)" id="section-rapid" />
             <div className="rounded-xl px-6 py-6" style={cardBase}>
               {[
                 { letter: "R", label: "Recommend", value: result.rapid.recommend },
@@ -475,6 +512,28 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
               ))}
             </div>
           </>
+        )}
+
+        {/* Remaining audits banner */}
+        {!readOnly && remainingAudits !== undefined && remainingAudits <= 3 && remainingAudits > 0 && (
+          <div
+            className="mt-8 rounded-xl px-6 py-5 flex items-center justify-between flex-wrap gap-3"
+            style={{
+              background: remainingAudits === 1 ? "hsla(38, 92%, 50%, 0.08)" : "hsla(0, 0%, 100%, 0.03)",
+              border: remainingAudits === 1 ? "1px solid hsla(38, 92%, 50%, 0.2)" : "1px solid hsla(0, 0%, 100%, 0.06)",
+            }}
+          >
+            <p className="text-sm" style={{ color: remainingAudits === 1 ? "hsl(var(--warning))" : "hsl(var(--text-secondary))" }}>
+              {remainingAudits === 1 ? "⚡ " : ""}{remainingAudits} audit{remainingAudits !== 1 ? "s" : ""} remaining on your {planName || "free"} plan
+            </p>
+            <a
+              href="/pricing"
+              className="text-sm font-semibold transition-opacity hover:opacity-80"
+              style={{ color: "hsl(var(--primary))" }}
+            >
+              Upgrade for more →
+            </a>
+          </div>
         )}
 
         {/* Opportunity Cost */}
@@ -728,6 +787,18 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
           Supports decision thinking. Not legal or financial advice.
         </p>
       </div>
+
+      {/* Back to top */}
+      {showBackToTop && (
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          className="fixed bottom-6 right-6 z-50 flex items-center justify-center rounded-full shadow-lg transition-all duration-200 hover:scale-[1.05] active:scale-95"
+          style={{ width: 48, height: 48, background: "hsl(228, 35%, 20%)", border: "1px solid hsla(0, 0%, 100%, 0.12)", color: "hsl(var(--text-primary))" }}
+          aria-label="Back to top"
+        >
+          <ArrowUp className="w-5 h-5" />
+        </button>
+      )}
     </div>
   );
 }
