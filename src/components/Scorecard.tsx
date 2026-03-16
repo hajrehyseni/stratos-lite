@@ -462,7 +462,7 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
         {/* ═══ TIER 9: RECOMMENDATIONS ═══ */}
         {result.recommendations && result.recommendations.filter(r => r.feasible).length > 0 && (
           <>
-            <SectionDivider label="Recommended Actions" />
+            <SectionDivider label="Recommended Actions" id="section-actions" />
             <div className="space-y-3">
               {result.recommendations.filter(r => r.feasible).map((rec, i) => (
                 <div key={i} className="rounded-xl px-5 py-5" style={cardBase}>
