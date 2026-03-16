@@ -231,6 +231,13 @@ export function HomepageLanding({ onSubmit, remainingAudits, hasUsedAudit }: Pro
             </div>
           </div>
 
+          {/* Inline validation error */}
+          {showError && !canSubmit && (
+            <p className="text-center mt-3 text-sm font-medium" style={{ color: "hsl(var(--destructive))" }}>
+              Describe a decision to get started (at least 10 characters)
+            </p>
+          )}
+
           {/* Example decision chips */}
           <div className="mt-5 flex gap-2.5 overflow-x-auto scrollbar-hide pb-2 w-full justify-center flex-wrap md:flex-nowrap px-1" style={{ maxWidth: 672 }}>
             {exampleChips.map((chip) => (
