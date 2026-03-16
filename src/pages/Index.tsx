@@ -157,6 +157,8 @@ const Index = () => {
           refreshSubscription();
         } else {
           localStorage.setItem(ANON_AUDIT_KEY, "true");
+          const prevAnonCount = parseInt(localStorage.getItem("stratos_anon_audit_count") || "0", 10);
+          localStorage.setItem("stratos_anon_audit_count", String(prevAnonCount + 1));
         }
 
         apiResult.current = { parsed, id };
