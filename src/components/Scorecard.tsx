@@ -89,10 +89,11 @@ function CardLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal, journalSaved, readOnly }: ScorecardProps) {
+export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal, journalSaved, readOnly, remainingAudits, planName }: ScorecardProps) {
   const [copied, setCopied] = useState(false);
   const [deepDiveOpen, setDeepDiveOpen] = useState(false);
   const [showConversionModal, setShowConversionModal] = useState(false);
+  const [showBackToTop, setShowBackToTop] = useState(false);
   const { user } = useAuth();
   const journalCount = getJournalCount();
 
@@ -104,13 +105,27 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
   const cynefinDomain = result.cynefin_domain || (result.decision_domain ? result.decision_domain.toLowerCase() : null);
   const domainApproach = result.decision_domain_approach || null;
 
-  // Show conversion modal after 3s delay for anonymous users
+  // Show conversion modal after 40% scroll OR 15 seconds for anonymous users
   useEffect(() => {
-    if (!user && !readOnly) {
-      const timer = setTimeout(() => setShowConversionModal(true), 3000);
-      return () => clearTimeout(timer);
-    }
+    if (user || readOnly) return;
+    const timer = setTimeout(() => setShowConversionModal(true), 15000);
+    const handleScroll = () => {
+      const scrollH = document.documentElement.scrollHeight - window.innerHeight;
+      if (scrollH > 0 && window.scrollY / scrollH > 0.4) {
+        setShowConversionModal(true);
+        window.removeEventListener("scroll", handleScroll);
+      }
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => { clearTimeout(timer); window.removeEventListener("scroll", handleScroll); };
   }, [user, readOnly]);
+
+  // Back to top visibility
+  useEffect(() => {
+    const handleScroll = () => setShowBackToTop(window.scrollY > window.innerHeight);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const handleCopyBrief = async () => {
     const brief = generateBrief(decision, result);
