@@ -341,7 +341,7 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
         {/* ═══ TIER 5: RISKS ═══ */}
         {(result.biggest_risk || result.hidden_assumption || blindSpot || result.pre_mortem_narrative) && (
           <>
-            <SectionDivider label="What Could Go Wrong" subtitle="(Risk Matrix)" />
+            <SectionDivider label="What Could Go Wrong" subtitle="(Risk Matrix)" id="section-risks" />
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
               {[
                 { label: "Biggest Risk", value: result.biggest_risk },
