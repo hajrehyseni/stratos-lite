@@ -166,7 +166,12 @@ const Index = () => {
         setApiResolvedState(true);
       } catch (e: any) {
         console.error("Audit error:", e);
-        toast.error(e?.message || "Failed to audit decision. Please try again.");
+        const msg = e?.message || "";
+        if (msg.toLowerCase().includes("rate") || msg.toLowerCase().includes("too many")) {
+          toast.error("You're moving fast! Please wait a moment before running another audit.");
+        } else {
+          toast.error(msg || "Failed to audit decision. Please try again.");
+        }
         setPhase("landing");
       }
     })();
