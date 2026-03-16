@@ -16,6 +16,8 @@ interface ScorecardProps {
   onSaveToJournal?: () => void;
   journalSaved?: boolean;
   readOnly?: boolean;
+  remainingAudits?: number;
+  planName?: string;
 }
 
 function getReadinessInterpretation(score: number): string {
