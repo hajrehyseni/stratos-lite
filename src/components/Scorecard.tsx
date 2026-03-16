@@ -370,7 +370,7 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
         {/* ═══ TIER 6: STAKEHOLDERS ═══ */}
         {result.stakeholder_perspectives && result.stakeholder_perspectives.length > 0 && (
           <>
-            <SectionDivider label="Who's Affected & How" subtitle="(Stakeholder Analysis)" />
+            <SectionDivider label="Who's Affected & How" subtitle="(Stakeholder Analysis)" id="section-stakeholders" />
             <div className="rounded-xl overflow-hidden" style={{ ...cardBase, borderLeft: "3px solid hsla(16, 100%, 62%, 0.4)" }}>
               {result.stakeholder_perspectives.map((s, i) => (
                 <div key={i} className="px-5 py-5" style={{ borderBottom: i < result.stakeholder_perspectives!.length - 1 ? "1px solid hsla(0, 0%, 100%, 0.06)" : "none" }}>
