@@ -37,7 +37,7 @@ function useFadeUp(ref: React.RefObject<HTMLDivElement | null>) {
   }, []);
 }
 
-export function HomepageLanding({ onSubmit }: Props) {
+export function HomepageLanding({ onSubmit, remainingAudits, hasUsedAudit }: Props) {
   const [value, setValue] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const [shake, setShake] = useState(false);
