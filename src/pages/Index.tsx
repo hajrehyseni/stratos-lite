@@ -219,6 +219,12 @@ const Index = () => {
     toast.success("Saved to your private journal");
   };
 
+  // Compute remaining audits
+  const anonCount = parseInt(localStorage.getItem("stratos_anon_audit_count") || "0", 10);
+  const currentTier = STRIPE_TIERS[subscription.plan];
+  const remainingAudits = user ? Math.max(0, currentTier.audits - subscription.auditCount) : Math.max(0, 3 - anonCount);
+  const hasUsedAudit = user ? subscription.auditCount > 0 : anonCount > 0;
+
   if (phase === "result" && result) {
     return (
       <>
@@ -230,6 +236,8 @@ const Index = () => {
           onReset={handleReset}
           onSaveToJournal={handleSaveToJournal}
           journalSaved={journalSaved}
+          remainingAudits={remainingAudits}
+          planName={subscription.plan}
         />
       </>
     );
