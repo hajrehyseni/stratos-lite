@@ -514,6 +514,28 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
           </>
         )}
 
+        {/* Remaining audits banner */}
+        {!readOnly && remainingAudits !== undefined && remainingAudits <= 3 && remainingAudits > 0 && (
+          <div
+            className="mt-8 rounded-xl px-6 py-5 flex items-center justify-between flex-wrap gap-3"
+            style={{
+              background: remainingAudits === 1 ? "hsla(38, 92%, 50%, 0.08)" : "hsla(0, 0%, 100%, 0.03)",
+              border: remainingAudits === 1 ? "1px solid hsla(38, 92%, 50%, 0.2)" : "1px solid hsla(0, 0%, 100%, 0.06)",
+            }}
+          >
+            <p className="text-sm" style={{ color: remainingAudits === 1 ? "hsl(var(--warning))" : "hsl(var(--text-secondary))" }}>
+              {remainingAudits === 1 ? "⚡ " : ""}{remainingAudits} audit{remainingAudits !== 1 ? "s" : ""} remaining on your {planName || "free"} plan
+            </p>
+            <a
+              href="/pricing"
+              className="text-sm font-semibold transition-opacity hover:opacity-80"
+              style={{ color: "hsl(var(--primary))" }}
+            >
+              Upgrade for more →
+            </a>
+          </div>
+        )}
+
         {/* Opportunity Cost */}
         {result.opportunity_cost && result.opportunity_cost.length > 0 && (
           <>
