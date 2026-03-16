@@ -29,7 +29,13 @@ export function Footer() {
             <div className="flex flex-col gap-3">
               {!user ? (
                 <a
-                  href="/#how-it-works"
+                  href="/#features"
+                  onClick={(e) => {
+                    if (window.location.pathname === "/") {
+                      e.preventDefault();
+                      document.getElementById("features")?.scrollIntoView({ behavior: "smooth" });
+                    }
+                  }}
                   className="text-base transition-opacity hover:opacity-80"
                   style={{ color: "hsl(var(--text-secondary))" }}
                 >

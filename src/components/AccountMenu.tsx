@@ -70,12 +70,12 @@ export function AccountMenu() {
           </div>
 
           <button
-            onClick={() => { navigate("/pricing"); setOpen(false); }}
+            onClick={() => { navigate("/settings"); setOpen(false); }}
             className="w-full flex items-center gap-2.5 px-4 py-3 text-left hover:bg-white/[0.05] transition-colors"
             style={{ fontSize: 14, color: "hsl(var(--text-primary))", minHeight: 44 }}
           >
             <User className="w-4 h-4" style={{ color: "hsl(var(--text-tertiary))" }} />
-            Current Plan
+            Account Settings
           </button>
 
           {subscription.plan !== "free" && (
