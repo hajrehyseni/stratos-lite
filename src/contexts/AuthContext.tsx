@@ -79,6 +79,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Set up auth listener BEFORE checking session
     const { data: { subscription: authSub } } = supabase.auth.onAuthStateChange(
       async (_event, newSession) => {
+        console.log("Auth event:", _event, "User:", newSession?.user?.email);
         setSession(newSession);
         setUser(newSession?.user ?? null);
         setLoading(false);
