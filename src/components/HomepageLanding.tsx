@@ -9,6 +9,8 @@ import { Footer } from "@/components/Footer";
 
 interface Props {
   onSubmit: (decision: string) => void;
+  remainingAudits?: number;
+  hasUsedAudit?: boolean;
 }
 
 const exampleChips = [
