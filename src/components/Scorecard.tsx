@@ -223,7 +223,27 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
           {getReadinessInterpretation(result.confidence_score)}
         </p>
 
-        <div className="rounded-xl px-6 py-6 mb-4" style={{ ...cardBase, borderLeft: `4px solid ${verdictColor[result.verdict] || "hsl(var(--warning))"}` }}>
+        {/* Section nav */}
+        <div className="sticky top-16 z-40 -mx-4 px-4 py-2 mb-6 flex gap-2 overflow-x-auto scrollbar-hide" style={{ background: "hsla(228, 35%, 16%, 0.95)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}>
+          {[
+            { id: "section-verdict", label: "Verdict" },
+            { id: "section-risks", label: "Risks" },
+            { id: "section-stakeholders", label: "Stakeholders" },
+            { id: "section-actions", label: "Actions" },
+            { id: "section-rapid", label: "RAPID" },
+          ].map((s) => (
+            <button
+              key={s.id}
+              onClick={() => document.getElementById(s.id)?.scrollIntoView({ behavior: "smooth", block: "start" })}
+              className="flex-shrink-0 rounded-full px-3.5 py-1.5 text-xs font-medium transition-all duration-200 hover:bg-white/10"
+              style={{ background: "hsla(0, 0%, 100%, 0.06)", color: "hsl(var(--text-secondary))", border: "1px solid hsla(0, 0%, 100%, 0.08)", minHeight: 32 }}
+            >
+              {s.label}
+            </button>
+          ))}
+        </div>
+
+        <div id="section-verdict" className="rounded-xl px-6 py-6 mb-4" style={{ ...cardBase, borderLeft: `4px solid ${verdictColor[result.verdict] || "hsl(var(--warning))"}` }}>
           <CardLabel>Verdict</CardLabel>
           <p className="text-xl font-semibold" style={{ color: "hsl(var(--text-primary))", lineHeight: 1.7 }}>{result.verdict}</p>
           {rationale && <p className="mt-2 text-base" style={{ color: "hsl(var(--text-secondary))" }}>{rationale}</p>}
