@@ -195,17 +195,33 @@ export function NewDiagnosticFlow({ decision, onComplete, onSkip, onBackToLandin
     >
       <div className="w-full" style={{ maxWidth: 640 }}>
         {/* Progress bar */}
-        <div className="flex gap-1 mb-10">
-          {progressSegments.map((filled, i) => (
-            <div
-              key={i}
-              className="flex-1 rounded-full transition-all duration-500"
-              style={{
-                height: 3,
-                background: filled ? "hsl(40 46% 54%)" : "rgba(255,255,255,0.06)",
-              }}
-            />
-          ))}
+        <div className="mb-10">
+          <div className="flex gap-1 mb-2">
+            {progressSegments.map((filled, i) => (
+              <div
+                key={i}
+                className="flex-1 rounded-full transition-all duration-500"
+                style={{
+                  height: 3,
+                  background: filled ? "hsl(40 46% 54%)" : "rgba(255,255,255,0.06)",
+                }}
+              />
+            ))}
+          </div>
+          <div className="flex justify-between">
+            {(["Stakes", "Context", "Constraints"] as const).map((label, i) => (
+              <span
+                key={label}
+                className="text-xs"
+                style={{
+                  color: i + 1 <= stage ? "hsl(40 46% 54%)" : "rgba(255,255,255,0.3)",
+                  fontWeight: i + 1 === stage ? 600 : 400,
+                }}
+              >
+                {label}
+              </span>
+            ))}
+          </div>
         </div>
 
         {/* Back arrow — always available */}
