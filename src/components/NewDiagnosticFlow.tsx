@@ -302,6 +302,7 @@ export function NewDiagnosticFlow({ decision, onComplete, onSkip, onBackToLandin
               >
                 Skip to instant audit →
               </button>
+              <p className="mt-1" style={{ fontSize: 10, color: "rgba(255,255,255,0.3)" }}>Results will be less personalized</p>
             </div>
           </div>
         )}
