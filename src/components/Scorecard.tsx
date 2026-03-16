@@ -63,9 +63,9 @@ const positionColors: Record<string, string> = {
 
 const cardBase = { background: "hsla(0, 0%, 100%, 0.04)", border: "1px solid hsla(0, 0%, 100%, 0.08)" };
 
-function SectionDivider({ label, subtitle }: { label: string; subtitle?: string }) {
+function SectionDivider({ label, subtitle, id }: { label: string; subtitle?: string; id?: string }) {
   return (
-    <div className="relative my-10">
+    <div className="relative my-10" id={id}>
       <div style={{ height: 1, background: "hsla(0, 0%, 100%, 0.08)" }} />
       <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 px-4 text-center" style={{ background: "hsl(var(--navy))" }}>
         <span style={{ fontSize: 12, textTransform: "uppercase", letterSpacing: "0.12em", color: "hsl(var(--text-secondary))", fontWeight: 600 }}>
