@@ -28,10 +28,30 @@ export default function LoginPage() {
   };
 
   const handleGoogleLogin = async () => {
-    const { error } = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
-    });
-    if (error) toast.error(String(error));
+    setGoogleLoading(true);
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const redirect = params.get("redirect");
+      const redirectUri = redirect
+        ? `${window.location.origin}/${redirect}`
+        : window.location.origin;
+
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: redirectUri,
+      });
+      if (result.error) {
+        const msg = String(result.error);
+        if (msg.includes("configuration") || msg.includes("provider")) {
+          toast.error("Google login is not yet configured. Please use email/password to sign in.");
+        } else {
+          toast.error(msg);
+        }
+      }
+    } catch (e: any) {
+      toast.error(e?.message || "Google login failed. Please try again.");
+    } finally {
+      setGoogleLoading(false);
+    }
   };
 
   // Forgot password is now handled by /forgot-password page
