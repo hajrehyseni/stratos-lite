@@ -33,7 +33,7 @@ export default function SignupPage() {
 
   const handleGoogleSignup = async () => {
     const { error } = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
+      redirect_uri: `${window.location.origin}/welcome`,
     });
     if (error) toast.error(String(error));
   };
