@@ -131,7 +131,7 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
     const brief = generateBrief(decision, result);
     await navigator.clipboard.writeText(brief);
     setCopied(true);
-    toast.success("Brief copied to clipboard");
+    toast.success("Brief copied to clipboard!");
     setTimeout(() => setCopied(false), 2000);
   };
 
