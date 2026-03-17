@@ -127,7 +127,7 @@ export default function LoginPage() {
               />
               <Link
                 to="/forgot-password"
-                className="mt-2 inline-block text-base transition-opacity hover:opacity-80"
+                className="mt-2 inline-block text-base font-medium underline underline-offset-4 transition-opacity hover:opacity-80"
                 style={{ color: "hsl(var(--primary))", minHeight: 44 }}
               >
                 Forgot password?

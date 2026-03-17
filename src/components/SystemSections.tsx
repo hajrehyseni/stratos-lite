@@ -1,27 +1,3 @@
-import { useEffect, useRef } from "react";
-
-function useFadeIn(ref: React.RefObject<HTMLDivElement | null>) {
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    el.style.opacity = "0";
-    el.style.transform = "translateY(16px)";
-    el.style.transition = "opacity 400ms ease, transform 400ms ease";
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          el.style.opacity = "1";
-          el.style.transform = "translateY(0)";
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.2 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-}
-
 function DiagnoseMockup() {
   const cards = ["Market Opportunity", "Financial Risk", "Team Readiness", "Competitive Timing"];
   return (
@@ -106,15 +82,11 @@ export function SystemSections() {
   return (
     <div id="features" style={{ maxWidth: 1120 }} className="mx-auto px-4 sm:px-6 scroll-mt-20">
       {sections.map((s, i) => {
-        const ref = useRef<HTMLDivElement>(null);
-        useFadeIn(ref);
         const reversed = i % 2 === 1;
-
         return (
           <div
             key={s.num}
-            ref={ref}
-            className="py-16 md:py-24 grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-center"
+            className="py-12 md:py-16 grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-center"
           >
             <div className={reversed ? "md:order-2" : ""}>
               <div className="flex items-center gap-3 mb-5">
@@ -141,7 +113,6 @@ export function SystemSections() {
                 {s.body}
               </p>
             </div>
-            {/* Mockup visuals — hidden on mobile to save space */}
             <div className={`${reversed ? "md:order-1" : ""} hidden md:flex justify-center`}>
               {s.visual}
             </div>

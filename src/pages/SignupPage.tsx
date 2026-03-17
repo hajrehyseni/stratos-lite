@@ -152,7 +152,11 @@ export default function SignupPage() {
               </button>
             </form>
 
-            <p className="text-center mt-8 text-base" style={{ color: "hsl(var(--text-secondary))" }}>
+            <p className="text-center mt-4 text-xs" style={{ color: "hsl(var(--text-tertiary))" }}>
+              🔒 Your first audit is free — no credit card required
+            </p>
+
+            <p className="text-center mt-6 text-base" style={{ color: "hsl(var(--text-secondary))" }}>
               Already have an account?{" "}
               <Link to="/login" style={{ color: "hsl(var(--primary))", fontWeight: 600 }}>Sign in</Link>
             </p>
