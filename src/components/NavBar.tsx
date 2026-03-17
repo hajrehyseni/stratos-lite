@@ -178,13 +178,11 @@ export function NavBar({ journalCount }: Props) {
               </button>
             </div>
             <div className="flex flex-col gap-1 px-5 flex-1">
-              {!isHome && (
-                <Link to="/" onClick={() => setMobileOpen(false)}
-                  className="py-4 text-base transition-colors hover:opacity-80"
-                  style={{ color: "hsl(var(--text-secondary))", minHeight: 44 }}>
-                  Home
-                </Link>
-              )}
+              <Link to="/" onClick={() => setMobileOpen(false)}
+                className="py-4 text-base transition-colors hover:opacity-80"
+                style={{ color: isHome ? "hsl(var(--primary))" : "hsl(var(--text-secondary))", minHeight: 44 }}>
+                Home
+              </Link>
               <Link to="/pricing" onClick={() => setMobileOpen(false)}
                 className="py-4 text-base transition-colors hover:opacity-80"
                 style={{ color: "hsl(var(--text-secondary))", minHeight: 44 }}>
