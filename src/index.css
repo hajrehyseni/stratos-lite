@@ -182,15 +182,50 @@ input::placeholder {
   color: hsl(var(--text-tertiary));
 }
 
-/* Fade-up on scroll */
+/* Fade-up on scroll — start visible by default */
 .fade-up-section {
-  opacity: 0;
-  transform: translateY(16px);
-  transition: opacity 400ms ease, transform 400ms ease;
-}
-.fade-up-section.visible {
   opacity: 1;
   transform: translateY(0);
+}
+
+/* CTA glow when input has text */
+@keyframes cta-pulse-glow {
+  0%, 100% { box-shadow: 0 4px 16px hsla(16, 100%, 62%, 0.3); }
+  50% { box-shadow: 0 4px 24px hsla(16, 100%, 62%, 0.5), 0 0 0 4px hsla(16, 100%, 62%, 0.1); }
+}
+.cta-glow {
+  animation: cta-pulse-glow 2s ease-in-out infinite;
+}
+
+/* Smooth tab underline */
+.tab-active-underline {
+  position: relative;
+}
+.tab-active-underline::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 2px;
+  background: hsl(var(--primary));
+  transition: width 300ms ease;
+}
+.tab-active-underline.active::after {
+  width: 100%;
+}
+
+/* Button hover lift */
+.btn-hover-lift {
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+.btn-hover-lift:hover {
+  transform: scale(1.02);
+  box-shadow: 0 6px 20px hsla(0, 0%, 0%, 0.3);
+}
+.btn-hover-lift:active {
+  transform: scale(0.98);
 }
 
 /* Page transition */

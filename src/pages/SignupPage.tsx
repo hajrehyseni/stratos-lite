@@ -69,6 +69,9 @@ export default function SignupPage() {
         <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-center" style={{ maxWidth: 900 }}>
           {/* Left: Form */}
           <div className="w-full" style={{ maxWidth: 420 }}>
+            <p className="text-sm font-medium mb-4" style={{ color: "hsl(var(--text-tertiary))" }}>
+              Join 12,400+ leaders making better decisions
+            </p>
             <h1 className="text-3xl font-bold mb-2" style={{ color: "hsl(var(--text-primary))" }}>
               Start auditing decisions for free
             </h1>
@@ -149,7 +152,11 @@ export default function SignupPage() {
               </button>
             </form>
 
-            <p className="text-center mt-8 text-base" style={{ color: "hsl(var(--text-secondary))" }}>
+            <p className="text-center mt-4 text-xs" style={{ color: "hsl(var(--text-tertiary))" }}>
+              🔒 Your first audit is free — no credit card required
+            </p>
+
+            <p className="text-center mt-6 text-base" style={{ color: "hsl(var(--text-secondary))" }}>
               Already have an account?{" "}
               <Link to="/login" style={{ color: "hsl(var(--primary))", fontWeight: 600 }}>Sign in</Link>
             </p>
