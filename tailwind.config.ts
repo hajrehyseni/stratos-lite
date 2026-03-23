@@ -14,9 +14,7 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["Inter", "system-ui", "-apple-system", "sans-serif"],
-        serif: ["Playfair Display", "Georgia", "serif"],
-        brand: ["DM Serif Display", "Georgia", "serif"],
+        sans: ["Inter", "-apple-system", "Helvetica Neue", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -52,15 +50,10 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        navy: {
-          DEFAULT: "hsl(var(--navy))",
-          light: "hsl(var(--navy-light))",
-          surface: "hsl(var(--navy-surface))",
-        },
         success: "hsl(var(--success))",
         warning: "hsl(var(--warning))",
         gold: "hsl(var(--accent-gold))",
-        coral: "hsl(var(--primary))",
+        "accent-blue": "hsl(var(--accent-blue))",
         "text-primary": "hsl(var(--text-primary))",
         "text-secondary": "hsl(var(--text-secondary))",
         "text-tertiary": "hsl(var(--text-tertiary))",

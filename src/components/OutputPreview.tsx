@@ -51,7 +51,7 @@ export function OutputPreview() {
 
   return (
     <div ref={ref} className="px-4 sm:px-6 py-16 md:py-24">
-      <h2 className="text-2xl sm:text-3xl font-bold text-center mb-3" style={{ color: "hsl(var(--text-primary))" }}>
+      <h2 className="text-3xl sm:text-4xl font-semibold text-center mb-3" style={{ color: "hsl(var(--text-primary))", letterSpacing: "-0.03em" }}>
         See what you'll get
       </h2>
       <p className="text-center text-sm mb-10" style={{ color: "hsl(var(--text-tertiary))" }}>
@@ -62,10 +62,10 @@ export function OutputPreview() {
         className="mx-auto p-6 sm:p-8"
         style={{
           maxWidth: 640,
-          borderRadius: 20,
-          background: "hsl(var(--secondary))",
+          borderRadius: 16,
+          background: "hsl(var(--background))",
           border: "1px solid hsl(var(--border))",
-          boxShadow: "0 12px 40px hsla(221, 83%, 53%, 0.08)",
+          boxShadow: "0 2px 20px hsla(0, 0%, 0%, 0.06)",
         }}
       >
         {/* Score + Verdict */}
@@ -74,19 +74,18 @@ export function OutputPreview() {
             className="flex items-center justify-center rounded-full flex-shrink-0"
             style={{
               width: 80, height: 80,
-              border: "3px solid hsl(var(--primary))",
-              background: "hsla(221, 83%, 53%, 0.04)",
+              border: "3px solid hsl(var(--text-primary))",
             }}
           >
-            <span className="text-3xl font-extrabold" style={{ color: "hsl(var(--primary))" }}>{animatedScore}</span>
+            <span className="text-3xl font-bold" style={{ color: "hsl(var(--text-primary))" }}>{animatedScore}</span>
           </div>
           <div>
             <span
-              className="inline-flex rounded-full px-3 py-1 text-xs font-bold uppercase"
+              className="inline-flex rounded-lg px-3 py-1 text-xs font-semibold uppercase"
               style={{
-                background: "hsla(38, 92%, 50%, 0.12)",
-                border: "1px solid hsla(38, 92%, 50%, 0.3)",
-                color: "hsl(var(--warning))",
+                background: "hsl(var(--secondary))",
+                border: "1px solid hsl(var(--border))",
+                color: "hsl(var(--text-primary))",
                 letterSpacing: "0.05em",
                 animation: visible ? "pulse-once 600ms ease 1.3s" : "none",
               }}
@@ -105,9 +104,9 @@ export function OutputPreview() {
             <div key={d.label}>
               <div className="flex justify-between mb-1">
                 <span className="text-sm font-medium" style={{ color: "hsl(var(--text-primary))" }}>{d.label}</span>
-                <span className="text-sm font-bold" style={{ color: barColor(d.score) }}>{d.score}%</span>
+                <span className="text-sm font-semibold" style={{ color: barColor(d.score) }}>{d.score}%</span>
               </div>
-              <div className="w-full h-2 rounded-full" style={{ background: "hsl(var(--border))" }}>
+              <div className="w-full h-1.5 rounded-full" style={{ background: "hsl(var(--border))" }}>
                 <div
                   className="h-full rounded-full"
                   style={{
@@ -125,8 +124,8 @@ export function OutputPreview() {
         <div className="mt-6 flex items-center justify-between">
           <button
             onClick={scrollToHero}
-            className="inline-flex items-center gap-1.5 text-sm font-semibold transition-opacity hover:opacity-70"
-            style={{ color: "hsl(var(--primary))", background: "none", border: "none" }}
+            className="inline-flex items-center gap-1.5 text-sm font-medium transition-opacity hover:opacity-70"
+            style={{ color: "hsl(var(--text-primary))", background: "none", border: "none" }}
           >
             Try it free <ArrowRight className="w-4 h-4" />
           </button>
