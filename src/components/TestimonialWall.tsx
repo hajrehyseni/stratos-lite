@@ -2,9 +2,9 @@ import { useRef, useState, useEffect, useCallback } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const testimonials = [
-  { quote: "This replaced the 3-hour board prep I used to dread. The risk surface alone saved us from a bad acquisition.", name: "Sarah Chen", role: "VP Strategy, Series B Fintech" },
-  { quote: "StratOS captures 80% of McKinsey's value in 30 seconds. The best pre-meeting prep I've found.", name: "James Wright", role: "Managing Director" },
-  { quote: "The stakeholder analysis caught a political blind spot we all missed. We run every major decision through it.", name: "Priya Sharma", role: "COO, HealthTech Scale-up" },
+  { quote: "Replaced 3 hours of board prep. The risk surface alone saved us from a bad acquisition.", name: "Sarah Chen", role: "VP Strategy, Series B Fintech" },
+  { quote: "80% of McKinsey's value in 30 seconds. Best pre-meeting prep I've found.", name: "James Wright", role: "Managing Director" },
+  { quote: "Caught a political blind spot we all missed. We run every major decision through it.", name: "Priya Sharma", role: "COO, HealthTech Scale-up" },
 ];
 
 export function TestimonialWall() {
