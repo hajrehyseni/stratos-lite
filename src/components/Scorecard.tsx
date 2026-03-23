@@ -496,7 +496,7 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
           >
             <div className="rounded-xl overflow-hidden" style={cardStyle}>
               {result.stakeholder_perspectives.map((s, i) => (
-                <div key={i} className="px-5 py-5" style={{ borderBottom: i < result.stakeholder_perspectives!.length - 1 ? "1px solid hsla(0, 0%, 100%, 0.06)" : "none" }}>
+                <div key={i} className="px-5 py-5" style={{ borderBottom: i < result.stakeholder_perspectives!.length - 1 ? "1px solid hsl(var(--border))" : "none" }}>
                   <div className="flex items-center gap-3 mb-2">
                     <span className="text-base font-semibold" style={{ color: "hsl(var(--text-primary))" }}>{s.role}</span>
                     <span
