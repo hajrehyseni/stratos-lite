@@ -1,57 +1,96 @@
 
 
-# Font Rating & Upgrade Plan
+# Plan: Fix the Logo Typography — Make the Wordmark Feel Intentional
 
-## Current Rating: 6.5/10
+## What’s wrong now
+The new display font is loading globally, but the **logo wordmark itself is the weak point**:
 
-Instrument Serif is rendering correctly but it's **too thin, too decorative, and lacks authority**. On mobile especially, "Audit any decision." looks like a wedding invitation, not a strategic intelligence platform. The letterforms are wispy — they don't command attention or convey power.
+- `Strat` in Playfair at `text-xl` is too delicate at nav size
+- `OS` in small uppercase sans feels tacked on, not designed
+- The serif/sans split works in theory, but at 20–24px it reads as two mismatched fragments instead of one premium brand
+- Footer repeats the same issue, so the brand inconsistency shows up twice on every visit
 
-### What's wrong specifically:
-- **Too light** — weight 400 reads as delicate, not authoritative
-- **Too curly** — the italic/decorative nature feels literary, not executive
-- **No contrast** — the thin serif against thin Inter body text creates no visual hierarchy punch
-- **Lowercase feels casual** — "Audit any decision." in this font reads soft
+This is not a font-loading problem anymore. It’s a **wordmark design problem**.
 
-## The 10/10 Font: **Playfair Display**
+## Best direction
+Instead of trying to force a magazine-style serif into a tiny logo, StratOS should use a **cleaner, more controlled premium wordmark system**:
 
-Playfair Display is the font used by premium brands like The Economist, high-end consulting decks, and luxury SaaS platforms. It has:
-- **High stroke contrast** (thick/thin variation) — instantly premium
-- **Bold weight available** (700) — commands the page unlike Instrument Serif's 400-only
-- **Wider letterforms** — fills space with authority on mobile
-- **Google Fonts** — free, fast CDN, no licensing issues
+- Keep the **app headings** premium and expressive
+- Make the **logo text** tighter, simpler, and more custom-feeling
+- Treat the logo like a brand mark, not like a heading
 
-Alternative considered: **DM Serif Display** (sharper, more modern) — but Playfair has better weight range and more refined feel at large sizes.
+## Proposed fix
 
-## Changes
+### 1. Rebuild the wordmark in `NavBar.tsx` and `Footer.tsx`
+Replace the current:
+- `Strat` = serif
+- `OS` = small uppercase sans
 
-### 1. `src/index.css`
-- Replace `Instrument+Serif` import with `Playfair+Display:wght@400;700`
-- Update the `h1, h2, h3` rule to use `'Playfair Display'` with `font-weight: 700` for h1, `400` for h2/h3
-- Letter-spacing tightened to `-0.04em` for h1 (tighter = more premium at large sizes)
+with a more intentional wordmark layout:
 
-### 2. `tailwind.config.ts`
-- Change `font-serif` from `["Instrument Serif", ...]` to `["Playfair Display", "Georgia", "serif"]`
+**Option I would implement**
+- `StratOS` as a single lockup
+- `Strat` in a refined display serif or premium sans
+- `OS` still distinguished, but not shrunken so much that it looks detached
+- Tighter letter spacing, balanced baseline, slightly more spacing from the icon
 
-### 3. `src/components/HomepageLanding.tsx`
-- Hero headline: add `font-bold` — Playfair at 700 weight is where the magic happens
-- The larger stroke contrast will make "Audit any decision." feel like a Bloomberg terminal headline
+This will make the logo feel like one brand instead of two text styles stitched together.
 
-### 4. `src/components/NavBar.tsx` + `src/components/Footer.tsx`
-- Wordmark "Strat" in Playfair Display 400 (elegant) + "OS" stays Inter semibold uppercase
-- The thicker strokes of Playfair make the wordmark more distinctive at nav size (20px)
+### 2. Separate “brand font” from “heading font”
+Right now the same display logic is being reused too broadly.
 
-### 5. All section headings (already using `font-serif` class)
-- `SystemSections.tsx`, `MidPageCTA.tsx`, `TestimonialWall.tsx`, `FAQAccordion.tsx`, `PricingPage.tsx` — automatically pick up the new font via the Tailwind `font-serif` utility. No code changes needed in these files
+I’d introduce a clearer system:
+- **Brand wordmark font**: optimized for small sizes in nav/footer
+- **Display heading font**: optimized for hero/section titles
+- **Body/UI font**: Inter
 
-## Files Changed
-1. `src/index.css` — Swap font import, update heading rules
-2. `tailwind.config.ts` — Update serif family
-3. `src/components/HomepageLanding.tsx` — Add font-bold to hero headline
-4. `src/components/NavBar.tsx` — Wordmark uses Playfair
-5. `src/components/Footer.tsx` — Wordmark uses Playfair
+That gives StratOS a more world-class identity system instead of one font doing every job.
 
-## What Doesn't Change
-- Body text stays Inter
-- All layouts, components, functionality unchanged
-- Just the display font swap + weight adjustment
+### 3. Choose a stronger wordmark font
+Playfair works better in large editorial headlines than in compact logos.
+
+For the **logo**, I’d test a better premium candidate such as:
+- **Cormorant Garamond** — more elegant, less stiff than Playfair
+- **DM Serif Display** — stronger personality, cleaner at small brand sizes
+- **Canela-style direction** — closest to Claude/Anthropic feel, if we can approximate with available web fonts
+- If staying sans for the logo: **Manrope / Plus Jakarta / Satoshi-style direction** for a premium modern intelligence brand
+
+My recommendation:
+- **Keep a premium serif for hero headings**
+- **Use a more controlled, luxury-modern font for the logo wordmark**
+This usually produces a stronger brand than using the same serif everywhere.
+
+### 4. Refine the icon + wordmark relationship
+In `StratOSLogo.tsx`, the prism mark is solid, but the lockup likely needs:
+- slightly smaller gap between icon and text
+- slightly larger text height relative to the icon
+- more vertical optical alignment
+- a single visual rhythm between mark and wordmark
+
+### 5. Apply consistently in footer and brand surfaces
+Update:
+- `NavBar.tsx`
+- `Footer.tsx`
+
+so the brand appears identical across the app.
+If needed, I’d also check any page-level brand mentions to keep the system consistent.
+
+## Files to change
+1. `src/components/NavBar.tsx` — redesign the wordmark lockup
+2. `src/components/Footer.tsx` — match the new brand lockup
+3. `src/index.css` — define a clearer typography system for brand vs headings
+4. `tailwind.config.ts` — add the new brand/display font families if needed
+5. `src/components/StratOSLogo.tsx` — minor spacing/alignment polish if needed
+
+## Result
+After this change:
+- the **hero can stay premium**
+- the **logo becomes recognisable and intentional**
+- the brand feels less like “a font swap” and more like a real executive-grade identity system
+
+## Success criteria
+- Logo reads clearly on mobile at nav size
+- `StratOS` feels like one mark, not two mismatched text treatments
+- Footer brand feels premium instead of decorative
+- Typography hierarchy becomes deliberate: **brand / display / UI**
 
