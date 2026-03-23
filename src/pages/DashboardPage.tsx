@@ -27,13 +27,28 @@ function getScoreBg(score: number) {
   return "hsla(142, 71%, 40%, 0.1)";
 }
 
+function getVerdictColor(verdict: string) {
+  if (verdict === "PROCEED") return { bg: "hsla(160, 84%, 35%, 0.1)", text: "hsl(160, 84%, 35%)" };
+  if (verdict.includes("CONDITIONAL")) return { bg: "hsla(38, 80%, 45%, 0.1)", text: "hsl(38, 80%, 45%)" };
+  return { bg: "hsla(0, 84%, 50%, 0.1)", text: "hsl(0, 84%, 50%)" };
+}
+
+function MiniSparkline() {
+  const points = [8, 14, 12, 18];
+  const h = 24, w = 48;
+  const maxY = 20;
+  const path = points.map((p, i) => `${i === 0 ? "M" : "L"}${(i / (points.length - 1)) * w},${h - (p / maxY) * h}`).join(" ");
+  return (
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} className="ml-2">
+      <path d={path} fill="none" stroke="hsl(var(--success))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 function SkeletonCard() {
   return (
     <div className="rounded-xl p-6 animate-pulse" style={{ background: "hsl(var(--secondary))", border: "1px solid hsl(var(--border))" }}>
-      <div className="flex items-center gap-2 mb-2">
-        <div className="h-10 w-24 rounded-lg" style={{ background: "hsl(var(--border))" }} />
-        <div className="h-4 w-4 rounded" style={{ background: "hsl(var(--border))" }} />
-      </div>
+      <div className="h-10 w-24 rounded-lg" style={{ background: "hsl(var(--border))" }} />
       <div className="h-4 w-20 rounded mt-2" style={{ background: "hsl(var(--border))" }} />
     </div>
   );
@@ -43,12 +58,8 @@ function SkeletonRow() {
   return (
     <div className="rounded-xl p-5 animate-pulse" style={{ background: "hsl(var(--secondary))", border: "1px solid hsl(var(--border))" }}>
       <div className="flex items-center gap-4">
-        <div className="flex-1">
-          <div className="h-5 w-3/4 rounded" style={{ background: "hsl(var(--border))" }} />
-          <div className="h-4 w-24 rounded mt-2" style={{ background: "hsl(var(--border))" }} />
-        </div>
+        <div className="flex-1"><div className="h-5 w-3/4 rounded" style={{ background: "hsl(var(--border))" }} /></div>
         <div className="h-8 w-10 rounded-full" style={{ background: "hsl(var(--border))" }} />
-        <div className="h-4 w-4 rounded" style={{ background: "hsl(var(--border))" }} />
       </div>
     </div>
   );
@@ -79,7 +90,10 @@ export default function DashboardPage() {
     <>
       <NavBar />
       <div className="min-h-screen px-4 sm:px-6 pb-16 pt-24 page-enter" style={{ background: "hsl(var(--background))" }}>
-        <div className="max-w-[960px] mx-auto space-y-8">
+        {/* Gradient header */}
+        <div className="absolute top-0 left-0 right-0 h-48 pointer-events-none" style={{ background: "linear-gradient(to bottom, hsla(221, 83%, 53%, 0.03), transparent)" }} />
+
+        <div className="max-w-[960px] mx-auto space-y-8 relative">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-base mb-1" style={{ color: "hsl(var(--text-secondary))" }}>Welcome back, {firstName}</p>
@@ -90,12 +104,9 @@ export default function DashboardPage() {
             </Link>
           </div>
 
-          {/* Stats */}
+          {/* Stats with sparklines */}
           {isLoading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              <SkeletonCard />
-              <SkeletonCard />
-            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4"><SkeletonCard /><SkeletonCard /></div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               {[
@@ -103,9 +114,9 @@ export default function DashboardPage() {
                 { val: avgScore, label: "Avg Readiness" },
               ].map(m => (
                 <div key={m.label} className="rounded-xl p-6 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5" style={{ background: "linear-gradient(135deg, hsla(221, 83%, 53%, 0.04), hsl(0, 0%, 100%))", border: "1px solid hsl(var(--border))" }}>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1">
                     <span className="text-4xl font-extrabold" style={{ color: "hsl(var(--text-primary))" }}>{m.val}</span>
-                    <TrendingUp className="w-4 h-4" style={{ color: "hsl(var(--success))" }} />
+                    <MiniSparkline />
                   </div>
                   <p className="mt-1.5 text-sm" style={{ color: "hsl(var(--text-secondary))" }}>{m.label}</p>
                 </div>
@@ -113,39 +124,42 @@ export default function DashboardPage() {
             </div>
           )}
 
-          {/* Audits list */}
+          {/* Audits list with verdict tags */}
           <div>
             <h2 className="text-lg font-semibold mb-4" style={{ color: "hsl(var(--text-primary))" }}>Recent Decisions</h2>
             {isLoading ? (
-              <div className="space-y-3">
-                <SkeletonRow />
-                <SkeletonRow />
-                <SkeletonRow />
-                <SkeletonRow />
-              </div>
+              <div className="space-y-3"><SkeletonRow /><SkeletonRow /><SkeletonRow /></div>
             ) : (
               <div className="space-y-3">
-                {displayAudits.map(audit => (
-                  <Link
-                    key={audit.id}
-                    to={`/audit-results?decision=${encodeURIComponent(audit.decision)}`}
-                    className="group block rounded-xl p-5 transition-all duration-200 hover:shadow-md hover:bg-[hsla(221,83%,53%,0.02)]"
-                    style={{ background: "hsl(var(--secondary))", border: "1px solid hsl(var(--border))" }}
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="flex-1 min-w-0">
-                        <p className="text-base font-semibold truncate" style={{ color: "hsl(var(--text-primary))" }}>{audit.decision}</p>
-                        <p className="text-sm mt-1" style={{ color: "hsl(var(--text-tertiary))" }}>
-                          {new Date(audit.date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
-                        </p>
+                {displayAudits.map(audit => {
+                  const vc = getVerdictColor(audit.verdict);
+                  return (
+                    <Link
+                      key={audit.id}
+                      to={`/audit-results?decision=${encodeURIComponent(audit.decision)}`}
+                      className="group block rounded-xl p-5 transition-all duration-200 hover:shadow-md hover:bg-[hsla(221,83%,53%,0.02)]"
+                      style={{ background: "hsl(var(--secondary))", border: "1px solid hsl(var(--border))" }}
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-base font-semibold truncate" style={{ color: "hsl(var(--text-primary))" }}>{audit.decision}</p>
+                          <div className="flex items-center gap-2 mt-1.5">
+                            <p className="text-sm" style={{ color: "hsl(var(--text-tertiary))" }}>
+                              {new Date(audit.date).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+                            </p>
+                            <span className="rounded-full px-2 py-0.5 text-xs font-medium" style={{ background: vc.bg, color: vc.text }}>
+                              {audit.verdict.replace("CONDITIONAL ", "COND. ")}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 flex-shrink-0">
+                          <span className="rounded-full px-3 py-1 text-sm font-bold flex items-center justify-center" style={{ color: getScoreColor(audit.score), background: getScoreBg(audit.score), minWidth: 36 }}>{audit.score}</span>
+                          <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" style={{ color: "hsl(var(--text-tertiary))" }} />
+                        </div>
                       </div>
-                      <div className="flex items-center gap-3 flex-shrink-0">
-                        <span className="rounded-full px-3 py-1 text-sm font-bold flex items-center justify-center" style={{ color: getScoreColor(audit.score), background: getScoreBg(audit.score), minWidth: 36 }}>{audit.score}</span>
-                        <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" style={{ color: "hsl(var(--text-tertiary))" }} />
-                      </div>
-                    </div>
-                  </Link>
-                ))}
+                    </Link>
+                  );
+                })}
               </div>
             )}
           </div>

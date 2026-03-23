@@ -14,10 +14,10 @@ interface Props {
   hasUsedAudit?: boolean;
 }
 
-const exampleChips = [
-  "Should we acquire our competitor?",
-  "Should I restructure my team?",
-  "Should we pivot our product strategy?",
+const placeholders = [
+  "Should we acquire CompetitorX?",
+  "Should I restructure my leadership team?",
+  "Should we pivot to enterprise?",
 ];
 
 export function HomepageLanding({ onSubmit, remainingAudits, hasUsedAudit }: Props) {
@@ -27,6 +27,7 @@ export function HomepageLanding({ onSubmit, remainingAudits, hasUsedAudit }: Pro
   const [hasTyped, setHasTyped] = useState(false);
   const [showError, setShowError] = useState(false);
   const [heroVisible, setHeroVisible] = useState(false);
+  const [placeholderIdx, setPlaceholderIdx] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const submitRef = useRef<HTMLButtonElement>(null);
   const canSubmit = value.trim().length >= 10;
@@ -35,6 +36,13 @@ export function HomepageLanding({ onSubmit, remainingAudits, hasUsedAudit }: Pro
     const t = setTimeout(() => setHeroVisible(true), 50);
     return () => clearTimeout(t);
   }, []);
+
+  // Rotating placeholder
+  useEffect(() => {
+    if (value.length > 0) return;
+    const iv = setInterval(() => setPlaceholderIdx(p => (p + 1) % placeholders.length), 3000);
+    return () => clearInterval(iv);
+  }, [value]);
 
   const handleSubmit = () => {
     if (canSubmit) { setShowError(false); onSubmit(value.trim()); }
@@ -49,16 +57,13 @@ export function HomepageLanding({ onSubmit, remainingAudits, hasUsedAudit }: Pro
     setValue(newVal);
   };
 
-  const handleChipClick = (text: string) => { setValue(text); setHasTyped(true); inputRef.current?.focus(); };
+  const currentPlaceholder = `e.g. ${placeholders[placeholderIdx]}`;
 
   return (
     <div className="flex flex-col page-enter">
-      {/* Hero with subtle radial gradient */}
+      {/* Hero */}
       <div className="relative flex flex-col items-center px-4 sm:px-6 pt-20 sm:pt-28 pb-14 md:pb-16" style={{ justifyContent: "center" }}>
-        {/* Premium background texture */}
-        <div className="absolute inset-0 pointer-events-none" style={{
-          background: "radial-gradient(ellipse 80% 50% at 50% 30%, hsla(221, 83%, 53%, 0.04), transparent)",
-        }} />
+        <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 80% 50% at 50% 30%, hsla(221, 83%, 53%, 0.04), transparent)" }} />
         <div className="absolute inset-0 pointer-events-none dot-grid-bg" />
 
         <div className="w-full flex flex-col items-center relative z-10" style={{ maxWidth: 1120 }}>
@@ -67,23 +72,21 @@ export function HomepageLanding({ onSubmit, remainingAudits, hasUsedAudit }: Pro
             style={{
               fontWeight: 800, lineHeight: 1.08, letterSpacing: "-0.02em",
               color: "hsl(var(--text-primary))", maxWidth: 768,
-              opacity: heroVisible ? 1 : 0,
-              transform: heroVisible ? "translateY(0)" : "translateY(20px)",
+              opacity: heroVisible ? 1 : 0, transform: heroVisible ? "translateY(0)" : "translateY(20px)",
               transition: "opacity 400ms ease-out, transform 400ms ease-out",
             }}
           >
             What's the decision you can't afford to get wrong?
           </h1>
           <p
-            className="text-center text-lg md:text-xl mt-6 mx-auto"
+            className="text-center text-lg md:text-xl mt-5 mx-auto"
             style={{
-              color: "hsl(var(--text-secondary))", maxWidth: 600, lineHeight: 1.6,
-              opacity: heroVisible ? 1 : 0,
-              transform: heroVisible ? "translateY(0)" : "translateY(14px)",
+              color: "hsl(var(--text-secondary))", maxWidth: 500, lineHeight: 1.5,
+              opacity: heroVisible ? 1 : 0, transform: heroVisible ? "translateY(0)" : "translateY(14px)",
               transition: "opacity 400ms ease-out 100ms, transform 400ms ease-out 100ms",
             }}
           >
-            Fortune 500 frameworks. 30-second audit. <strong style={{ color: "hsl(var(--text-primary))" }}>Free.</strong>
+            Board-ready audit. 30 seconds.
           </p>
 
           {/* Input */}
@@ -97,7 +100,7 @@ export function HomepageLanding({ onSubmit, remainingAudits, hasUsedAudit }: Pro
                 transition: "border-color 0.2s ease, box-shadow 0.2s ease", paddingLeft: 24, paddingRight: 6,
               }}>
                 <label htmlFor="hero-input" className="sr-only">Describe your decision</label>
-                <input ref={inputRef} id="hero-input" type="text" value={value} onChange={handleChange} onFocus={() => setIsFocused(true)} onBlur={() => setIsFocused(false)} onKeyDown={handleKeyDown} placeholder="Describe your decision..." className="w-full bg-transparent outline-none" style={{ fontSize: 17, fontWeight: 400, color: "hsl(var(--text-primary))", height: 52 }} />
+                <input ref={inputRef} id="hero-input" type="text" value={value} onChange={handleChange} onFocus={() => setIsFocused(true)} onBlur={() => setIsFocused(false)} onKeyDown={handleKeyDown} placeholder={currentPlaceholder} className="w-full bg-transparent outline-none" style={{ fontSize: 17, fontWeight: 400, color: "hsl(var(--text-primary))", height: 52 }} />
                 <button ref={submitRef} onClick={handleSubmit} disabled={!canSubmit} className={`flex-shrink-0 flex items-center justify-center gap-2 rounded-full transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${canSubmit && hasTyped ? "cta-glow" : ""}`} style={{ height: 48, paddingLeft: 24, paddingRight: 20, background: canSubmit ? "hsl(var(--primary))" : "hsla(221, 83%, 53%, 0.3)", opacity: canSubmit ? 1 : 0.5, cursor: canSubmit ? "pointer" : "default", color: "hsl(var(--primary-foreground))", fontSize: 15, fontWeight: 600 }} aria-label="Audit this decision">
                   Audit this decision <ArrowRight className="w-4 h-4" />
                 </button>
@@ -112,7 +115,7 @@ export function HomepageLanding({ onSubmit, remainingAudits, hasUsedAudit }: Pro
                 transition: "border-color 0.2s ease, box-shadow 0.2s ease", paddingLeft: 20, paddingRight: 20,
               }}>
                 <label htmlFor="hero-input-mobile" className="sr-only">Describe your decision</label>
-                <input id="hero-input-mobile" type="text" value={value} onChange={handleChange} onFocus={() => setIsFocused(true)} onBlur={() => setIsFocused(false)} onKeyDown={handleKeyDown} placeholder="Describe your decision..." className="w-full bg-transparent outline-none" style={{ fontSize: 17, color: "hsl(var(--text-primary))", height: 48 }} />
+                <input id="hero-input-mobile" type="text" value={value} onChange={handleChange} onFocus={() => setIsFocused(true)} onBlur={() => setIsFocused(false)} onKeyDown={handleKeyDown} placeholder={currentPlaceholder} className="w-full bg-transparent outline-none" style={{ fontSize: 17, color: "hsl(var(--text-primary))", height: 48 }} />
               </div>
               <button onClick={handleSubmit} disabled={!canSubmit} className={`w-full flex items-center justify-center gap-2 rounded-full transition-all duration-200 active:scale-[0.98] ${canSubmit && hasTyped ? "cta-glow" : ""}`} style={{ height: 52, background: canSubmit ? "hsl(var(--primary))" : "hsla(221, 83%, 53%, 0.3)", opacity: canSubmit ? 1 : 0.5, color: "hsl(var(--primary-foreground))", fontSize: 16, fontWeight: 600 }}>
                 Audit this decision <ArrowRight className="w-4 h-4" />
@@ -126,19 +129,8 @@ export function HomepageLanding({ onSubmit, remainingAudits, hasUsedAudit }: Pro
             </p>
           )}
 
-          <div className="mt-4 flex gap-2 pb-2 w-full justify-center flex-wrap px-1" style={{ maxWidth: 672 }}>
-            {exampleChips.map((chip) => (
-              <button key={chip} onClick={() => handleChipClick(chip)} className="rounded-full px-4 py-2 text-sm transition-all duration-200 hover:border-[hsl(var(--primary))] hover:scale-[1.02]" style={{ background: "transparent", border: "1px solid hsl(var(--border))", color: "hsl(var(--text-secondary))", minHeight: 44, whiteSpace: "normal", textAlign: "center", boxShadow: "0 1px 3px hsla(0, 0%, 0%, 0.04)", transition: "transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease" }}
-                onMouseEnter={(e) => { e.currentTarget.style.boxShadow = "0 4px 12px hsla(0, 0%, 0%, 0.08)"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "0 1px 3px hsla(0, 0%, 0%, 0.04)"; }}
-              >
-                {chip}
-              </button>
-            ))}
-          </div>
-
           {hasUsedAudit && remainingAudits !== undefined && remainingAudits > 0 && (
-            <p className="text-center mt-2 text-sm font-medium" style={{ color: "hsl(var(--warning))" }}>
+            <p className="text-center mt-3 text-sm font-medium" style={{ color: "hsl(var(--warning))" }}>
               You have {remainingAudits} free audit{remainingAudits !== 1 ? "s" : ""} remaining
             </p>
           )}

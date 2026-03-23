@@ -361,24 +361,24 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
         )}
 
         {/* ═══ STICKY SECTION NAV ═══ */}
-        <div className="sticky top-16 z-40 -mx-4 px-4 py-2 mb-6 flex items-center gap-2" style={{ background: "hsla(0, 0%, 100%, 0.95)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}>
+        <div className="sticky top-16 z-40 -mx-4 px-4 py-2 mb-6 flex items-center gap-2" style={{ background: "hsla(0, 0%, 100%, 0.95)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", borderBottom: "1px solid hsl(var(--border))" }}>
           <div className="flex gap-2 overflow-x-auto scrollbar-hide flex-1 relative">
             {NAV_ITEMS.map((s) => (
               <button
                 key={s.id}
                 onClick={() => handleScrollToSection(s.id)}
-                className="flex-shrink-0 rounded-full px-3.5 py-1.5 text-xs font-medium transition-all duration-200"
+                className="flex-shrink-0 px-3 py-2 text-xs font-medium transition-all duration-200"
                 style={{
-                  background: activeSection === s.id ? "hsla(221, 83%, 53%, 0.1)" : "hsl(var(--secondary))",
+                  background: "transparent",
                   color: activeSection === s.id ? "hsl(var(--primary))" : "hsl(var(--text-secondary))",
-                  border: activeSection === s.id ? "1px solid hsla(221, 83%, 53%, 0.3)" : "1px solid hsl(var(--border))",
+                  border: "none",
+                  borderBottom: activeSection === s.id ? "2px solid hsl(var(--primary))" : "2px solid transparent",
                   minHeight: 32,
                 }}
               >
                 {s.label}
               </button>
             ))}
-            {/* Gradient fade hint for mobile */}
             <div className="absolute right-0 top-0 bottom-0 w-8 pointer-events-none sm:hidden" style={{ background: "linear-gradient(to right, transparent, hsla(0, 0%, 100%, 0.95))" }} />
           </div>
           <button
@@ -496,7 +496,7 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
           >
             <div className="rounded-xl overflow-hidden" style={cardStyle}>
               {result.stakeholder_perspectives.map((s, i) => (
-                <div key={i} className="px-5 py-5" style={{ borderBottom: i < result.stakeholder_perspectives!.length - 1 ? "1px solid hsla(0, 0%, 100%, 0.06)" : "none" }}>
+                <div key={i} className="px-5 py-5" style={{ borderBottom: i < result.stakeholder_perspectives!.length - 1 ? "1px solid hsl(var(--border))" : "none" }}>
                   <div className="flex items-center gap-3 mb-2">
                     <span className="text-base font-semibold" style={{ color: "hsl(var(--text-primary))" }}>{s.role}</span>
                     <span
@@ -625,7 +625,7 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
                 { letter: "I", label: "Input", value: result.rapid.input },
                 { letter: "D", label: "Decide", value: result.rapid.decide },
               ].map((row) => (
-                <div key={row.letter} className="flex items-start gap-4 py-3.5" style={{ borderBottom: "1px solid hsla(0, 0%, 100%, 0.06)" }}>
+                <div key={row.letter} className="flex items-start gap-4 py-3.5" style={{ borderBottom: "1px solid hsl(var(--border))" }}>
                   <span className="flex items-center justify-center rounded-lg font-bold" style={{ width: 36, height: 36, flexShrink: 0, background: "hsla(16, 100%, 62%, 0.12)", color: "hsl(var(--primary))", fontSize: 15 }}>
                     {row.letter}
                   </span>
@@ -675,13 +675,13 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
         {result.stakeholder_map && result.stakeholder_map.length > 0 && (
           <CollapsibleSection id="section-stakeholder-map" title="Stakeholder Map" forceOpen={allExpanded || undefined}>
             <div className="rounded-xl overflow-hidden" style={cardStyle}>
-              <div className="hidden sm:grid grid-cols-[2fr_1fr_1fr_3fr] gap-2 px-5 py-3" style={{ borderBottom: "1px solid hsla(0, 0%, 100%, 0.06)" }}>
+              <div className="hidden sm:grid grid-cols-[2fr_1fr_1fr_3fr] gap-2 px-5 py-3" style={{ borderBottom: "1px solid hsl(var(--border))" }}>
                 {["Role", "Position", "Influence", "Action"].map((h) => (
                   <span key={h} className="text-xs uppercase font-semibold" style={{ letterSpacing: "0.1em", color: "hsl(var(--text-tertiary))" }}>{h}</span>
                 ))}
               </div>
               {result.stakeholder_map.map((s, i) => (
-                <div key={i} className="grid grid-cols-1 sm:grid-cols-[2fr_1fr_1fr_3fr] gap-2 px-5 py-3.5" style={{ borderBottom: "1px solid hsla(0, 0%, 100%, 0.06)" }}>
+                <div key={i} className="grid grid-cols-1 sm:grid-cols-[2fr_1fr_1fr_3fr] gap-2 px-5 py-3.5" style={{ borderBottom: "1px solid hsl(var(--border))" }}>
                   <span className="text-base font-medium" style={{ color: "hsl(var(--text-primary))" }}>{s.role}</span>
                   <span className="text-base" style={{ color: positionColors[s.position] || "hsl(var(--text-tertiary))" }}>{s.position}</span>
                   <span className="text-base" style={{ color: "hsl(var(--text-secondary))" }}>{s.influence}</span>
@@ -731,14 +731,14 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
               <button
                 onClick={handleCopySummary}
                 className="flex items-center gap-2 px-5 py-3 rounded-full text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] hover:shadow-md"
-                style={{ border: "1px solid hsla(0, 0%, 100%, 0.12)", background: "transparent", color: "hsl(var(--text-secondary))", minHeight: 44 }}
+                style={{ border: "1px solid hsl(var(--border))", background: "transparent", color: "hsl(var(--text-secondary))", minHeight: 44 }}
               >
                 <Copy className="w-4 h-4" /> Copy Summary
               </button>
               <button
                 onClick={() => onReset()}
                 className="flex items-center gap-2 px-5 py-3 rounded-full text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] hover:shadow-md"
-                style={{ border: "1px solid hsla(0, 0%, 100%, 0.12)", background: "transparent", color: "hsl(var(--text-secondary))", minHeight: 44 }}
+                style={{ border: "1px solid hsl(var(--border))", background: "transparent", color: "hsl(var(--text-secondary))", minHeight: 44 }}
               >
                 New Audit
               </button>
@@ -763,7 +763,7 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
               <button
                 onClick={handleCopyBrief}
                 className="flex items-center gap-2 px-5 py-3 rounded-full text-sm transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-                style={{ border: "1px solid hsla(0, 0%, 100%, 0.12)", background: "transparent", color: "hsl(var(--text-secondary))", minHeight: 44 }}
+                style={{ border: "1px solid hsl(var(--border))", background: "transparent", color: "hsl(var(--text-secondary))", minHeight: 44 }}
               >
                 {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                 Copy Brief
@@ -771,27 +771,27 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
               <button
                 onClick={handleDownloadPDF}
                 className="flex items-center gap-2 px-5 py-3 rounded-full text-sm transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-                style={{ border: "1px solid hsla(0, 0%, 100%, 0.12)", background: "transparent", color: "hsl(var(--text-secondary))", minHeight: 44 }}
+                style={{ border: "1px solid hsl(var(--border))", background: "transparent", color: "hsl(var(--text-secondary))", minHeight: 44 }}
               >
                 <Download className="w-4 h-4" /> PDF
               </button>
               <button
                 onClick={handleShare}
                 className="flex items-center gap-2 px-5 py-3 rounded-full text-sm transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-                style={{ border: "1px solid hsla(0, 0%, 100%, 0.12)", background: "transparent", color: "hsl(var(--text-secondary))", minHeight: 44 }}
+                style={{ border: "1px solid hsl(var(--border))", background: "transparent", color: "hsl(var(--text-secondary))", minHeight: 44 }}
               >
                 <Share2 className="w-4 h-4" /> Share
               </button>
             </div>
 
             {/* Audit opposite */}
-            <div className="mt-10 rounded-2xl text-center p-7" style={{ background: "hsla(0, 0%, 100%, 0.02)", border: "1px dashed hsla(0, 0%, 100%, 0.12)" }}>
+            <div className="mt-10 rounded-2xl text-center p-7" style={{ background: "hsl(var(--secondary))", border: "1px dashed hsl(var(--border))" }}>
               <h3 className="text-lg font-semibold" style={{ color: "hsl(var(--text-primary))" }}>↕ What if you chose the opposite?</h3>
               <p className="mt-2 text-base" style={{ color: "hsl(var(--text-secondary))" }}>Stress-test your thinking from the other side</p>
               <button
                 onClick={handleAuditOpposite}
                 className="mt-5 inline-flex items-center justify-center gap-2 rounded-full font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-                style={{ height: 48, fontSize: 15, padding: "0 28px", border: "1px solid hsla(0, 0%, 100%, 0.2)", background: "transparent", color: "hsl(var(--text-primary))", minHeight: 48 }}
+                style={{ height: 48, fontSize: 15, padding: "0 28px", border: "1px solid hsl(var(--border))", background: "transparent", color: "hsl(var(--text-primary))", minHeight: 48 }}
               >
                 Audit the Opposite →
               </button>
@@ -836,15 +836,15 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
 
       {/* Mobile sticky bottom bar */}
       {!readOnly && (
-        <div className="fixed bottom-0 left-0 right-0 z-40 sm:hidden flex items-center justify-between gap-2 px-4 py-3" style={{ background: "hsla(228, 35%, 14%, 0.95)", backdropFilter: "blur(8px)", borderTop: "1px solid hsla(0, 0%, 100%, 0.08)" }}>
-          <button onClick={handleCopySummary} className="flex-1 flex items-center justify-center gap-1.5 py-3 rounded-full text-xs font-medium" style={{ border: "1px solid hsla(0, 0%, 100%, 0.12)", color: "hsl(var(--text-secondary))" }}>
+        <div className="fixed bottom-0 left-0 right-0 z-40 sm:hidden flex items-center justify-between gap-2 px-4 py-3" style={{ background: "hsla(0, 0%, 100%, 0.95)", backdropFilter: "blur(8px)", borderTop: "1px solid hsl(var(--border))" }}>
+          <button onClick={handleCopySummary} className="flex-1 flex items-center justify-center gap-1.5 py-3 rounded-full text-xs font-medium" style={{ border: "1px solid hsl(var(--border))", color: "hsl(var(--text-secondary))" }}>
             <Copy className="w-3.5 h-3.5" /> Summary
           </button>
           <button onClick={() => onReset()} className="flex-1 flex items-center justify-center gap-1.5 py-3 rounded-full text-xs font-medium" style={{ background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))" }}>
             New Audit
           </button>
           {user && onSaveToJournal && !journalSaved ? (
-            <button onClick={onSaveToJournal} className="flex-1 flex items-center justify-center gap-1.5 py-3 rounded-full text-xs font-medium" style={{ border: "1px solid hsla(0, 0%, 100%, 0.12)", color: "hsl(var(--text-secondary))" }}>
+            <button onClick={onSaveToJournal} className="flex-1 flex items-center justify-center gap-1.5 py-3 rounded-full text-xs font-medium" style={{ border: "1px solid hsl(var(--border))", color: "hsl(var(--text-secondary))" }}>
               <BookmarkPlus className="w-3.5 h-3.5" /> Save
             </button>
           ) : journalSaved ? (
@@ -860,7 +860,7 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           className="fixed z-50 flex items-center justify-center rounded-full shadow-lg transition-all duration-200 hover:scale-[1.05] active:scale-95 bottom-20 sm:bottom-6 right-6"
-          style={{ width: 48, height: 48, background: "hsl(228, 35%, 20%)", border: "1px solid hsla(0, 0%, 100%, 0.12)", color: "hsl(var(--text-primary))" }}
+          style={{ width: 48, height: 48, background: "hsl(var(--primary))", border: "1px solid hsl(var(--border))", color: "hsl(var(--primary-foreground))" }}
           aria-label="Back to top"
         >
           <ArrowUp className="w-5 h-5" />

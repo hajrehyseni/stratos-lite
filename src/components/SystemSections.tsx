@@ -18,9 +18,9 @@ function DiagnoseMockup() {
 
 function AssessMockup() {
   const risks = [
-    { text: "Integration timeline exceeds 12-month window", color: "hsl(var(--destructive))" },
-    { text: "Target's engineering team will stay post-acquisition", color: "hsl(var(--warning))" },
-    { text: "CTO opposes but hasn't voiced it yet", color: "hsl(221, 83%, 53%)" },
+    { text: "Integration timeline exceeds window", color: "hsl(var(--destructive))" },
+    { text: "Key talent retention at risk", color: "hsl(var(--warning))" },
+    { text: "CTO opposes but hasn't voiced it", color: "hsl(221, 83%, 53%)" },
   ];
   return (
     <div className="space-y-2.5 transition-all duration-200 hover:scale-[1.03]" style={{ maxWidth: 360 }}>
@@ -53,9 +53,9 @@ function DecideMockup() {
 const stepIcons = [Search, ShieldAlert, CheckCircle];
 
 const sections = [
-  { num: "01", tag: "Diagnose", heading: "Break any decision into its complete parts", body: "MECE decomposition. Every angle mapped. No blind spots.", visual: <DiagnoseMockup /> },
-  { num: "02", tag: "Assess", heading: "See what could go wrong — before it does", body: "Top 3 risks surfaced with specific mitigations.", visual: <AssessMockup /> },
-  { num: "03", tag: "Decide", heading: "Get a confidence score, not just a gut feeling", body: "Confidence score, clear verdict, devil's advocate challenge.", visual: <DecideMockup /> },
+  { num: "01", tag: "Diagnose", heading: "Break it down", visual: <DiagnoseMockup /> },
+  { num: "02", tag: "Assess", heading: "See what could go wrong", visual: <AssessMockup /> },
+  { num: "03", tag: "Decide", heading: "Get your confidence score", visual: <DecideMockup /> },
 ];
 
 function StepSection({ s, i, reversed, Icon }: { s: typeof sections[0]; i: number; reversed: boolean; Icon: typeof Search }) {
@@ -91,26 +91,20 @@ function StepSection({ s, i, reversed, Icon }: { s: typeof sections[0]; i: numbe
             <div className="relative flex flex-col items-center">
               <span className="inline-flex items-center justify-center rounded-lg font-extrabold" style={{ width: 36, height: 36, background: "hsla(221, 83%, 53%, 0.1)", color: "hsl(var(--primary))", fontSize: 14 }}>{s.num}</span>
               {i < sections.length - 1 && (
-                <div
-                  className="hidden md:block absolute"
-                  style={{
-                    top: 44,
-                    left: "50%",
-                    transform: "translateX(-50%)",
-                    width: 0,
-                    height: 180,
-                    borderLeft: "2px dashed hsla(221, 83%, 53%, 0.35)",
-                  }}
-                />
+                <div className="hidden md:block absolute" style={{ top: 44, left: "50%", transform: "translateX(-50%)", width: 0, height: 180, borderLeft: "2px dashed hsla(221, 83%, 53%, 0.35)" }} />
               )}
             </div>
             <Icon className="w-5 h-5" style={{ color: "hsl(var(--primary))" }} />
             <span className="text-sm font-semibold uppercase" style={{ letterSpacing: "0.1em", color: "hsl(var(--primary))" }}>{s.tag}</span>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-bold mb-4" style={{ color: "hsl(var(--text-primary))", lineHeight: 1.2 }}>{s.heading}</h2>
-          <p className="text-base leading-relaxed" style={{ color: "hsl(var(--text-secondary))", lineHeight: 1.7 }}>{s.body}</p>
+          <h2 className="text-2xl sm:text-3xl font-bold" style={{ color: "hsl(var(--text-primary))", lineHeight: 1.2 }}>{s.heading}</h2>
         </div>
-        <div className={`${reversed ? "md:order-1" : ""} hidden md:flex justify-center`}>{s.visual}</div>
+        {/* Show on all screens — smaller on mobile */}
+        <div className={`${reversed ? "md:order-1" : ""} flex justify-center`}>
+          <div className="w-full" style={{ maxWidth: 280 }}>
+            {s.visual}
+          </div>
+        </div>
       </div>
     </div>
   );
