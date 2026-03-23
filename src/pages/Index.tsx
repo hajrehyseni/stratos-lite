@@ -66,19 +66,7 @@ const Index = () => {
   const apiResult = useRef<{ parsed: AuditResult; id: string } | null>(null);
 
   const canRunAudit = (): boolean => {
-    if (!user) {
-      const done = localStorage.getItem(ANON_AUDIT_KEY);
-      if (done) {
-        setShowSignupGate(true);
-        return false;
-      }
-      return true;
-    }
-    const tier = STRIPE_TIERS[subscription.plan];
-    if (subscription.auditCount >= tier.audits) {
-      setShowUpgrade(true);
-      return false;
-    }
+    // Demo mode: always allow audits
     return true;
   };
 
