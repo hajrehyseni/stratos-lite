@@ -252,12 +252,8 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
   const topActions = result.recommendations?.filter(r => r.feasible).slice(0, 3) || [];
 
   const handleListen = () => {
-    if (tts.isSpeaking) {
+    if (tts.isSpeaking || tts.isLoading) {
       tts.stop();
-      return;
-    }
-    if (!tts.isSupported) {
-      toast.error("Text-to-speech not supported in this browser");
       return;
     }
     const sections: string[] = [
@@ -327,14 +323,19 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
               style={{
                 border: "1px solid hsl(var(--border))",
-                background: tts.isSpeaking ? "hsl(var(--primary))" : "transparent",
-                color: tts.isSpeaking ? "hsl(var(--primary-foreground))" : "hsl(var(--text-secondary))",
+                background: (tts.isSpeaking || tts.isLoading) ? "hsl(var(--primary))" : "transparent",
+                color: (tts.isSpeaking || tts.isLoading) ? "hsl(var(--primary-foreground))" : "hsl(var(--text-secondary))",
               }}
             >
-              {tts.isSpeaking ? (
+              {tts.isLoading ? (
+                <>
+                  <Volume2 className="w-4 h-4 animate-spin" />
+                  Generating...
+                </>
+              ) : tts.isSpeaking ? (
                 <>
                   <VolumeX className="w-4 h-4 animate-pulse" />
-                  Stop ({tts.currentSection}/{tts.totalSections})
+                  Stop Listening
                 </>
               ) : (
                 <>

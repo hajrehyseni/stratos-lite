@@ -2,68 +2,87 @@ import { useState, useCallback, useRef } from "react";
 
 interface UseTTSReturn {
   isSpeaking: boolean;
-  isSupported: boolean;
-  currentSection: number;
-  totalSections: number;
+  isLoading: boolean;
   speak: (sections: string[]) => void;
   stop: () => void;
 }
 
 export function useTTS(): UseTTSReturn {
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [currentSection, setCurrentSection] = useState(0);
-  const [totalSections, setTotalSections] = useState(0);
-  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
-  const sectionsRef = useRef<string[]>([]);
-  const indexRef = useRef(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const objectUrlRef = useRef<string | null>(null);
 
-  const isSupported = typeof window !== "undefined" && "speechSynthesis" in window;
-
-  const speakNext = useCallback(() => {
-    if (indexRef.current >= sectionsRef.current.length) {
-      setIsSpeaking(false);
-      setCurrentSection(0);
-      return;
+  const cleanup = useCallback(() => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.removeAttribute("src");
+      audioRef.current = null;
     }
-
-    const text = sectionsRef.current[indexRef.current];
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 0.95;
-    utterance.pitch = 1;
-    utterance.lang = "en-US";
-    utteranceRef.current = utterance;
-
-    utterance.onend = () => {
-      indexRef.current += 1;
-      setCurrentSection(indexRef.current);
-      speakNext();
-    };
-
-    utterance.onerror = () => {
-      setIsSpeaking(false);
-      setCurrentSection(0);
-    };
-
-    setCurrentSection(indexRef.current + 1);
-    window.speechSynthesis.speak(utterance);
+    if (objectUrlRef.current) {
+      URL.revokeObjectURL(objectUrlRef.current);
+      objectUrlRef.current = null;
+    }
   }, []);
 
-  const speak = useCallback((sections: string[]) => {
-    if (!isSupported) return;
-    window.speechSynthesis.cancel();
-    sectionsRef.current = sections.filter(Boolean);
-    indexRef.current = 0;
-    setTotalSections(sectionsRef.current.length);
-    setIsSpeaking(true);
-    speakNext();
-  }, [isSupported, speakNext]);
-
   const stop = useCallback(() => {
-    if (!isSupported) return;
-    window.speechSynthesis.cancel();
+    cleanup();
     setIsSpeaking(false);
-    setCurrentSection(0);
-  }, [isSupported]);
+    setIsLoading(false);
+  }, [cleanup]);
 
-  return { isSpeaking, isSupported, currentSection, totalSections, speak, stop };
+  const speak = useCallback(async (sections: string[]) => {
+    stop();
+
+    const text = sections.filter(Boolean).join("\n\n");
+    if (!text) return;
+
+    setIsLoading(true);
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/elevenlabs-tts`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({ text }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`TTS request failed: ${response.status}`);
+      }
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      objectUrlRef.current = url;
+
+      const audio = new Audio(url);
+      audioRef.current = audio;
+
+      audio.onended = () => {
+        setIsSpeaking(false);
+        cleanup();
+      };
+
+      audio.onerror = () => {
+        setIsSpeaking(false);
+        cleanup();
+      };
+
+      setIsLoading(false);
+      setIsSpeaking(true);
+      await audio.play();
+    } catch (error) {
+      console.error("TTS error:", error);
+      setIsLoading(false);
+      setIsSpeaking(false);
+    }
+  }, [stop, cleanup]);
+
+  return { isSpeaking, isLoading, speak, stop };
 }
