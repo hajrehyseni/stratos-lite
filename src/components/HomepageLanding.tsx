@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { ArrowRight } from "lucide-react";
 import { TrustStrip } from "@/components/TrustStrip";
 import { SystemSections } from "@/components/SystemSections";
@@ -17,6 +17,7 @@ const exampleChips = [
   "Should we acquire our competitor?",
   "Should I restructure my team?",
   "Should we pivot our product strategy?",
+  "Should we enter a new market?",
 ];
 
 export function HomepageLanding({ onSubmit, remainingAudits, hasUsedAudit }: Props) {
@@ -25,9 +26,15 @@ export function HomepageLanding({ onSubmit, remainingAudits, hasUsedAudit }: Pro
   const [shake, setShake] = useState(false);
   const [hasTyped, setHasTyped] = useState(false);
   const [showError, setShowError] = useState(false);
+  const [heroVisible, setHeroVisible] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const submitRef = useRef<HTMLButtonElement>(null);
   const canSubmit = value.trim().length >= 10;
+
+  useEffect(() => {
+    const t = setTimeout(() => setHeroVisible(true), 50);
+    return () => clearTimeout(t);
+  }, []);
 
   const handleSubmit = () => {
     if (canSubmit) { setShowError(false); onSubmit(value.trim()); }
@@ -49,15 +56,32 @@ export function HomepageLanding({ onSubmit, remainingAudits, hasUsedAudit }: Pro
       {/* Hero */}
       <div className="flex flex-col items-center px-4 sm:px-6 pt-28 sm:pt-36 pb-16 md:pb-20" style={{ minHeight: "85vh", justifyContent: "center" }}>
         <div className="w-full flex flex-col items-center" style={{ maxWidth: 1120 }}>
-          <h1 className="text-center text-4xl sm:text-5xl lg:text-6xl" style={{ fontWeight: 800, lineHeight: 1.08, letterSpacing: "-0.02em", color: "hsl(var(--text-primary))", maxWidth: 768 }}>
+          <h1
+            className="text-center text-4xl sm:text-5xl lg:text-6xl"
+            style={{
+              fontWeight: 800, lineHeight: 1.08, letterSpacing: "-0.02em",
+              color: "hsl(var(--text-primary))", maxWidth: 768,
+              opacity: heroVisible ? 1 : 0,
+              transform: heroVisible ? "translateY(0)" : "translateY(20px)",
+              transition: "opacity 400ms ease-out, transform 400ms ease-out",
+            }}
+          >
             What's the decision you can't afford to get wrong?
           </h1>
-          <p className="text-center text-lg md:text-xl mt-6 mx-auto" style={{ color: "hsl(var(--text-secondary))", maxWidth: 560, lineHeight: 1.6 }}>
-            The strategic frameworks behind every Fortune 500 board decision
+          <p
+            className="text-center text-lg md:text-xl mt-6 mx-auto"
+            style={{
+              color: "hsl(var(--text-secondary))", maxWidth: 600, lineHeight: 1.6,
+              opacity: heroVisible ? 1 : 0,
+              transform: heroVisible ? "translateY(0)" : "translateY(14px)",
+              transition: "opacity 400ms ease-out 100ms, transform 400ms ease-out 100ms",
+            }}
+          >
+            The strategic frameworks behind every Fortune 500 board decision — now in your hands in 30 seconds.
           </p>
 
           {/* Input */}
-          <div className="w-full" style={{ maxWidth: 672, marginTop: 40 }}>
+          <div className="w-full" style={{ maxWidth: 672, marginTop: 40, opacity: heroVisible ? 1 : 0, transform: heroVisible ? "translateY(0)" : "translateY(14px)", transition: "opacity 400ms ease-out 200ms, transform 400ms ease-out 200ms" }}>
             {/* Desktop */}
             <div className="hidden sm:block">
               <div className={`relative flex items-center ${shake ? "input-shake" : ""}`} style={{
@@ -98,7 +122,10 @@ export function HomepageLanding({ onSubmit, remainingAudits, hasUsedAudit }: Pro
 
           <div className="mt-5 flex gap-2.5 pb-2 w-full justify-center flex-wrap px-1" style={{ maxWidth: 672 }}>
             {exampleChips.map((chip) => (
-              <button key={chip} onClick={() => handleChipClick(chip)} className="rounded-full px-4 py-2 text-sm transition-all duration-200 hover:border-[hsl(var(--primary))]" style={{ background: "transparent", border: "1px solid hsl(var(--border))", color: "hsl(var(--text-secondary))", minHeight: 44, whiteSpace: "normal", textAlign: "center" }}>
+              <button key={chip} onClick={() => handleChipClick(chip)} className="rounded-full px-4 py-2 text-sm transition-all duration-200 hover:border-[hsl(var(--primary))] hover:scale-[1.02]" style={{ background: "transparent", border: "1px solid hsl(var(--border))", color: "hsl(var(--text-secondary))", minHeight: 44, whiteSpace: "normal", textAlign: "center", boxShadow: "0 1px 3px hsla(0, 0%, 0%, 0.04)", transition: "transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease" }}
+                onMouseEnter={(e) => { e.currentTarget.style.boxShadow = "0 4px 12px hsla(0, 0%, 0%, 0.08)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "0 1px 3px hsla(0, 0%, 0%, 0.04)"; }}
+              >
                 {chip}
               </button>
             ))}

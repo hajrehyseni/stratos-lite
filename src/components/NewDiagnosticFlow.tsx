@@ -59,23 +59,22 @@ function SelectableCard({
       onClick={onClick}
       className="text-left relative transition-all duration-200 cursor-pointer"
       style={{
-        padding: 20,
-        borderRadius: 12,
-        background: selected ? "rgba(201,168,76,0.06)" : "rgba(255,255,255,0.03)",
-        border: selected ? "1px solid hsl(40 46% 54%)" : "1px solid rgba(255,255,255,0.06)",
+        padding: 20, borderRadius: 12,
+        background: selected ? "hsla(221, 83%, 53%, 0.06)" : "hsl(var(--secondary))",
+        border: selected ? "1.5px solid hsl(var(--primary))" : "1px solid hsl(var(--border))",
         opacity: dimmed ? 0.5 : 1,
         transform: selected ? "scale(1.02)" : "scale(1)",
         minHeight: 48,
       }}
     >
       {selected && (
-        <div className="absolute top-3 right-3 w-5 h-5 rounded-full flex items-center justify-center bg-primary">
-          <Check className="w-3 h-3 text-primary-foreground" />
+        <div className="absolute top-3 right-3 w-5 h-5 rounded-full flex items-center justify-center" style={{ background: "hsl(var(--primary))" }}>
+          <Check className="w-3 h-3" style={{ color: "hsl(var(--primary-foreground))" }} />
         </div>
       )}
       <span style={{ fontSize: 20 }}>{emoji}</span>
-      <p className="text-foreground" style={{ fontSize: 15, fontWeight: 600, marginTop: 8 }}>{label}</p>
-      <p className="text-muted-foreground" style={{ fontSize: 12, marginTop: 4 }}>{desc}</p>
+      <p style={{ fontSize: 15, fontWeight: 600, marginTop: 8, color: "hsl(var(--text-primary))" }}>{label}</p>
+      <p style={{ fontSize: 12, marginTop: 4, color: "hsl(var(--text-secondary))" }}>{desc}</p>
     </button>
   );
 }
@@ -84,7 +83,7 @@ const stageNames: Record<Stage, string> = { 1: "Stakes", 2: "Context", 3: "Const
 
 function StageLabel({ current }: { current: Stage }) {
   return (
-    <p className="text-muted-foreground" style={{ fontSize: 10, fontWeight: 500, letterSpacing: "1.5px", textTransform: "uppercase" }}>
+    <p style={{ fontSize: 10, fontWeight: 500, letterSpacing: "1.5px", textTransform: "uppercase", color: "hsl(var(--text-tertiary))" }}>
       STAGE {current} OF 3 — {stageNames[current]}
     </p>
   );
@@ -106,6 +105,12 @@ function loadSessionState(): { stage: Stage; stakes: string; decisionType: strin
   } catch { return null; }
 }
 
+function getCharCountColor(len: number) {
+  if (len < 50) return "hsl(var(--text-tertiary))";
+  if (len <= 400) return "hsl(var(--success))";
+  return "hsl(var(--warning))";
+}
+
 export function NewDiagnosticFlow({ decision, onComplete, onSkip, onBackToLanding }: Props) {
   const saved = loadSessionState();
   const [stage, setStage] = useState<Stage>(saved?.stage || 1);
@@ -122,11 +127,17 @@ export function NewDiagnosticFlow({ decision, onComplete, onSkip, onBackToLandin
     requestAnimationFrame(() => setVisible(true));
   }, []);
 
+  // Auto-focus textarea on stage 1
+  useEffect(() => {
+    if (stage === 1 && textareaRef.current) {
+      setTimeout(() => textareaRef.current?.focus(), 300);
+    }
+  }, [stage]);
+
   useEffect(() => {
     setStageKey((k) => k + 1);
   }, [stage]);
 
-  // Persist to sessionStorage on every change
   useEffect(() => {
     saveSessionState({ stage, stakes, decisionType, blastRadius, constraint, successVision });
   }, [stage, stakes, decisionType, blastRadius, constraint, successVision]);
@@ -137,7 +148,6 @@ export function NewDiagnosticFlow({ decision, onComplete, onSkip, onBackToLandin
     setStage(2);
   };
 
-  // Auto-advance Stage 2 when both selected
   useEffect(() => {
     if (stage === 2 && decisionType && blastRadius) {
       const t = setTimeout(() => setStage(3), 600);
@@ -170,13 +180,13 @@ export function NewDiagnosticFlow({ decision, onComplete, onSkip, onBackToLandin
   };
 
   const textareaStyle: React.CSSProperties = {
-    background: "#0F0F0F",
-    border: "1px solid #1A1A1A",
+    background: "hsl(var(--secondary))",
+    border: "1.5px solid hsl(var(--border))",
     borderRadius: 10,
     padding: "14px 16px",
     fontSize: 16,
     fontFamily: "'Inter', system-ui, sans-serif",
-    color: "hsl(30 7% 90%)",
+    color: "hsl(var(--text-primary))",
     width: "100%",
     resize: "none",
     outline: "none",
@@ -198,60 +208,36 @@ export function NewDiagnosticFlow({ decision, onComplete, onSkip, onBackToLandin
         <div className="mb-10">
           <div className="flex gap-1 mb-2">
             {progressSegments.map((filled, i) => (
-              <div
-                key={i}
-                className="flex-1 rounded-full transition-all duration-500"
-                style={{
-                  height: 3,
-                  background: filled ? "hsl(40 46% 54%)" : "rgba(255,255,255,0.06)",
-                }}
-              />
+              <div key={i} className="flex-1 rounded-full transition-all duration-500" style={{ height: 3, background: filled ? "hsl(var(--primary))" : "hsl(var(--border))" }} />
             ))}
           </div>
           <div className="flex justify-between">
             {(["Stakes", "Context", "Constraints"] as const).map((label, i) => (
-              <span
-                key={label}
-                className="text-xs"
-                style={{
-                  color: i + 1 <= stage ? "hsl(40 46% 54%)" : "rgba(255,255,255,0.3)",
-                  fontWeight: i + 1 === stage ? 600 : 400,
-                }}
-              >
+              <span key={label} className="text-xs" style={{ color: i + 1 <= stage ? "hsl(var(--primary))" : "hsl(var(--text-tertiary))", fontWeight: i + 1 === stage ? 600 : 400 }}>
                 {label}
               </span>
             ))}
           </div>
         </div>
 
-        {/* Back arrow — always available */}
-        <button
-          onClick={handleBack}
-          className="flex items-center gap-1 mb-6 text-muted-foreground hover:text-foreground transition-colors duration-200"
-          style={{ fontSize: 13, background: "none", border: "none", padding: 0 }}
-        >
+        <button onClick={handleBack} className="flex items-center gap-1 mb-6 transition-colors duration-200 hover:opacity-70" style={{ fontSize: 13, background: "none", border: "none", padding: 0, color: "hsl(var(--text-secondary))" }}>
           <ArrowLeft className="w-4 h-4" />
           Back
         </button>
 
-        {/* Decision summary (always visible) */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-primary" style={{ fontSize: 10, fontWeight: 500, letterSpacing: "1.5px", textTransform: "uppercase" }}>
-              YOUR DECISION
-            </span>
-            <span style={{ color: "rgba(201,168,76,0.5)", fontSize: 14 }}>✓</span>
+            <span style={{ fontSize: 10, fontWeight: 500, letterSpacing: "1.5px", textTransform: "uppercase", color: "hsl(var(--primary))" }}>YOUR DECISION</span>
+            <span style={{ color: "hsl(var(--primary))", fontSize: 14, opacity: 0.5 }}>✓</span>
           </div>
-          <p className="text-muted-foreground" style={{ fontSize: 15, fontWeight: 400, borderLeft: "2px solid rgba(201,168,76,0.3)", paddingLeft: 16 }}>
-            {decision}
-          </p>
+          <p style={{ fontSize: 15, fontWeight: 400, borderLeft: "2px solid hsla(221, 83%, 53%, 0.3)", paddingLeft: 16, color: "hsl(var(--text-secondary))" }}>{decision}</p>
         </div>
 
         {/* STAGE 1: Stakes */}
         {stage === 1 && (
           <div key={`stage-${stageKey}`} style={{ animation: "slideInFromBottom 300ms ease forwards" }}>
             <StageLabel current={1} />
-            <h2 className="text-foreground" style={{ fontSize: 22, fontWeight: 600, marginTop: 8, marginBottom: 16 }}>
+            <h2 style={{ fontSize: 22, fontWeight: 600, marginTop: 8, marginBottom: 16, color: "hsl(var(--text-primary))" }}>
               What happens if you get this wrong?
             </h2>
             <textarea
@@ -261,174 +247,79 @@ export function NewDiagnosticFlow({ decision, onComplete, onSkip, onBackToLandin
               placeholder="e.g. We lose our market window, £3M sunk cost, board loses confidence in leadership..."
               rows={3}
               style={textareaStyle}
-              onFocus={(e) => {
-                e.currentTarget.style.borderColor = "hsl(40 46% 54%)";
-                e.currentTarget.style.boxShadow = "0 0 0 2px rgba(201,168,76,0.2)";
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.borderColor = "#1A1A1A";
-                e.currentTarget.style.boxShadow = "none";
-              }}
+              onFocus={(e) => { e.currentTarget.style.borderColor = "hsl(var(--primary))"; e.currentTarget.style.boxShadow = "0 0 0 3px hsla(221, 83%, 53%, 0.12)"; }}
+              onBlur={(e) => { e.currentTarget.style.borderColor = "hsl(var(--border))"; e.currentTarget.style.boxShadow = "none"; }}
             />
             <div className="flex items-center justify-between mt-1">
-              <span className="text-muted-foreground" style={{ fontSize: 11 }}>Write at least a sentence or two for best results</span>
-              <span className="text-muted-foreground" style={{ fontSize: 11 }}>{stakes.length}/500</span>
+              <span style={{ fontSize: 11, color: "hsl(var(--text-tertiary))" }}>Write at least a sentence or two for best results</span>
+              <span style={{ fontSize: 11, color: getCharCountColor(stakes.length), fontWeight: 500, transition: "color 0.2s ease" }}>{stakes.length}/500</span>
             </div>
             <div className="flex items-center gap-4 mt-4">
-              <button
-                onClick={handleStakesSubmit}
-                className="flex items-center justify-center gap-2 rounded-full transition-all duration-200"
-                style={{
-                  height: 44,
-                  paddingLeft: 20,
-                  paddingRight: 16,
-                  background: "hsl(40 46% 54%)",
-                  border: "none",
-                  cursor: "pointer",
-                  fontSize: 14,
-                  fontWeight: 600,
-                  color: "hsl(var(--primary-foreground))",
-                }}
-              >
-                Next
-                <ArrowRight className="w-4 h-4" />
+              <button onClick={handleStakesSubmit} className="flex items-center justify-center gap-2 rounded-full transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]" style={{ height: 44, paddingLeft: 20, paddingRight: 16, background: "hsl(var(--primary))", border: "none", cursor: "pointer", fontSize: 14, fontWeight: 600, color: "hsl(var(--primary-foreground))" }}>
+                Next <ArrowRight className="w-4 h-4" />
               </button>
             </div>
-            <div className="mt-6">
-              <button
-                onClick={handleSkip}
-                className="transition-opacity duration-200 hover:underline text-muted-foreground"
-                style={{ fontSize: 11, background: "none", border: "none", padding: 0 }}
-              >
+            <div className="mt-6 group relative inline-block">
+              <button onClick={handleSkip} className="transition-opacity duration-200 hover:underline" style={{ fontSize: 11, background: "none", border: "none", padding: 0, color: "hsl(var(--text-tertiary))" }}>
                 Skip to instant audit →
               </button>
-              <p className="mt-1" style={{ fontSize: 10, color: "rgba(255,255,255,0.3)" }}>Results will be less personalized</p>
+              <span className="absolute bottom-full left-0 mb-2 px-3 py-1.5 text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap" style={{ background: "hsl(var(--text-primary))", color: "hsl(var(--background))" }}>
+                Skip context questions for a faster but less personalised audit
+              </span>
+              <p className="mt-1" style={{ fontSize: 10, color: "hsl(var(--text-tertiary))" }}>Results will be less personalized</p>
             </div>
           </div>
         )}
 
-        {/* STAGE 2: Decision Type + Blast Radius */}
+        {/* STAGE 2 */}
         {stage === 2 && (
           <div key={`stage-${stageKey}`} style={{ animation: "slideInFromBottom 300ms ease forwards" }}>
             <StageLabel current={2} />
-
-            <h2 className="text-foreground" style={{ fontSize: 22, fontWeight: 600, marginTop: 8, marginBottom: 16 }}>
-              What kind of decision is this?
-            </h2>
+            <h2 style={{ fontSize: 22, fontWeight: 600, marginTop: 8, marginBottom: 16, color: "hsl(var(--text-primary))" }}>What kind of decision is this?</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-10">
-              {decisionTypeOptions.map((opt) => (
-                <SelectableCard
-                  key={opt.key}
-                  emoji={opt.emoji}
-                  label={opt.label}
-                  desc={opt.desc}
-                  selected={decisionType === opt.key}
-                  dimmed={decisionType !== null && decisionType !== opt.key}
-                  onClick={() => setDecisionType(opt.key)}
-                />
-              ))}
+              {decisionTypeOptions.map((opt) => (<SelectableCard key={opt.key} emoji={opt.emoji} label={opt.label} desc={opt.desc} selected={decisionType === opt.key} dimmed={decisionType !== null && decisionType !== opt.key} onClick={() => setDecisionType(opt.key)} />))}
             </div>
-
-            <h2 className="text-foreground" style={{ fontSize: 22, fontWeight: 600, marginBottom: 16 }}>
-              Who gets affected if this goes sideways?
-            </h2>
+            <h2 style={{ fontSize: 22, fontWeight: 600, marginBottom: 16, color: "hsl(var(--text-primary))" }}>Who gets affected if this goes sideways?</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {blastRadiusOptions.map((opt) => (
-                <SelectableCard
-                  key={opt.key}
-                  emoji={opt.emoji}
-                  label={opt.label}
-                  desc={opt.desc}
-                  selected={blastRadius === opt.key}
-                  dimmed={blastRadius !== null && blastRadius !== opt.key}
-                  onClick={() => setBlastRadius(opt.key)}
-                />
-              ))}
+              {blastRadiusOptions.map((opt) => (<SelectableCard key={opt.key} emoji={opt.emoji} label={opt.label} desc={opt.desc} selected={blastRadius === opt.key} dimmed={blastRadius !== null && blastRadius !== opt.key} onClick={() => setBlastRadius(opt.key)} />))}
             </div>
-
             <div className="mt-6">
-              <button
-                onClick={handleSkip}
-                className="transition-opacity duration-200 hover:underline text-muted-foreground"
-                style={{ fontSize: 11, background: "none", border: "none", padding: 0 }}
-              >
-                Skip to instant audit →
-              </button>
-              <p className="mt-1" style={{ fontSize: 10, color: "rgba(255,255,255,0.3)" }}>Results will be less personalized</p>
+              <button onClick={handleSkip} className="transition-opacity duration-200 hover:underline" style={{ fontSize: 11, background: "none", border: "none", padding: 0, color: "hsl(var(--text-tertiary))" }}>Skip to instant audit →</button>
+              <p className="mt-1" style={{ fontSize: 10, color: "hsl(var(--text-tertiary))" }}>Results will be less personalized</p>
             </div>
           </div>
         )}
 
-        {/* STAGE 3: Constraint + Success Vision */}
+        {/* STAGE 3 */}
         {stage === 3 && (
           <div key={`stage-${stageKey}`} style={{ animation: "slideInFromBottom 300ms ease forwards" }}>
             <StageLabel current={3} />
-
-            <h2 className="text-foreground" style={{ fontSize: 22, fontWeight: 600, marginTop: 8, marginBottom: 16 }}>
-              What's the constraint that makes this hard?
-            </h2>
+            <h2 style={{ fontSize: 22, fontWeight: 600, marginTop: 8, marginBottom: 16, color: "hsl(var(--text-primary))" }}>What's the constraint that makes this hard?</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-10">
-              {constraintOptions.map((opt) => (
-                <SelectableCard
-                  key={opt.key}
-                  emoji={opt.emoji}
-                  label={opt.label}
-                  desc={opt.desc}
-                  selected={constraint === opt.key}
-                  dimmed={constraint !== null && constraint !== opt.key}
-                  onClick={() => setConstraint(opt.key)}
-                />
-              ))}
+              {constraintOptions.map((opt) => (<SelectableCard key={opt.key} emoji={opt.emoji} label={opt.label} desc={opt.desc} selected={constraint === opt.key} dimmed={constraint !== null && constraint !== opt.key} onClick={() => setConstraint(opt.key)} />))}
             </div>
-
-            <h2 className="text-foreground" style={{ fontSize: 22, fontWeight: 600, marginBottom: 16 }}>
-              If this decision goes perfectly, what does the world look like in 12 months?
-            </h2>
+            <h2 style={{ fontSize: 22, fontWeight: 600, marginBottom: 16, color: "hsl(var(--text-primary))" }}>If this decision goes perfectly, what does the world look like in 12 months?</h2>
             <textarea
               value={successVision}
               onChange={(e) => setSuccessVision(e.target.value.slice(0, 500))}
               placeholder="e.g. We've captured 15% market share, the new team is shipping weekly, board approved Series B..."
               rows={3}
               style={textareaStyle}
-              onFocus={(e) => {
-                e.currentTarget.style.borderColor = "hsl(40 46% 54%)";
-                e.currentTarget.style.boxShadow = "0 0 0 2px rgba(201,168,76,0.2)";
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.borderColor = "#1A1A1A";
-                e.currentTarget.style.boxShadow = "none";
-              }}
+              onFocus={(e) => { e.currentTarget.style.borderColor = "hsl(var(--primary))"; e.currentTarget.style.boxShadow = "0 0 0 3px hsla(221, 83%, 53%, 0.12)"; }}
+              onBlur={(e) => { e.currentTarget.style.borderColor = "hsl(var(--border))"; e.currentTarget.style.boxShadow = "none"; }}
             />
             <div className="flex items-center justify-between mt-1">
-              <span className="text-muted-foreground" style={{ fontSize: 11 }}>Write at least a sentence or two for best results</span>
-              <span className="text-muted-foreground" style={{ fontSize: 11 }}>{successVision.length}/500</span>
+              <span style={{ fontSize: 11, color: "hsl(var(--text-tertiary))" }}>Write at least a sentence or two for best results</span>
+              <span style={{ fontSize: 11, color: getCharCountColor(successVision.length), fontWeight: 500, transition: "color 0.2s ease" }}>{successVision.length}/500</span>
             </div>
-
             <div className="flex items-center gap-4 mt-6">
-              <button
-                onClick={handleFinalSubmit}
-                disabled={!constraint}
-                className="px-6 py-3 rounded-lg font-semibold transition-all duration-200 text-primary-foreground"
-                style={{
-                  background: constraint ? "hsl(40 46% 54%)" : "rgba(201,168,76,0.3)",
-                  cursor: constraint ? "pointer" : "not-allowed",
-                  fontSize: 15,
-                  border: "none",
-                }}
-              >
+              <button onClick={handleFinalSubmit} disabled={!constraint} className="px-6 py-3 rounded-lg font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]" style={{ background: constraint ? "hsl(var(--primary))" : "hsla(221, 83%, 53%, 0.3)", cursor: constraint ? "pointer" : "not-allowed", fontSize: 15, border: "none", color: "hsl(var(--primary-foreground))" }}>
                 Run Audit
               </button>
             </div>
-
             <div className="mt-6">
-              <button
-                onClick={handleSkip}
-                className="transition-opacity duration-200 hover:underline text-muted-foreground"
-                style={{ fontSize: 11, background: "none", border: "none", padding: 0 }}
-              >
-                Skip to instant audit →
-              </button>
-              <p className="mt-1" style={{ fontSize: 10, color: "rgba(255,255,255,0.3)" }}>Results will be less personalized</p>
+              <button onClick={handleSkip} className="transition-opacity duration-200 hover:underline" style={{ fontSize: 11, background: "none", border: "none", padding: 0, color: "hsl(var(--text-tertiary))" }}>Skip to instant audit →</button>
+              <p className="mt-1" style={{ fontSize: 10, color: "hsl(var(--text-tertiary))" }}>Results will be less personalized</p>
             </div>
           </div>
         )}

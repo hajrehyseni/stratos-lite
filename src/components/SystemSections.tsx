@@ -1,3 +1,5 @@
+import { Search, ShieldAlert, CheckCircle } from "lucide-react";
+
 function DiagnoseMockup() {
   const cards = ["Market Opportunity", "Financial Risk", "Team Readiness", "Competitive Timing"];
   return (
@@ -47,6 +49,8 @@ function DecideMockup() {
   );
 }
 
+const stepIcons = [Search, ShieldAlert, CheckCircle];
+
 const sections = [
   { num: "01", tag: "Diagnose", heading: "Break any decision into its complete parts", body: "Our AI applies MECE logic to map every angle of your decision — the same framework McKinsey uses. No blind spots.", visual: <DiagnoseMockup /> },
   { num: "02", tag: "Assess", heading: "See what could go wrong — before it does", body: "Surface the three risks most likely to derail you, with specific action steps to neutralise each one.", visual: <AssessMockup /> },
@@ -58,17 +62,25 @@ export function SystemSections() {
     <div id="features" style={{ maxWidth: 1120 }} className="mx-auto px-4 sm:px-6 scroll-mt-20">
       {sections.map((s, i) => {
         const reversed = i % 2 === 1;
+        const Icon = stepIcons[i];
         return (
-          <div key={s.num} className="py-12 md:py-16 grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-center">
-            <div className={reversed ? "md:order-2" : ""}>
-              <div className="flex items-center gap-3 mb-5">
-                <span className="inline-flex items-center justify-center rounded-lg font-extrabold" style={{ width: 36, height: 36, background: "hsla(221, 83%, 53%, 0.1)", color: "hsl(var(--primary))", fontSize: 14 }}>{s.num}</span>
-                <span className="text-sm font-semibold uppercase" style={{ letterSpacing: "0.1em", color: "hsl(var(--primary))" }}>{s.tag}</span>
+          <div key={s.num} className="relative">
+            {/* Dotted connector line between steps */}
+            {i < sections.length - 1 && (
+              <div className="hidden md:block absolute left-[18px] top-[72px] bottom-0" style={{ width: 1, borderLeft: "2px dotted hsl(var(--border))", height: "calc(100% - 36px)" }} />
+            )}
+            <div className="py-10 md:py-14 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center">
+              <div className={reversed ? "md:order-2" : ""}>
+                <div className="flex items-center gap-3 mb-5">
+                  <span className="inline-flex items-center justify-center rounded-lg font-extrabold" style={{ width: 36, height: 36, background: "hsla(221, 83%, 53%, 0.1)", color: "hsl(var(--primary))", fontSize: 14 }}>{s.num}</span>
+                  <Icon className="w-5 h-5" style={{ color: "hsl(var(--primary))" }} />
+                  <span className="text-sm font-semibold uppercase" style={{ letterSpacing: "0.1em", color: "hsl(var(--primary))" }}>{s.tag}</span>
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-bold mb-4" style={{ color: "hsl(var(--text-primary))", lineHeight: 1.2 }}>{s.heading}</h2>
+                <p className="text-base leading-relaxed" style={{ color: "hsl(var(--text-secondary))", lineHeight: 1.7 }}>{s.body}</p>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-bold mb-4" style={{ color: "hsl(var(--text-primary))", lineHeight: 1.2 }}>{s.heading}</h2>
-              <p className="text-base leading-relaxed" style={{ color: "hsl(var(--text-secondary))", lineHeight: 1.7 }}>{s.body}</p>
+              <div className={`${reversed ? "md:order-1" : ""} hidden md:flex justify-center`}>{s.visual}</div>
             </div>
-            <div className={`${reversed ? "md:order-1" : ""} hidden md:flex justify-center`}>{s.visual}</div>
           </div>
         );
       })}

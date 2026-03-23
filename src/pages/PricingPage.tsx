@@ -5,9 +5,9 @@ import { STRIPE_TIERS, type PlanType } from "@/lib/stripe-config";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { Check, Shield, ArrowRight, ArrowDown } from "lucide-react";
+import { Check, Shield, ArrowRight, ArrowDown, Users } from "lucide-react";
 import { getJournalCount } from "@/lib/journal";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const perAudit: Record<PlanType, string> = { free: "£0 per audit", pro: "£0.76 per audit", executive: "£0.41 per audit" };
 const annualPerAudit: Record<PlanType, string> = { free: "£0 per audit", pro: "£0.61 per audit", executive: "£0.33 per audit" };
@@ -29,6 +29,13 @@ export default function PricingPage() {
   const { user, subscription } = useAuth();
   const navigate = useNavigate();
   const [annual, setAnnual] = useState(false);
+  const [saveWiggle, setSaveWiggle] = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => setSaveWiggle(true), 500);
+    const t2 = setTimeout(() => setSaveWiggle(false), 1100);
+    return () => { clearTimeout(t); clearTimeout(t2); };
+  }, []);
 
   const handleCheckout = async (plan: "pro" | "executive") => {
     if (!user) { navigate("/signup"); return; }
@@ -64,7 +71,7 @@ export default function PricingPage() {
               <span className="absolute top-1 rounded-full transition-transform duration-200" style={{ width: 18, height: 18, background: "white", left: annual ? 26 : 4 }} />
             </button>
             <span className="text-sm font-medium" style={{ color: annual ? "hsl(var(--text-primary))" : "hsl(var(--text-tertiary))" }}>
-              Annual <span className="ml-1.5 rounded-full px-2 py-0.5 text-xs font-bold" style={{ background: "hsla(160, 84%, 39%, 0.1)", color: "hsl(var(--success))" }}>Save 20%</span>
+              Annual <span className={`ml-1.5 rounded-full px-2 py-0.5 text-xs font-bold inline-block ${saveWiggle ? "animate-wiggle" : ""}`} style={{ background: "hsla(160, 84%, 39%, 0.1)", color: "hsl(var(--success))" }}>Save 20%</span>
             </span>
           </div>
 
@@ -78,8 +85,10 @@ export default function PricingPage() {
               const isCurrent = subscription.plan === key;
               const price = getPrice(key);
               return (
-                <div key={key} className="rounded-2xl p-8 flex flex-col relative transition-all duration-200" style={{ background: highlight ? "hsl(var(--secondary))" : "hsl(0, 0%, 100%)", border: highlight ? "2px solid hsl(var(--primary))" : "1px solid hsl(var(--border))", boxShadow: highlight ? "0 4px 24px hsla(221, 83%, 53%, 0.1)" : "none" }}>
-                  {highlight && <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full px-4 py-1 text-xs font-bold" style={{ background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))" }}>Most Popular</span>}
+                <div key={key} className="rounded-2xl p-8 flex flex-col relative transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5" style={{ background: highlight ? "hsl(var(--secondary))" : "hsl(0, 0%, 100%)", border: highlight ? "2px solid hsl(var(--primary))" : "1px solid hsl(var(--border))", boxShadow: highlight ? "0 4px 24px hsla(221, 83%, 53%, 0.1)" : "none" }}>
+                  {highlight && (
+                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full px-4 py-1 text-xs font-bold" style={{ background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))" }}>Most Popular</span>
+                  )}
                   <h3 className="text-xl font-bold" style={{ color: "hsl(var(--text-primary))" }}>{tier.name}</h3>
                   <div className="mt-4 flex items-baseline gap-1">
                     <span className="text-5xl font-extrabold" style={{ color: "hsl(var(--text-primary))" }}>£{price % 1 === 0 ? price : price.toFixed(2)}</span>
@@ -95,9 +104,9 @@ export default function PricingPage() {
                     {isCurrent && key !== "free" ? (
                       <div className="w-full text-center rounded-full py-3.5 text-base font-semibold" style={{ border: "1px solid hsl(var(--border))", color: "hsl(var(--text-primary))" }}>Current Plan</div>
                     ) : key === "free" ? (
-                      <button onClick={() => navigate("/")} className="w-full rounded-full py-3.5 text-base font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]" style={{ color: "hsl(var(--text-primary))", border: "1px solid hsl(var(--border))", background: "transparent", minHeight: 48 }}>Get Started Free</button>
+                      <button onClick={() => navigate("/")} className="w-full rounded-full py-3.5 text-base font-medium transition-all duration-200 hover:scale-[1.02] hover:shadow-md active:scale-[0.98]" style={{ color: "hsl(var(--text-primary))", border: "1px solid hsl(var(--border))", background: "transparent", minHeight: 48 }}>Get Started Free</button>
                     ) : (
-                      <button onClick={() => handleCheckout(key as "pro" | "executive")} className="w-full rounded-full py-3.5 text-base font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]" style={{ background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))", border: "none", minHeight: 48 }}>{ctaLabel}</button>
+                      <button onClick={() => handleCheckout(key as "pro" | "executive")} className="w-full rounded-full py-3.5 text-base font-semibold transition-all duration-200 hover:scale-[1.02] hover:shadow-md active:scale-[0.98]" style={{ background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))", border: "none", minHeight: 48 }}>{ctaLabel}</button>
                     )}
                     {subtext && <p className="text-center mt-3 text-xs" style={{ color: "hsl(var(--text-tertiary))" }}>{subtext}</p>}
                   </div>
@@ -106,7 +115,13 @@ export default function PricingPage() {
             })}
           </div>
 
-          <div className="flex items-center justify-center gap-2 mt-10">
+          {/* Social proof */}
+          <div className="flex items-center justify-center gap-2 mt-8">
+            <Users className="w-4 h-4" style={{ color: "hsl(var(--text-tertiary))" }} />
+            <span className="text-sm" style={{ color: "hsl(var(--text-secondary))" }}>Join 12,400+ leaders already making better decisions</span>
+          </div>
+
+          <div className="flex items-center justify-center gap-2 mt-4">
             <Shield className="w-5 h-5" style={{ color: "hsl(var(--text-tertiary))" }} />
             <span className="text-sm" style={{ color: "hsl(var(--text-tertiary))" }}>30-day money-back guarantee</span>
           </div>
@@ -121,7 +136,7 @@ export default function PricingPage() {
           <div id="comparison-table" className="mt-16 overflow-x-auto scroll-mt-24">
             <table className="w-full" style={{ maxWidth: 768, margin: "0 auto" }}>
               <thead>
-                <tr style={{ borderBottom: "1px solid hsl(var(--border))" }}>
+                <tr className="sticky top-16 z-10" style={{ borderBottom: "2px solid hsl(var(--border))", background: "hsl(var(--background))" }}>
                   <th className="text-left py-4 text-sm font-semibold uppercase tracking-wider" style={{ color: "hsl(var(--text-tertiary))" }}>Feature</th>
                   <th className="text-center py-4 text-sm font-semibold uppercase tracking-wider" style={{ color: "hsl(var(--text-tertiary))" }}>Free</th>
                   <th className="text-center py-4 text-sm font-semibold uppercase tracking-wider" style={{ color: "hsl(var(--primary))" }}>Pro</th>
@@ -129,8 +144,8 @@ export default function PricingPage() {
                 </tr>
               </thead>
               <tbody>
-                {comparisonRows.map((row) => (
-                  <tr key={row.label} style={{ borderBottom: "1px solid hsl(var(--border))" }}>
+                {comparisonRows.map((row, i) => (
+                  <tr key={row.label} style={{ borderBottom: "1px solid hsl(var(--border))", background: i % 2 === 0 ? "transparent" : "hsla(221, 83%, 53%, 0.02)" }}>
                     <td className="py-4 text-base" style={{ color: "hsl(var(--text-primary))" }}>{row.label}</td>
                     <td className="text-center py-4 text-base font-medium" style={{ color: row.free === "✓" ? "hsl(var(--success))" : row.free === "—" ? "hsl(var(--text-tertiary))" : "hsl(var(--text-primary))" }}>{row.free}</td>
                     <td className="text-center py-4 text-base font-medium" style={{ color: row.pro === "✓" ? "hsl(var(--success))" : row.pro === "—" ? "hsl(var(--text-tertiary))" : "hsl(var(--text-primary))" }}>{row.pro}</td>
@@ -143,7 +158,7 @@ export default function PricingPage() {
 
           <div className="mt-20 text-center">
             <p className="text-xl font-semibold mb-4" style={{ color: "hsl(var(--text-primary))" }}>Not sure? Try a free audit first.</p>
-            <button onClick={() => navigate("/")} className="inline-flex items-center gap-2 rounded-full px-8 py-4 text-lg font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]" style={{ background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))", minHeight: 52 }}>
+            <button onClick={() => navigate("/")} className="inline-flex items-center gap-2 rounded-full px-8 py-4 text-lg font-semibold transition-all duration-200 hover:scale-[1.02] hover:shadow-md active:scale-[0.98]" style={{ background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))", minHeight: 52 }}>
               Run free audit <ArrowRight className="w-5 h-5" />
             </button>
           </div>

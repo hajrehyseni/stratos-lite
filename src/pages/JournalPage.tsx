@@ -6,7 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { NavBar } from "@/components/NavBar";
 import { Footer } from "@/components/Footer";
 import { toast } from "sonner";
-import { Trash2, ArrowRight } from "lucide-react";
+import { Trash2, ArrowRight, BookOpen } from "lucide-react";
 
 const verdictColors: Record<string, string> = {
   "PROCEED": "hsl(var(--success))",
@@ -33,8 +33,11 @@ export default function JournalPage() {
         <div style={{ maxWidth: 720, margin: "0 auto" }}>
           {entries.length === 0 ? (
             <div className="flex flex-col items-center justify-center text-center" style={{ minHeight: "60vh" }}>
+              <div className="rounded-full flex items-center justify-center mb-6" style={{ width: 80, height: 80, background: "hsla(221, 83%, 53%, 0.08)" }}>
+                <BookOpen className="w-10 h-10" style={{ color: "hsl(var(--text-tertiary))" }} />
+              </div>
               <p className="text-2xl font-bold" style={{ color: "hsl(var(--text-primary))" }}>No audits saved yet</p>
-              <p className="mt-3 text-lg" style={{ color: "hsl(var(--text-secondary))" }}>Run your first audit to start building your decision journal.</p>
+              <p className="mt-3 text-lg" style={{ color: "hsl(var(--text-secondary))" }}>Your first strategic audit is just 30 seconds away.</p>
               <Link to="/" className="mt-8 inline-flex items-center justify-center gap-2 rounded-full font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]" style={{ height: 52, padding: "0 28px", fontSize: 16, background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))" }}>
                 Run your first audit <ArrowRight className="w-5 h-5" />
               </Link>
@@ -58,7 +61,7 @@ export default function JournalPage() {
                         <span className="flex-shrink-0 rounded-full text-center text-sm px-2.5 py-0.5 font-semibold" style={{ color: "hsl(var(--primary))", background: "hsla(221, 83%, 53%, 0.1)" }}>{entry.result.confidence_score}</span>
                         <span className="inline-block rounded-full flex-shrink-0" style={{ width: 10, height: 10, background: verdictColors[entry.result.verdict] || "hsl(var(--text-tertiary))" }} />
                       </button>
-                      {isOpen && (
+                      <div className="overflow-hidden transition-all duration-300 ease-out" style={{ maxHeight: isOpen ? 500 : 0, opacity: isOpen ? 1 : 0 }}>
                         <div className="px-5 pb-5">
                           <div className="space-y-3 pt-2">
                             {[["Verdict", entry.result.verdict], ["Biggest Risk", entry.result.biggest_risk], ["The Reframe", entry.result.better_question], ["Devil's Advocate", entry.result.devils_advocate]].filter(([, v]) => v).map(([label, value]) => (
@@ -69,7 +72,7 @@ export default function JournalPage() {
                             ))}
                           </div>
                         </div>
-                      )}
+                      </div>
                     </div>
                   );
                 })}

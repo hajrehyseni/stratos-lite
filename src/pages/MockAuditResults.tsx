@@ -1,7 +1,9 @@
 import { useSearchParams, Link } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
 import { NavBar } from "@/components/NavBar";
 import { Footer } from "@/components/Footer";
-import { ArrowRight, ArrowLeft, AlertTriangle, Users, Target, Shield, TrendingUp } from "lucide-react";
+import { ArrowRight, ArrowLeft, ArrowUp, AlertTriangle, Users, Target, Shield, TrendingUp, Copy, Share2, Swords, ChevronDown } from "lucide-react";
+import { toast } from "sonner";
 
 const mockData = {
   confidenceScore: 72,
@@ -32,6 +34,7 @@ const mockData = {
     { action: "Model three scenarios: aggressive, base, conservative integration timelines", priority: "Immediate", feasibility: "Feasible" },
   ],
   devilsAdvocate: "You're assuming the competitor's technology is worth the premium. But what if their engineering talent — the real asset — leaves within 6 months? You'd be left with a codebase you don't fully understand and a market position that could have been achieved organically in 18 months at half the cost. The acquisition creates urgency that may not actually exist.",
+  reframeQuestion: "Instead of 'Should we acquire them?', ask: 'What would it cost us to build this capability internally, and can we afford the 18-month delay?'",
   rapidAssignment: {
     recommend: "VP Corporate Development",
     agree: "CFO, General Counsel",
@@ -42,22 +45,45 @@ const mockData = {
 };
 
 function ScoreGauge({ score }: { score: number }) {
+  const [animatedScore, setAnimatedScore] = useState(0);
   const radius = 70;
   const stroke = 8;
   const circumference = 2 * Math.PI * radius;
-  const progress = (score / 100) * circumference;
-  const color = score <= 30 ? "hsl(0, 84%, 60%)" : score <= 60 ? "hsl(38, 92%, 50%)" : score <= 80 ? "hsl(173, 58%, 39%)" : "hsl(142, 71%, 45%)";
+  const progress = (animatedScore / 100) * circumference;
+  const getColor = (s: number) => s <= 30 ? "hsl(0, 84%, 60%)" : s <= 60 ? "hsl(38, 92%, 50%)" : s <= 80 ? "hsl(173, 58%, 39%)" : "hsl(142, 71%, 45%)";
+
+  useEffect(() => {
+    const duration = 1500;
+    const start = performance.now();
+    let raf: number;
+    const animate = (now: number) => {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setAnimatedScore(Math.round(eased * score));
+      if (progress < 1) raf = requestAnimationFrame(animate);
+    };
+    raf = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(raf);
+  }, [score]);
 
   return (
     <div className="flex flex-col items-center">
       <svg width="160" height="160" viewBox="0 0 160 160">
         <circle cx="80" cy="80" r={radius} fill="none" stroke="hsl(var(--border))" strokeWidth={stroke} />
-        <circle cx="80" cy="80" r={radius} fill="none" stroke={color} strokeWidth={stroke} strokeDasharray={circumference} strokeDashoffset={circumference - progress} strokeLinecap="round" transform="rotate(-90 80 80)" style={{ transition: "stroke-dashoffset 1.5s ease-out" }} />
-        <text x="80" y="75" textAnchor="middle" fill="hsl(var(--text-primary))" fontSize="42" fontWeight="800" style={{ fontFamily: "Inter" }}>{score}</text>
+        <circle cx="80" cy="80" r={radius} fill="none" stroke={getColor(animatedScore)} strokeWidth={stroke} strokeDasharray={circumference} strokeDashoffset={circumference - progress} strokeLinecap="round" transform="rotate(-90 80 80)" style={{ transition: "stroke 0.3s ease" }} />
+        <text x="80" y="75" textAnchor="middle" fill="hsl(var(--text-primary))" fontSize="42" fontWeight="800" style={{ fontFamily: "Inter" }}>{animatedScore}</text>
         <text x="80" y="98" textAnchor="middle" fill="hsl(var(--text-tertiary))" fontSize="14">/100</text>
       </svg>
     </div>
   );
+}
+
+function getScoreMicrocopy(score: number) {
+  if (score < 40) return "This decision needs more work before you proceed.";
+  if (score <= 65) return "You're getting closer — address the key risks first.";
+  if (score <= 85) return "Strong foundation. Fine-tune the details.";
+  return "High confidence. You're ready to move.";
 }
 
 function SeverityBadge({ severity }: { severity: string }) {
@@ -80,176 +106,242 @@ function FeasibilityBadge({ feasibility }: { feasibility: string }) {
   return <span className="rounded-full px-2.5 py-0.5 text-xs font-semibold" style={{ background: c.bg, color: c.text }}>{feasibility}</span>;
 }
 
-function Card({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+function CollapsibleCard({ title, icon: Icon, label, children, id, defaultOpen = false, expandedSet, onToggle }: {
+  title: string; icon: any; label: string; children: React.ReactNode; id: string; defaultOpen?: boolean;
+  expandedSet: Set<string>; onToggle: (id: string) => void;
+}) {
+  const isOpen = expandedSet.has(id);
   return (
-    <div className={`rounded-xl p-6 ${className}`} style={{ background: "hsl(var(--secondary))", border: "1px solid hsl(var(--border))" }}>
-      {children}
+    <div id={id} className="rounded-xl scroll-mt-24" style={{ background: "hsl(var(--secondary))", border: "1px solid hsl(var(--border))" }}>
+      <button onClick={() => onToggle(id)} className="w-full flex items-center justify-between p-6 text-left transition-colors hover:bg-black/[0.01]">
+        <div className="flex items-center gap-2">
+          <Icon className="w-4 h-4" style={{ color: "hsl(var(--primary))" }} />
+          <p className="text-xs font-semibold uppercase tracking-wider" style={{ letterSpacing: "0.1em", color: "hsl(var(--primary))" }}>{label}</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="text-base font-semibold" style={{ color: "hsl(var(--text-primary))" }}>{title}</span>
+          <ChevronDown className="w-5 h-5 transition-transform duration-300" style={{ color: "hsl(var(--text-tertiary))", transform: isOpen ? "rotate(180deg)" : "rotate(0deg)" }} />
+        </div>
+      </button>
+      <div className="overflow-hidden transition-all duration-300 ease-out" style={{ maxHeight: isOpen ? 2000 : 0, opacity: isOpen ? 1 : 0 }}>
+        <div className="px-6 pb-6">
+          {children}
+        </div>
+      </div>
     </div>
   );
-}
-
-function SectionLabel({ children }: { children: React.ReactNode }) {
-  return <p className="text-xs font-semibold uppercase tracking-wider mb-1" style={{ letterSpacing: "0.1em", color: "hsl(var(--primary))" }}>{children}</p>;
 }
 
 export default function MockAuditResults() {
   const [searchParams] = useSearchParams();
   const decision = searchParams.get("decision") || "Should we acquire our competitor?";
+  const [copiedSummary, setCopiedSummary] = useState(false);
+  const [showBackToTop, setShowBackToTop] = useState(false);
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(["mece", "risks", "stakeholders", "actions", "devils-advocate", "rapid"]));
+  const [verdictPulse, setVerdictPulse] = useState(false);
+  const scoreRef = useRef<HTMLDivElement>(null);
 
   const verdictColor = mockData.verdict === "PROCEED" ? "hsl(var(--success))" : mockData.verdict.includes("CONDITIONAL") ? "hsl(var(--warning))" : "hsl(var(--destructive))";
+  const verdictBgTint = mockData.confidenceScore <= 30 ? "hsla(0, 84%, 60%, 0.05)" : mockData.confidenceScore <= 60 ? "hsla(38, 92%, 50%, 0.05)" : mockData.confidenceScore <= 80 ? "hsla(173, 58%, 39%, 0.05)" : "hsla(142, 71%, 45%, 0.05)";
+
+  useEffect(() => {
+    const t = setTimeout(() => setVerdictPulse(true), 1600);
+    const t2 = setTimeout(() => setVerdictPulse(false), 2200);
+    return () => { clearTimeout(t); clearTimeout(t2); };
+  }, []);
+
+  useEffect(() => {
+    const h = () => setShowBackToTop(window.scrollY > 400);
+    window.addEventListener("scroll", h, { passive: true });
+    return () => window.removeEventListener("scroll", h);
+  }, []);
+
+  const toggleSection = (id: string) => {
+    setExpandedSections(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const handleCopySummary = () => {
+    const summary = `Decision: ${decision}\nVerdict: ${mockData.verdict}\nConfidence: ${mockData.confidenceScore}/100\n\nTop Actions:\n${mockData.actions.slice(0, 3).map((a, i) => `${i + 1}. ${a.action}`).join("\n")}`;
+    navigator.clipboard.writeText(summary);
+    setCopiedSummary(true);
+    toast.success("Copied to clipboard ✓");
+    setTimeout(() => setCopiedSummary(false), 2000);
+  };
+
+  const handleShare = () => {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url);
+    toast.success("Share link copied to clipboard ✓");
+  };
 
   return (
     <>
       <NavBar />
       <div className="min-h-screen px-4 sm:px-6 pt-24 pb-20 page-enter">
         <div className="mx-auto" style={{ maxWidth: 800 }}>
-          {/* Back link */}
           <Link to="/" className="inline-flex items-center gap-1.5 text-sm font-medium mb-8 transition-opacity hover:opacity-70" style={{ color: "hsl(var(--text-secondary))" }}>
             <ArrowLeft className="w-4 h-4" /> Back to home
           </Link>
 
-          {/* Decision title */}
           <p className="text-sm font-medium uppercase tracking-wider mb-2" style={{ letterSpacing: "0.1em", color: "hsl(var(--primary))" }}>Decision Audit</p>
           <h1 className="text-2xl sm:text-3xl font-bold mb-8" style={{ color: "hsl(var(--text-primary))" }}>{decision}</h1>
 
-          {/* Confidence Score */}
-          <Card className="text-center mb-6">
-            <SectionLabel>Confidence Score</SectionLabel>
+          {/* Confidence Score with background tint */}
+          <div ref={scoreRef} className="rounded-xl p-6 text-center mb-6" style={{ background: verdictBgTint, border: "1px solid hsl(var(--border))" }}>
+            <p className="text-xs font-semibold uppercase tracking-wider mb-1" style={{ letterSpacing: "0.1em", color: "hsl(var(--primary))" }}>Confidence Score</p>
             <div className="mt-4"><ScoreGauge score={mockData.confidenceScore} /></div>
-            <span className="inline-block mt-4 rounded-full px-4 py-1.5 text-sm font-bold" style={{ background: verdictColor + "15", color: verdictColor, border: `1px solid ${verdictColor}30` }}>
+            <span className="inline-block mt-4 rounded-full px-4 py-1.5 text-sm font-bold transition-transform" style={{
+              background: verdictColor + "15", color: verdictColor, border: `1px solid ${verdictColor}30`,
+              transform: verdictPulse ? "scale(1.05)" : "scale(1)",
+              transition: "transform 300ms ease",
+            }}>
               {mockData.verdict}
             </span>
+            <p className="mt-2 text-sm" style={{ color: "hsl(var(--text-tertiary))" }}>{getScoreMicrocopy(mockData.confidenceScore)}</p>
             <p className="mt-4 text-base leading-relaxed" style={{ color: "hsl(var(--text-secondary))", maxWidth: 600, margin: "16px auto 0" }}>
               {mockData.verdictDescription}
             </p>
-          </Card>
+          </div>
 
-          {/* MECE Breakdown */}
-          <Card className="mb-6">
-            <SectionLabel>MECE Breakdown</SectionLabel>
-            <h2 className="text-xl font-semibold mb-5" style={{ color: "hsl(var(--text-primary))" }}>Decision Dimensions</h2>
-            <div className="space-y-4">
-              {mockData.meceBreakdown.map((dim) => (
-                <div key={dim.dimension} className="rounded-lg p-4" style={{ background: "hsl(0, 0%, 100%)", border: "1px solid hsl(var(--border))" }}>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-semibold text-base" style={{ color: "hsl(var(--text-primary))" }}>{dim.dimension}</span>
-                    <span className="text-sm font-bold" style={{ color: "hsl(var(--primary))" }}>{dim.score}/100</span>
-                  </div>
-                  <div className="w-full h-2 rounded-full mb-3" style={{ background: "hsl(var(--border))" }}>
-                    <div className="h-full rounded-full transition-all duration-700" style={{ width: `${dim.score}%`, background: "hsl(var(--primary))" }} />
-                  </div>
-                  <p className="text-sm" style={{ color: "hsl(var(--text-secondary))", lineHeight: 1.6 }}>{dim.description}</p>
-                </div>
-              ))}
-            </div>
-          </Card>
+          {/* The Reframe */}
+          <div className="rounded-xl p-6 mb-6" style={{ background: "hsla(40, 50%, 95%, 1)", borderLeft: "3px solid hsl(var(--primary))", border: "1px solid hsl(var(--border))", borderLeftWidth: 3, borderLeftColor: "hsl(var(--primary))" }}>
+            <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ letterSpacing: "0.1em", color: "hsl(var(--primary))" }}>The Reframe</p>
+            <p className="text-base italic leading-relaxed" style={{ color: "hsl(var(--text-primary))", lineHeight: 1.7 }}>{mockData.reframeQuestion}</p>
+          </div>
 
-          {/* Risk Matrix */}
-          <Card className="mb-6">
-            <div className="flex items-center gap-2 mb-1">
-              <AlertTriangle className="w-4 h-4" style={{ color: "hsl(var(--primary))" }} />
-              <SectionLabel>Risk Matrix</SectionLabel>
-            </div>
-            <h2 className="text-xl font-semibold mb-5" style={{ color: "hsl(var(--text-primary))" }}>Key Risks</h2>
-            <div className="space-y-4">
-              {mockData.risks.map((r, i) => (
-                <div key={i} className="rounded-lg p-4" style={{ background: "hsl(0, 0%, 100%)", border: "1px solid hsl(var(--border))" }}>
-                  <div className="flex items-start justify-between gap-3 mb-2">
-                    <span className="font-semibold text-base" style={{ color: "hsl(var(--text-primary))" }}>{r.risk}</span>
-                    <SeverityBadge severity={r.severity} />
+          {/* Collapsible Sections */}
+          <div className="space-y-4">
+            <CollapsibleCard id="mece" icon={Target} label="MECE Breakdown" title="Decision Dimensions" expandedSet={expandedSections} onToggle={toggleSection}>
+              <div className="space-y-4">
+                {mockData.meceBreakdown.map((dim) => (
+                  <div key={dim.dimension} className="rounded-lg p-4" style={{ background: "hsl(0, 0%, 100%)", border: "1px solid hsl(var(--border))" }}>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-semibold text-base" style={{ color: "hsl(var(--text-primary))" }}>{dim.dimension}</span>
+                      <span className="text-sm font-bold" style={{ color: "hsl(var(--primary))" }}>{dim.score}/100</span>
+                    </div>
+                    <div className="w-full h-2 rounded-full mb-3" style={{ background: "hsl(var(--border))" }}>
+                      <div className="h-full rounded-full transition-all duration-700" style={{ width: `${dim.score}%`, background: "hsl(var(--primary))" }} />
+                    </div>
+                    <p className="text-sm" style={{ color: "hsl(var(--text-secondary))", lineHeight: 1.6 }}>{dim.description}</p>
                   </div>
-                  <p className="text-sm" style={{ color: "hsl(var(--text-secondary))", lineHeight: 1.6 }}>
-                    <strong style={{ color: "hsl(var(--text-primary))" }}>Mitigation:</strong> {r.mitigation}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </Card>
+                ))}
+              </div>
+            </CollapsibleCard>
 
-          {/* Stakeholder Analysis */}
-          <Card className="mb-6">
-            <div className="flex items-center gap-2 mb-1">
-              <Users className="w-4 h-4" style={{ color: "hsl(var(--primary))" }} />
-              <SectionLabel>Stakeholder Analysis</SectionLabel>
-            </div>
-            <h2 className="text-xl font-semibold mb-5" style={{ color: "hsl(var(--text-primary))" }}>Key Stakeholders</h2>
-            <div className="space-y-4">
-              {mockData.stakeholders.map((s, i) => (
-                <div key={i} className="rounded-lg p-4" style={{ background: "hsl(0, 0%, 100%)", border: "1px solid hsl(var(--border))" }}>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-semibold text-base" style={{ color: "hsl(var(--text-primary))" }}>{s.name}</span>
-                    <div className="flex gap-2">
-                      <span className="rounded-full px-2.5 py-0.5 text-xs font-medium" style={{ background: s.stance === "Supportive" ? "hsla(160, 84%, 39%, 0.1)" : s.stance === "Cautious" ? "hsla(38, 92%, 50%, 0.1)" : "hsla(221, 83%, 53%, 0.1)", color: s.stance === "Supportive" ? "hsl(160, 84%, 30%)" : s.stance === "Cautious" ? "hsl(38, 80%, 40%)" : "hsl(221, 83%, 53%)" }}>{s.stance}</span>
-                      <span className="rounded-full px-2.5 py-0.5 text-xs font-medium" style={{ background: "hsl(var(--secondary))", color: "hsl(var(--text-secondary))" }}>{s.influence} influence</span>
+            <CollapsibleCard id="risks" icon={AlertTriangle} label="Risk Matrix" title="Key Risks" expandedSet={expandedSections} onToggle={toggleSection}>
+              <div className="space-y-4">
+                {mockData.risks.map((r, i) => (
+                  <div key={i} className="rounded-lg p-4" style={{ background: "hsl(0, 0%, 100%)", border: "1px solid hsl(var(--border))" }}>
+                    <div className="flex items-start justify-between gap-3 mb-2">
+                      <span className="font-semibold text-base" style={{ color: "hsl(var(--text-primary))" }}>{r.risk}</span>
+                      <SeverityBadge severity={r.severity} />
+                    </div>
+                    <p className="text-sm" style={{ color: "hsl(var(--text-secondary))", lineHeight: 1.6 }}>
+                      <strong style={{ color: "hsl(var(--text-primary))" }}>Mitigation:</strong> {r.mitigation}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </CollapsibleCard>
+
+            <CollapsibleCard id="stakeholders" icon={Users} label="Stakeholder Analysis" title="Key Stakeholders" expandedSet={expandedSections} onToggle={toggleSection}>
+              <div className="space-y-4">
+                {mockData.stakeholders.map((s, i) => (
+                  <div key={i} className="rounded-lg p-4" style={{ background: "hsl(0, 0%, 100%)", border: "1px solid hsl(var(--border))" }}>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-semibold text-base" style={{ color: "hsl(var(--text-primary))" }}>{s.name}</span>
+                      <div className="flex gap-2">
+                        <span className="rounded-full px-2.5 py-0.5 text-xs font-medium" style={{ background: s.stance === "Supportive" ? "hsla(160, 84%, 39%, 0.1)" : s.stance === "Cautious" ? "hsla(38, 92%, 50%, 0.1)" : "hsla(221, 83%, 53%, 0.1)", color: s.stance === "Supportive" ? "hsl(160, 84%, 30%)" : s.stance === "Cautious" ? "hsl(38, 80%, 40%)" : "hsl(221, 83%, 53%)" }}>{s.stance}</span>
+                        <span className="rounded-full px-2.5 py-0.5 text-xs font-medium" style={{ background: "hsl(var(--secondary))", color: "hsl(var(--text-secondary))" }}>{s.influence} influence</span>
+                      </div>
+                    </div>
+                    <p className="text-sm" style={{ color: "hsl(var(--text-secondary))", lineHeight: 1.6 }}>{s.action}</p>
+                  </div>
+                ))}
+              </div>
+            </CollapsibleCard>
+
+            <CollapsibleCard id="actions" icon={Target} label="Recommended Actions" title="Next Steps" expandedSet={expandedSections} onToggle={toggleSection}>
+              <div className="space-y-3">
+                {mockData.actions.map((a, i) => (
+                  <div key={i} className="rounded-lg p-4 flex items-start gap-3" style={{ background: "hsl(0, 0%, 100%)", border: "1px solid hsl(var(--border))" }}>
+                    <span className="flex-shrink-0 flex items-center justify-center rounded-full text-xs font-bold mt-0.5" style={{ width: 24, height: 24, background: "hsla(221, 83%, 53%, 0.1)", color: "hsl(var(--primary))" }}>{i + 1}</span>
+                    <div className="flex-1">
+                      <p className="text-base font-medium" style={{ color: "hsl(var(--text-primary))" }}>{a.action}</p>
+                      <div className="flex gap-2 mt-2">
+                        <span className="text-xs font-medium" style={{ color: "hsl(var(--text-tertiary))" }}>{a.priority}</span>
+                        <FeasibilityBadge feasibility={a.feasibility} />
+                      </div>
                     </div>
                   </div>
-                  <p className="text-sm" style={{ color: "hsl(var(--text-secondary))", lineHeight: 1.6 }}>{s.action}</p>
-                </div>
-              ))}
-            </div>
-          </Card>
+                ))}
+              </div>
+            </CollapsibleCard>
 
-          {/* Recommended Actions */}
-          <Card className="mb-6">
-            <div className="flex items-center gap-2 mb-1">
-              <Target className="w-4 h-4" style={{ color: "hsl(var(--primary))" }} />
-              <SectionLabel>Recommended Actions</SectionLabel>
+            {/* Devil's Advocate — distinct visual */}
+            <div id="devils-advocate" className="rounded-xl scroll-mt-24" style={{ background: "hsl(var(--secondary))", border: "1px solid hsl(var(--border))", borderLeft: "3px solid hsl(var(--destructive))" }}>
+              <button onClick={() => toggleSection("devils-advocate")} className="w-full flex items-center justify-between p-6 text-left transition-colors hover:bg-black/[0.01]">
+                <div className="flex items-center gap-2">
+                  <Swords className="w-4 h-4" style={{ color: "hsl(var(--destructive))" }} />
+                  <p className="text-xs font-semibold uppercase tracking-wider" style={{ letterSpacing: "0.1em", color: "hsl(var(--destructive))" }}>Devil's Advocate</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-base font-semibold" style={{ color: "hsl(var(--text-primary))" }}>The Counterargument</span>
+                  <ChevronDown className="w-5 h-5 transition-transform duration-300" style={{ color: "hsl(var(--text-tertiary))", transform: expandedSections.has("devils-advocate") ? "rotate(180deg)" : "rotate(0deg)" }} />
+                </div>
+              </button>
+              <div className="overflow-hidden transition-all duration-300 ease-out" style={{ maxHeight: expandedSections.has("devils-advocate") ? 2000 : 0, opacity: expandedSections.has("devils-advocate") ? 1 : 0 }}>
+                <div className="px-6 pb-6">
+                  <p className="text-base leading-relaxed" style={{ color: "hsl(var(--text-secondary))", lineHeight: 1.7 }}>{mockData.devilsAdvocate}</p>
+                </div>
+              </div>
             </div>
-            <h2 className="text-xl font-semibold mb-5" style={{ color: "hsl(var(--text-primary))" }}>Next Steps</h2>
-            <div className="space-y-3">
-              {mockData.actions.map((a, i) => (
-                <div key={i} className="rounded-lg p-4 flex items-start gap-3" style={{ background: "hsl(0, 0%, 100%)", border: "1px solid hsl(var(--border))" }}>
-                  <span className="flex-shrink-0 flex items-center justify-center rounded-full text-xs font-bold mt-0.5" style={{ width: 24, height: 24, background: "hsla(221, 83%, 53%, 0.1)", color: "hsl(var(--primary))" }}>{i + 1}</span>
-                  <div className="flex-1">
-                    <p className="text-base font-medium" style={{ color: "hsl(var(--text-primary))" }}>{a.action}</p>
-                    <div className="flex gap-2 mt-2">
-                      <span className="text-xs font-medium" style={{ color: "hsl(var(--text-tertiary))" }}>{a.priority}</span>
-                      <FeasibilityBadge feasibility={a.feasibility} />
-                    </div>
+
+            <CollapsibleCard id="rapid" icon={TrendingUp} label="RAPID Framework" title="Role Assignment" expandedSet={expandedSections} onToggle={toggleSection}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {Object.entries(mockData.rapidAssignment).map(([role, person]) => (
+                  <div key={role} className="rounded-lg p-3" style={{ background: "hsl(0, 0%, 100%)", border: "1px solid hsl(var(--border))" }}>
+                    <p className="text-xs font-semibold uppercase" style={{ color: "hsl(var(--primary))", letterSpacing: "0.05em" }}>{role}</p>
+                    <p className="text-sm mt-1" style={{ color: "hsl(var(--text-primary))" }}>{person}</p>
                   </div>
-                </div>
-              ))}
-            </div>
-          </Card>
+                ))}
+              </div>
+            </CollapsibleCard>
+          </div>
 
-          {/* Devil's Advocate */}
-          <Card className="mb-6">
-            <div className="flex items-center gap-2 mb-1">
-              <Shield className="w-4 h-4" style={{ color: "hsl(var(--primary))" }} />
-              <SectionLabel>Devil's Advocate</SectionLabel>
-            </div>
-            <h2 className="text-xl font-semibold mb-4" style={{ color: "hsl(var(--text-primary))" }}>The Counterargument</h2>
-            <p className="text-base leading-relaxed" style={{ color: "hsl(var(--text-secondary))", lineHeight: 1.7 }}>{mockData.devilsAdvocate}</p>
-          </Card>
-
-          {/* RAPID */}
-          <Card className="mb-8">
-            <div className="flex items-center gap-2 mb-1">
-              <TrendingUp className="w-4 h-4" style={{ color: "hsl(var(--primary))" }} />
-              <SectionLabel>RAPID Framework</SectionLabel>
-            </div>
-            <h2 className="text-xl font-semibold mb-5" style={{ color: "hsl(var(--text-primary))" }}>Role Assignment</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {Object.entries(mockData.rapidAssignment).map(([role, person]) => (
-                <div key={role} className="rounded-lg p-3" style={{ background: "hsl(0, 0%, 100%)", border: "1px solid hsl(var(--border))" }}>
-                  <p className="text-xs font-semibold uppercase" style={{ color: "hsl(var(--primary))", letterSpacing: "0.05em" }}>{role}</p>
-                  <p className="text-sm mt-1" style={{ color: "hsl(var(--text-primary))" }}>{person}</p>
-                </div>
-              ))}
-            </div>
-          </Card>
-
-          {/* Action bar */}
-          <div className="flex flex-wrap gap-3 justify-center">
-            <Link to="/" className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-base font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]" style={{ background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))" }}>
+          {/* Action buttons */}
+          <div className="flex flex-wrap gap-3 justify-center mt-8">
+            <button onClick={handleCopySummary} className="inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]" style={{ border: "1px solid hsl(var(--border))", color: "hsl(var(--text-primary))", background: "hsl(0, 0%, 100%)" }}>
+              <Copy className="w-4 h-4" /> {copiedSummary ? "Copied!" : "Copy Summary"}
+            </button>
+            <button onClick={handleShare} className="inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]" style={{ border: "1px solid hsl(var(--border))", color: "hsl(var(--text-primary))", background: "hsl(0, 0%, 100%)" }}>
+              <Share2 className="w-4 h-4" /> Share Results
+            </button>
+            <Link to="/" className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]" style={{ background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))" }}>
               New Audit <ArrowRight className="w-4 h-4" />
             </Link>
-            <Link to="/dashboard" className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-base font-medium transition-all duration-200 hover:scale-[1.02]" style={{ border: "1px solid hsl(var(--border))", color: "hsl(var(--text-primary))" }}>
+            <Link to="/dashboard" className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium transition-all duration-200 hover:scale-[1.02]" style={{ border: "1px solid hsl(var(--border))", color: "hsl(var(--text-primary))" }}>
               View Dashboard
             </Link>
           </div>
         </div>
       </div>
+
+      {/* Back to top FAB */}
+      {showBackToTop && (
+        <button
+          onClick={() => scoreRef.current?.scrollIntoView({ behavior: "smooth" })}
+          className="fixed z-40 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-[1.05] active:scale-[0.95]"
+          style={{ bottom: 24, right: 24, width: 44, height: 44, background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))", boxShadow: "0 4px 16px hsla(221, 83%, 53%, 0.3)" }}
+          aria-label="Back to top"
+        >
+          <ArrowUp className="w-5 h-5" />
+        </button>
+      )}
       <Footer />
     </>
   );
