@@ -12,8 +12,8 @@ export function Footer() {
           <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-2.5 mb-3">
               <StratOSLogo size={24} />
-              <span style={{ color: "hsl(var(--text-primary))" }}>
-                <span className="font-serif text-xl" style={{ fontWeight: 400 }}>Strat</span><span className="text-sm font-semibold tracking-widest uppercase" style={{ marginLeft: 1 }}>OS</span>
+              <span className="font-brand text-[22px] tracking-tight" style={{ color: "hsl(var(--text-primary))", letterSpacing: "-0.02em" }}>
+                Strat<span className="font-sans text-[13px] font-semibold tracking-[0.12em] uppercase" style={{ marginLeft: 2 }}>OS</span>
               </span>
             </div>
             <p className="font-serif italic text-base" style={{ color: "hsl(var(--text-secondary))" }}>Clarity for every decision</p>
