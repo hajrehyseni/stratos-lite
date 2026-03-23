@@ -8,6 +8,7 @@ import { getJournalCount } from "@/lib/journal";
 import { useAuth } from "@/contexts/AuthContext";
 import { ConfidenceGauge } from "@/components/ConfidenceGauge";
 import { toast } from "sonner";
+import { useTTS } from "@/hooks/use-tts";
 
 interface ScorecardProps {
   decision: string;
