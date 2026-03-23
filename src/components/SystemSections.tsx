@@ -35,7 +35,7 @@ function AssessMockup() {
 
 function DecideMockup() {
   return (
-    <div className="rounded-2xl p-5" style={{ background: "hsl(var(--secondary))", border: "1px solid hsl(var(--border))", maxWidth: 300 }}>
+    <div className="rounded-2xl p-5 transition-all duration-200 hover:scale-[1.03] hover:shadow-lg" style={{ background: "hsl(var(--secondary))", border: "1px solid hsl(var(--border))", maxWidth: 360 }}>
       <div className="flex items-baseline gap-1 mb-2">
         <span className="text-4xl font-extrabold" style={{ color: "hsl(var(--primary))" }}>72</span>
         <span className="text-base" style={{ color: "hsl(var(--text-tertiary))" }}>/100</span>
