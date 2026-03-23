@@ -65,9 +65,13 @@ function SkeletonRow() {
   );
 }
 
+const verdictFilters = ["All", "PROCEED", "CONDITIONAL PROCEED", "DO NOT PROCEED"] as const;
+
 export default function DashboardPage() {
   const { user, loading } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeVerdict, setActiveVerdict] = useState<string>("All");
   const entries = getJournalEntries();
 
   useEffect(() => {
