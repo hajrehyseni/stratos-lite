@@ -21,6 +21,13 @@ export function NavBar() {
 
   useEffect(() => { setMobileOpen(false); }, [location.pathname]);
 
+  // Lock body scroll when bottom sheet is open
+  useEffect(() => {
+    if (mobileOpen) { document.body.style.overflow = "hidden"; }
+    else { document.body.style.overflow = ""; }
+    return () => { document.body.style.overflow = ""; };
+  }, [mobileOpen]);
+
   const handleCTA = () => {
     if (user) {
       if (isHome) {
@@ -49,7 +56,7 @@ export function NavBar() {
           borderBottom: scrolled ? "1px solid hsl(var(--border))" : "1px solid transparent",
         }}
       >
-        <div style={{ maxWidth: 1120 }} className="mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+        <div style={{ maxWidth: 1120 }} className="mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
             <StratOSLogo size={28} />
             <span className="text-xl font-bold tracking-tight" style={{ color: "hsl(var(--text-primary))" }}>StratOS</span>
@@ -66,7 +73,6 @@ export function NavBar() {
             )}
             {!user && <Link to="/login" className="text-base font-medium transition-colors hover:opacity-70" style={navLinkStyle("/login")}>Sign in</Link>}
             
-            {/* Separator */}
             <div style={{ width: 1, height: 24, background: "hsl(var(--border))" }} />
 
             {user && <AccountMenu />}
@@ -88,37 +94,38 @@ export function NavBar() {
         </div>
       </nav>
 
-      {/* Mobile slide-in panel */}
+      {/* Mobile bottom sheet */}
       {mobileOpen && (
         <>
-          <div className="fixed inset-0 z-[60] bg-black/30" onClick={() => setMobileOpen(false)} />
-          <div className="fixed top-0 right-0 bottom-0 z-[70] flex flex-col animate-slide-in-right" style={{ width: 300, background: "hsl(0, 0%, 100%)", borderLeft: "1px solid hsl(var(--border))" }}>
-            <div className="flex items-center justify-between px-5 h-16">
-              <div className="flex items-center gap-2">
-                <StratOSLogo size={22} />
-                <span className="text-base font-semibold" style={{ color: "hsl(var(--text-primary))" }}>StratOS</span>
-              </div>
-              <button onClick={() => setMobileOpen(false)} aria-label="Close menu" className="p-2" style={{ color: "hsl(var(--text-primary))", minWidth: 44, minHeight: 44, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <X className="w-6 h-6" />
-              </button>
+          <div className="fixed inset-0 z-[60]" style={{ background: "hsla(0, 0%, 0%, 0.4)" }} onClick={() => setMobileOpen(false)} />
+          <div className="fixed bottom-0 left-0 right-0 z-[70] flex flex-col bottom-sheet-up" style={{ background: "hsl(0, 0%, 100%)", borderRadius: "16px 16px 0 0", maxHeight: "70vh", boxShadow: "0 -8px 40px hsla(0, 0%, 0%, 0.12)" }}>
+            {/* Handle bar */}
+            <div className="flex justify-center pt-3 pb-2">
+              <div className="rounded-full" style={{ width: 36, height: 4, background: "hsl(var(--border))" }} />
             </div>
-            <div className="flex flex-col gap-1 px-5 flex-1">
-              <Link to="/" onClick={() => setMobileOpen(false)} className="py-4 text-base font-medium transition-colors hover:opacity-70" style={{ color: isHome ? "hsl(var(--primary))" : "hsl(var(--text-secondary))", minHeight: 44 }}>Home</Link>
-              <Link to="/pricing" onClick={() => setMobileOpen(false)} className="py-4 text-base font-medium transition-colors hover:opacity-70" style={{ color: isActive("/pricing") ? "hsl(var(--primary))" : "hsl(var(--text-secondary))", minHeight: 44 }}>Pricing</Link>
-              {user && (
-                <>
-                  <Link to="/dashboard" onClick={() => setMobileOpen(false)} className="py-4 text-base font-medium transition-colors hover:opacity-70" style={{ color: isActive("/dashboard") ? "hsl(var(--primary))" : "hsl(var(--text-secondary))", minHeight: 44 }}>Dashboard</Link>
-                  <Link to="/journal" onClick={() => setMobileOpen(false)} className="py-4 text-base font-medium transition-colors hover:opacity-70" style={{ color: isActive("/journal") ? "hsl(var(--primary))" : "hsl(var(--text-secondary))", minHeight: 44 }}>Journal</Link>
-                  <Link to="/settings" onClick={() => setMobileOpen(false)} className="py-4 text-base font-medium transition-colors hover:opacity-70" style={{ color: isActive("/settings") ? "hsl(var(--primary))" : "hsl(var(--text-secondary))", minHeight: 44 }}>Settings</Link>
-                </>
-              )}
-              <div style={{ height: 1, background: "hsl(var(--border))", margin: "8px 0" }} />
+
+            <div className="flex flex-col gap-0 px-6 flex-1 overflow-y-auto pb-4">
+              {[
+                { to: "/", label: "Home", active: isHome },
+                { to: "/pricing", label: "Pricing", active: isActive("/pricing") },
+                ...(user ? [
+                  { to: "/dashboard", label: "Dashboard", active: isActive("/dashboard") },
+                  { to: "/journal", label: "Journal", active: isActive("/journal") },
+                  { to: "/settings", label: "Settings", active: isActive("/settings") },
+                ] : []),
+              ].map(link => (
+                <Link key={link.to} to={link.to} onClick={() => setMobileOpen(false)} className="flex items-center text-base font-medium transition-colors" style={{ color: link.active ? "hsl(var(--primary))" : "hsl(var(--text-secondary))", height: 56, borderBottom: "1px solid hsl(var(--border))" }}>
+                  {link.label}
+                </Link>
+              ))}
+
               {user ? <div className="py-3"><AccountMenu /></div> : (
-                <Link to="/login" onClick={() => setMobileOpen(false)} className="py-4 text-base font-medium transition-colors hover:opacity-70" style={{ color: "hsl(var(--text-primary))", minHeight: 44 }}>Sign in</Link>
+                <Link to="/login" onClick={() => setMobileOpen(false)} className="flex items-center text-base font-medium transition-colors" style={{ color: "hsl(var(--text-primary))", height: 56 }}>Sign in</Link>
               )}
             </div>
-            <div className="px-5 pb-6">
-              <button onClick={() => { setMobileOpen(false); handleCTA(); }} className="w-full rounded-full py-3.5 text-base font-semibold transition-all duration-200 active:scale-[0.98]" style={{ background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))", minHeight: 48 }}>
+
+            <div className="px-6 pb-8 pt-2">
+              <button onClick={() => { setMobileOpen(false); handleCTA(); }} className="w-full rounded-full py-3.5 text-base font-semibold transition-all duration-200 active:scale-[0.98]" style={{ background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))", minHeight: 52 }}>
                 {user ? "New Audit" : "Get Started"}
               </button>
             </div>

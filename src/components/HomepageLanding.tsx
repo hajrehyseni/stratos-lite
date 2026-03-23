@@ -37,7 +37,6 @@ export function HomepageLanding({ onSubmit, remainingAudits, hasUsedAudit }: Pro
     return () => clearTimeout(t);
   }, []);
 
-  // Rotating placeholder
   useEffect(() => {
     if (value.length > 0) return;
     const iv = setInterval(() => setPlaceholderIdx(p => (p + 1) % placeholders.length), 3000);
@@ -61,8 +60,8 @@ export function HomepageLanding({ onSubmit, remainingAudits, hasUsedAudit }: Pro
 
   return (
     <div className="flex flex-col page-enter">
-      {/* Hero */}
-      <div className="relative flex flex-col items-center px-4 sm:px-6 pt-20 sm:pt-28 pb-14 md:pb-16" style={{ justifyContent: "center" }}>
+      {/* Hero — Apple/Google simplicity */}
+      <div className="relative flex flex-col items-center px-4 sm:px-6 pt-20 sm:pt-28 pb-10 md:pb-12" style={{ justifyContent: "center" }}>
         <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 80% 50% at 50% 30%, hsla(221, 83%, 53%, 0.04), transparent)" }} />
         <div className="absolute inset-0 pointer-events-none dot-grid-bg" />
 
@@ -71,26 +70,16 @@ export function HomepageLanding({ onSubmit, remainingAudits, hasUsedAudit }: Pro
             className="text-center text-4xl sm:text-5xl lg:text-6xl"
             style={{
               fontWeight: 800, lineHeight: 1.08, letterSpacing: "-0.02em",
-              color: "hsl(var(--text-primary))", maxWidth: 768,
+              color: "hsl(var(--text-primary))", maxWidth: 600,
               opacity: heroVisible ? 1 : 0, transform: heroVisible ? "translateY(0)" : "translateY(20px)",
               transition: "opacity 400ms ease-out, transform 400ms ease-out",
             }}
           >
-            What's the decision you can't afford to get wrong?
+            Audit any decision.
           </h1>
-          <p
-            className="text-center text-lg md:text-xl mt-5 mx-auto"
-            style={{
-              color: "hsl(var(--text-secondary))", maxWidth: 500, lineHeight: 1.5,
-              opacity: heroVisible ? 1 : 0, transform: heroVisible ? "translateY(0)" : "translateY(14px)",
-              transition: "opacity 400ms ease-out 100ms, transform 400ms ease-out 100ms",
-            }}
-          >
-            Board-ready audit. 30 seconds.
-          </p>
 
-          {/* Input */}
-          <div className="w-full" style={{ maxWidth: 672, marginTop: 24, opacity: heroVisible ? 1 : 0, transform: heroVisible ? "translateY(0)" : "translateY(14px)", transition: "opacity 400ms ease-out 200ms, transform 400ms ease-out 200ms" }}>
+          {/* Input — moved closer to headline */}
+          <div className="w-full" style={{ maxWidth: 672, marginTop: 16, opacity: heroVisible ? 1 : 0, transform: heroVisible ? "translateY(0)" : "translateY(14px)", transition: "opacity 400ms ease-out 150ms, transform 400ms ease-out 150ms" }}>
             {/* Desktop */}
             <div className="hidden sm:block">
               <div className={`relative flex items-center ${shake ? "input-shake" : ""}`} style={{
@@ -102,7 +91,7 @@ export function HomepageLanding({ onSubmit, remainingAudits, hasUsedAudit }: Pro
                 <label htmlFor="hero-input" className="sr-only">Describe your decision</label>
                 <input ref={inputRef} id="hero-input" type="text" value={value} onChange={handleChange} onFocus={() => setIsFocused(true)} onBlur={() => setIsFocused(false)} onKeyDown={handleKeyDown} placeholder={currentPlaceholder} className="w-full bg-transparent outline-none" style={{ fontSize: 17, fontWeight: 400, color: "hsl(var(--text-primary))", height: 52 }} />
                 <button ref={submitRef} onClick={handleSubmit} disabled={!canSubmit} className={`flex-shrink-0 flex items-center justify-center gap-2 rounded-full transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${canSubmit && hasTyped ? "cta-glow" : ""}`} style={{ height: 48, paddingLeft: 24, paddingRight: 20, background: canSubmit ? "hsl(var(--primary))" : "hsla(221, 83%, 53%, 0.3)", opacity: canSubmit ? 1 : 0.5, cursor: canSubmit ? "pointer" : "default", color: "hsl(var(--primary-foreground))", fontSize: 15, fontWeight: 600 }} aria-label="Audit this decision">
-                  Audit this decision <ArrowRight className="w-4 h-4" />
+                  Audit <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
             </div>
@@ -118,9 +107,18 @@ export function HomepageLanding({ onSubmit, remainingAudits, hasUsedAudit }: Pro
                 <input id="hero-input-mobile" type="text" value={value} onChange={handleChange} onFocus={() => setIsFocused(true)} onBlur={() => setIsFocused(false)} onKeyDown={handleKeyDown} placeholder={currentPlaceholder} className="w-full bg-transparent outline-none" style={{ fontSize: 17, color: "hsl(var(--text-primary))", height: 48 }} />
               </div>
               <button onClick={handleSubmit} disabled={!canSubmit} className={`w-full flex items-center justify-center gap-2 rounded-full transition-all duration-200 active:scale-[0.98] ${canSubmit && hasTyped ? "cta-glow" : ""}`} style={{ height: 52, background: canSubmit ? "hsl(var(--primary))" : "hsla(221, 83%, 53%, 0.3)", opacity: canSubmit ? 1 : 0.5, color: "hsl(var(--primary-foreground))", fontSize: 16, fontWeight: 600 }}>
-                Audit this decision <ArrowRight className="w-4 h-4" />
+                Audit <ArrowRight className="w-4 h-4" />
               </button>
             </div>
+          </div>
+
+          {/* Micro-badges */}
+          <div className="flex items-center gap-3 mt-5" style={{ opacity: heroVisible ? 1 : 0, transition: "opacity 400ms ease-out 250ms" }}>
+            {["Free", "30 seconds", "Private"].map(badge => (
+              <span key={badge} className="rounded-full px-3 py-1 text-xs font-medium" style={{ background: "hsl(var(--secondary))", color: "hsl(var(--text-tertiary))", border: "1px solid hsl(var(--border))" }}>
+                {badge}
+              </span>
+            ))}
           </div>
 
           {showError && !canSubmit && (

@@ -9,7 +9,7 @@ interface Props {
   decisionText?: string;
 }
 
-const analysisSteps = () => [
+const analysisSteps = [
   "Mapping decision architecture...",
   "Modelling stakeholder dynamics...",
   "Stress-testing assumptions...",
@@ -18,63 +18,47 @@ const analysisSteps = () => [
   "Synthesising strategic verdict...",
 ];
 
-export function NewProcessingState({ lens, scale, onApiReady, apiResolved, decisionText }: Props) {
+export function NewProcessingState({ onApiReady, apiResolved, decisionText }: Props) {
   const [visible, setVisible] = useState(false);
-  const [visibleLines, setVisibleLines] = useState(0);
-  const [completedLines, setCompletedLines] = useState<Set<number>>(new Set());
+  const [currentStep, setCurrentStep] = useState(0);
   const [fadingOut, setFadingOut] = useState(false);
+  const [textFade, setTextFade] = useState(true);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const lines = analysisSteps();
 
   useEffect(() => {
     requestAnimationFrame(() => setVisible(true));
   }, []);
 
+  // Step through analysis labels
   useEffect(() => {
-    if (visibleLines < lines.length && !apiResolved) {
+    if (currentStep < analysisSteps.length - 1 && !apiResolved) {
       timerRef.current = setTimeout(() => {
-        setVisibleLines((v) => v + 1);
-        if (visibleLines > 0) {
-          setCompletedLines((prev) => new Set(prev).add(visibleLines - 1));
-        }
-      }, visibleLines === 0 ? 300 : 800);
+        setTextFade(false);
+        setTimeout(() => {
+          setCurrentStep(s => s + 1);
+          setTextFade(true);
+        }, 200);
+      }, currentStep === 0 ? 400 : 1800);
       return () => { if (timerRef.current) clearTimeout(timerRef.current); };
     }
-  }, [visibleLines, apiResolved, lines.length]);
+  }, [currentStep, apiResolved]);
 
+  // When API resolves, fast-forward and exit
   useEffect(() => {
     if (!apiResolved) return;
-    const remaining = lines.length - visibleLines;
-    if (remaining > 0) {
-      let i = 0;
-      const rapid = setInterval(() => {
-        setVisibleLines((v) => v + 1);
-        setCompletedLines((prev) => {
-          const next = new Set(prev);
-          for (let j = 0; j <= visibleLines + i; j++) next.add(j);
-          return next;
-        });
-        i++;
-        if (i >= remaining) {
-          clearInterval(rapid);
-          setTimeout(() => {
-            setCompletedLines(new Set(lines.map((_, idx) => idx)));
-            setTimeout(() => { setFadingOut(true); setTimeout(onApiReady, 200); }, 400);
-          }, 100);
-        }
-      }, 100);
-      return () => clearInterval(rapid);
-    } else {
-      setCompletedLines(new Set(lines.map((_, idx) => idx)));
-      setTimeout(() => { setFadingOut(true); setTimeout(onApiReady, 200); }, 400);
-    }
+    setCurrentStep(analysisSteps.length - 1);
+    setTextFade(true);
+    setTimeout(() => {
+      setFadingOut(true);
+      setTimeout(onApiReady, 250);
+    }, 600);
   }, [apiResolved]);
 
   const truncated = decisionText
     ? decisionText.length > (window.innerWidth < 640 ? 50 : 80) ? decisionText.slice(0, window.innerWidth < 640 ? 47 : 77) + "…" : decisionText
     : null;
 
-  const progressPercent = Math.round((completedLines.size / lines.length) * 100);
+  const progressPercent = Math.round(((currentStep + 1) / analysisSteps.length) * 100);
 
   return (
     <div
@@ -83,54 +67,45 @@ export function NewProcessingState({ lens, scale, onApiReady, apiResolved, decis
         minHeight: window.innerWidth < 640 ? "80vh" : "90vh",
         opacity: visible && !fadingOut ? 1 : 0,
         transform: visible && !fadingOut ? "translateY(0)" : "translateY(10px)",
-        transition: "opacity 300ms ease, transform 300ms ease",
+        transition: "opacity 250ms ease, transform 250ms ease",
       }}
     >
-      <div className="w-full" style={{ maxWidth: 720 }}>
-        {truncated && (
-          <div className="flex justify-center mb-8">
-            <span className="inline-block rounded-full px-6 py-3 text-base italic truncate" style={{ maxWidth: 500, background: "hsl(var(--secondary))", border: "1px solid hsl(var(--border))", color: "hsl(var(--text-secondary))" }}>
-              {truncated}
-            </span>
-          </div>
-        )}
-
-        <div className="rounded-xl" style={{ background: "hsl(var(--secondary))", border: "1px solid hsl(var(--border))", padding: "32px 28px" }}>
-          <div className="flex items-center gap-2.5 mb-6">
-            <span className="inline-block rounded-full" style={{ width: 10, height: 10, background: "hsl(var(--primary))", animation: "pulse-dot 1.5s ease-in-out infinite", boxShadow: "0 0 8px hsla(221, 83%, 53%, 0.4)" }} />
-            <span className="text-sm font-semibold" style={{ letterSpacing: "0.1em", color: "hsl(var(--text-secondary))" }}>
-              Analysing — {completedLines.size} of {lines.length} frameworks applied
-            </span>
-          </div>
-
-          <div className="space-y-4">
-            {lines.slice(0, visibleLines).map((line, i) => {
-              const isComplete = completedLines.has(i);
-              const isLast = i === visibleLines - 1 && !isComplete;
-              return (
-                <div key={i} className="flex items-center gap-3" style={{ animation: `fadeInSimple 400ms ease forwards`, animationDelay: `${i * 200}ms` }}>
-                  <span style={{ fontSize: 14, color: isComplete ? "hsl(var(--success))" : "transparent", width: 18, flexShrink: 0, textAlign: "center", transition: "color 0.3s ease" }}>
-                    {isComplete ? "✓" : " "}
-                  </span>
-                  <span className="processing-line-text text-base" style={{ color: isComplete ? "hsl(var(--text-tertiary))" : "hsl(var(--text-primary))" }}>
-                    {line}
-                    {isLast && <span className="terminal-cursor" style={{ color: "hsl(var(--primary))" }}>│</span>}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Progress bar */}
-          <div className="mt-6 w-full h-1.5 rounded-full" style={{ background: "hsl(var(--border))" }}>
-            <div className="h-full rounded-full transition-all duration-500" style={{ width: `${progressPercent}%`, background: "hsl(var(--primary))" }} />
-          </div>
+      {truncated && (
+        <div className="mb-8">
+          <span className="inline-block rounded-full px-5 py-2.5 text-sm italic truncate" style={{ maxWidth: 400, background: "hsl(var(--secondary))", border: "1px solid hsl(var(--border))", color: "hsl(var(--text-secondary))" }}>
+            {truncated}
+          </span>
         </div>
+      )}
 
-        <p className="text-center mt-6 text-base" style={{ color: "hsl(var(--text-secondary))" }}>
-          6 frameworks · 10-step methodology
-        </p>
+      {/* Pulsing concentric rings */}
+      <div className="relative flex items-center justify-center mb-8" style={{ width: 160, height: 160 }}>
+        <div className="absolute rounded-full shazam-ring" style={{ width: 160, height: 160, border: "2px solid hsla(221, 83%, 53%, 0.08)", animationDelay: "0s" }} />
+        <div className="absolute rounded-full shazam-ring" style={{ width: 120, height: 120, border: "2px solid hsla(221, 83%, 53%, 0.15)", animationDelay: "0.3s" }} />
+        <div className="absolute rounded-full shazam-ring" style={{ width: 80, height: 80, border: "2px solid hsla(221, 83%, 53%, 0.25)", animationDelay: "0.6s" }} />
+        <div className="rounded-full flex items-center justify-center" style={{ width: 48, height: 48, background: "hsl(var(--primary))", boxShadow: "0 0 24px hsla(221, 83%, 53%, 0.4)" }}>
+          <div className="rounded-full" style={{ width: 12, height: 12, background: "hsl(var(--primary-foreground))" }} />
+        </div>
       </div>
+
+      {/* Cross-fading step text */}
+      <p className="text-base font-medium text-center" style={{
+        color: "hsl(var(--text-secondary))",
+        opacity: textFade ? 1 : 0,
+        transition: "opacity 200ms ease",
+        minHeight: 24,
+      }}>
+        {analysisSteps[currentStep]}
+      </p>
+
+      {/* Progress bar */}
+      <div className="mt-8 w-full h-0.5 rounded-full" style={{ maxWidth: 240, background: "hsl(var(--border))" }}>
+        <div className="h-full rounded-full transition-all duration-500" style={{ width: `${progressPercent}%`, background: "hsl(var(--primary))" }} />
+      </div>
+
+      <p className="text-center mt-4 text-xs" style={{ color: "hsl(var(--text-tertiary))" }}>
+        6 frameworks · 10-step methodology
+      </p>
     </div>
   );
 }

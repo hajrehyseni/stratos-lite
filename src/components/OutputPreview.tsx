@@ -1,5 +1,4 @@
 import { ArrowRight } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 
 const dimensions = [
@@ -15,7 +14,6 @@ function barColor(score: number) {
 }
 
 export function OutputPreview() {
-  const navigate = useNavigate();
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
   const [animatedScore, setAnimatedScore] = useState(0);
@@ -30,7 +28,6 @@ export function OutputPreview() {
     return () => obs.disconnect();
   }, []);
 
-  // Count up animation
   useEffect(() => {
     if (!visible) return;
     const target = 72;
@@ -47,6 +44,11 @@ export function OutputPreview() {
     return () => cancelAnimationFrame(raf);
   }, [visible]);
 
+  const scrollToHero = () => {
+    const input = document.querySelector<HTMLInputElement>("#hero-input") || document.querySelector<HTMLInputElement>("#hero-input-mobile");
+    if (input) { input.scrollIntoView({ behavior: "smooth", block: "center" }); setTimeout(() => input.focus(), 400); }
+  };
+
   return (
     <div ref={ref} className="px-4 sm:px-6 py-16 md:py-24">
       <h2 className="text-2xl sm:text-3xl font-bold text-center mb-3" style={{ color: "hsl(var(--text-primary))" }}>
@@ -57,12 +59,13 @@ export function OutputPreview() {
       </p>
 
       <div
-        className="mx-auto rounded-2xl p-6 sm:p-8"
+        className="mx-auto p-6 sm:p-8"
         style={{
-          maxWidth: 580,
+          maxWidth: 640,
+          borderRadius: 20,
           background: "hsl(var(--secondary))",
           border: "1px solid hsl(var(--border))",
-          boxShadow: "0 8px 32px hsla(221, 83%, 53%, 0.06)",
+          boxShadow: "0 12px 40px hsla(221, 83%, 53%, 0.08)",
         }}
       >
         {/* Score + Verdict */}
@@ -70,12 +73,12 @@ export function OutputPreview() {
           <div
             className="flex items-center justify-center rounded-full flex-shrink-0"
             style={{
-              width: 72, height: 72,
+              width: 80, height: 80,
               border: "3px solid hsl(var(--primary))",
               background: "hsla(221, 83%, 53%, 0.04)",
             }}
           >
-            <span className="text-2xl font-extrabold" style={{ color: "hsl(var(--primary))" }}>{animatedScore}</span>
+            <span className="text-3xl font-extrabold" style={{ color: "hsl(var(--primary))" }}>{animatedScore}</span>
           </div>
           <div>
             <span
@@ -96,7 +99,7 @@ export function OutputPreview() {
           </div>
         </div>
 
-        {/* MECE Bars — staggered animation */}
+        {/* MECE Bars */}
         <div className="space-y-3">
           {dimensions.map((d, i) => (
             <div key={d.label}>
@@ -118,15 +121,22 @@ export function OutputPreview() {
           ))}
         </div>
 
-        {/* Link */}
-        <div className="mt-6 text-center">
+        {/* Links */}
+        <div className="mt-6 flex items-center justify-between">
           <button
-            onClick={() => navigate("/audit-results")}
+            onClick={scrollToHero}
             className="inline-flex items-center gap-1.5 text-sm font-semibold transition-opacity hover:opacity-70"
             style={{ color: "hsl(var(--primary))", background: "none", border: "none" }}
           >
-            See full example <ArrowRight className="w-4 h-4" />
+            Try it free <ArrowRight className="w-4 h-4" />
           </button>
+          <a
+            href="/audit-results"
+            className="inline-flex items-center gap-1 text-xs font-medium transition-opacity hover:opacity-70"
+            style={{ color: "hsl(var(--text-tertiary))" }}
+          >
+            See full example →
+          </a>
         </div>
       </div>
     </div>
