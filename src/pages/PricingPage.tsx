@@ -6,7 +6,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Check, Shield, ArrowRight, ArrowDown, Users } from "lucide-react";
-import { getJournalCount } from "@/lib/journal";
 import { useState, useEffect } from "react";
 
 const perAudit: Record<PlanType, string> = { free: "£0 per audit", pro: "£0.76 per audit", executive: "£0.41 per audit" };
