@@ -2,10 +2,9 @@ import { useState } from "react";
 import { Plus } from "lucide-react";
 
 const faqs = [
-  { q: "Is my decision data private?", a: "Encrypted and stored securely. Your strategic decisions are never shared or used for training." },
-  { q: "How is this different from asking ChatGPT?", a: "ChatGPT gives a wall of text. StratOS gives a structured scorecard — confidence score, risk register, stakeholder map, and actionable recommendations built on McKinsey-grade frameworks." },
-  { q: "Who is this built for?", a: "Executives, founders, and senior leaders who face high-stakes decisions regularly. If you've ever lost sleep over a strategic call, this is your pre-decision sanity check." },
-  { q: "Is this free?", a: "First audit is completely free — no account, no credit card. Pro (£19/mo) unlocks 25 audits, journaling, dashboard, and PDF exports." },
+  { q: "Is my decision data private?", a: "Encrypted, never shared, never used for training." },
+  { q: "How is this different from asking ChatGPT?", a: "Structured scorecard with confidence score, risk register, and stakeholder map — not a wall of text." },
+  { q: "Is this free?", a: "First audit free, no account needed. Pro is £19/mo." },
 ];
 
 export function FAQAccordion() {
