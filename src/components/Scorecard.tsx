@@ -252,12 +252,8 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
   const topActions = result.recommendations?.filter(r => r.feasible).slice(0, 3) || [];
 
   const handleListen = () => {
-    if (tts.isSpeaking) {
+    if (tts.isSpeaking || tts.isLoading) {
       tts.stop();
-      return;
-    }
-    if (!tts.isSupported) {
-      toast.error("Text-to-speech not supported in this browser");
       return;
     }
     const sections: string[] = [
