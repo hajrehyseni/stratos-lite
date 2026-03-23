@@ -91,7 +91,7 @@ function OptionCard({
       onClick={onClick}
       className="group text-left relative w-full transition-all duration-200 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
       style={{
-        padding: "20px 24px",
+        padding: window.innerWidth < 640 ? "16px 20px" : "20px 24px",
         borderRadius: 14,
         background: selected ? "hsla(221, 83%, 53%, 0.06)" : "hsl(var(--secondary))",
         border: selected ? "2px solid hsl(var(--primary))" : "1.5px solid hsl(var(--border))",
@@ -109,7 +109,7 @@ function OptionCard({
           <Check className="w-3.5 h-3.5" style={{ color: "hsl(var(--primary-foreground))" }} />
         </div>
       )}
-      <span className="text-2xl">{emoji}</span>
+      <span className="text-xl sm:text-2xl">{emoji}</span>
       <p className="mt-2 text-base font-semibold" style={{ color: "hsl(var(--text-primary))" }}>{label}</p>
       <p className="mt-1 text-sm" style={{ color: "hsl(var(--text-secondary))" }}>{desc}</p>
     </button>
@@ -206,7 +206,7 @@ export function NewDiagnosticFlow({ decision, onComplete, onSkip, onBackToLandin
   return (
     <div ref={containerRef} className="relative min-h-screen flex flex-col">
       {/* Fixed progress bar */}
-      <div className="fixed top-0 left-0 right-0 z-50 h-1 bg-border/40">
+      <div className="fixed top-0 left-0 right-0 z-50 h-0.5 bg-border/40">
         <div
           className="h-full rounded-r-full transition-all duration-500 ease-out"
           style={{ width: `${progress}%`, background: "hsl(var(--primary))" }}
@@ -229,7 +229,7 @@ export function NewDiagnosticFlow({ decision, onComplete, onSkip, onBackToLandin
       </div>
 
       {/* Main content — vertically centered */}
-      <div className="flex-1 flex items-center justify-center px-5 sm:px-8 py-24">
+      <div className="flex-1 flex items-center justify-center px-5 sm:px-8 py-16 sm:py-24">
         <div className={`w-full ${screenClass}`} style={{ maxWidth: 580 }}>
           {/* Decision reminder pill */}
           <div className="mb-8">
@@ -241,7 +241,7 @@ export function NewDiagnosticFlow({ decision, onComplete, onSkip, onBackToLandin
                 letterSpacing: "0.5px",
               }}
             >
-              {decision.length > 60 ? decision.slice(0, 57) + "…" : decision}
+              {decision.length > (window.innerWidth < 640 ? 40 : 60) ? decision.slice(0, window.innerWidth < 640 ? 37 : 57) + "…" : decision}
             </span>
           </div>
 
@@ -259,8 +259,8 @@ export function NewDiagnosticFlow({ decision, onComplete, onSkip, onBackToLandin
                 value={stakes}
                 onChange={(e) => setStakes(e.target.value.slice(0, 500))}
                 placeholder="e.g. We lose our market window, £3M sunk cost, board loses confidence in leadership..."
-                rows={4}
-                className="typeform-textarea"
+                className="typeform-textarea text-base"
+                rows={window.innerWidth < 640 ? 3 : 4}
               />
               <div className="flex items-center justify-between mt-2">
                 <span className="text-xs" style={{ color: "hsl(var(--text-tertiary))" }}>
@@ -316,7 +316,7 @@ export function NewDiagnosticFlow({ decision, onComplete, onSkip, onBackToLandin
               <p className="text-sm mb-8" style={{ color: "hsl(var(--text-secondary))" }}>
                 This helps us apply the right strategic framework.
               </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                 {decisionTypeOptions.map((opt) => (
                   <OptionCard
                     key={opt.key}
@@ -341,7 +341,7 @@ export function NewDiagnosticFlow({ decision, onComplete, onSkip, onBackToLandin
               <p className="text-sm mb-8" style={{ color: "hsl(var(--text-secondary))" }}>
                 The blast radius shapes how deep we go in our analysis.
               </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                 {blastRadiusOptions.map((opt) => (
                   <OptionCard
                     key={opt.key}
@@ -366,7 +366,7 @@ export function NewDiagnosticFlow({ decision, onComplete, onSkip, onBackToLandin
               <p className="text-sm mb-8" style={{ color: "hsl(var(--text-secondary))" }}>
                 Every great decision has a limiting factor. What's yours?
               </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                 {constraintOptions.map((opt) => (
                   <OptionCard
                     key={opt.key}
@@ -396,8 +396,8 @@ export function NewDiagnosticFlow({ decision, onComplete, onSkip, onBackToLandin
                 value={successVision}
                 onChange={(e) => setSuccessVision(e.target.value.slice(0, 500))}
                 placeholder="e.g. We've captured 15% market share, the new team is shipping weekly, board approved Series B..."
-                rows={4}
-                className="typeform-textarea"
+                className="typeform-textarea text-base"
+                rows={window.innerWidth < 640 ? 3 : 4}
               />
               <div className="flex items-center justify-between mt-2">
                 <span className="text-xs" style={{ color: "hsl(var(--text-tertiary))" }}>
@@ -414,7 +414,8 @@ export function NewDiagnosticFlow({ decision, onComplete, onSkip, onBackToLandin
               <div className="flex items-center gap-3 mt-8">
                 <button
                   onClick={handleFinalSubmit}
-                  className="typeform-cta-primary group"
+                  className="typeform-cta-primary group w-full sm:w-auto"
+                  style={{ minHeight: 56 }}
                 >
                   Run Audit
                   <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />

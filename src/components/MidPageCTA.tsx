@@ -7,8 +7,8 @@ export function MidPageCTA() {
   return (
     <div className="px-4 sm:px-6 py-16 md:py-24">
       <div className="rounded-2xl mx-auto p-10 md:p-14 text-center" style={{ maxWidth: 672, background: "hsl(var(--secondary))", border: "1px solid hsl(var(--border))" }}>
-        <h3 className="text-2xl md:text-3xl font-bold mb-4" style={{ color: "hsl(var(--text-primary))" }}>Ready?</h3>
-        <p className="text-base mb-8" style={{ color: "hsl(var(--text-secondary))" }}>30 seconds to clarity.</p>
+        <h3 className="text-2xl md:text-3xl font-bold mb-4" style={{ color: "hsl(var(--text-primary))" }}>Your next big decision deserves better</h3>
+        <p className="text-base mb-8" style={{ color: "hsl(var(--text-secondary))" }}>McKinsey-grade audit in 30 seconds. No account needed.</p>
         <button onClick={handleClick} className="rounded-full px-10 py-4 text-lg font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]" style={{ background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))", minHeight: 52 }}>
           Start free audit →
         </button>

@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { ArrowRight } from "lucide-react";
 import { TrustStrip } from "@/components/TrustStrip";
 import { SystemSections } from "@/components/SystemSections";
+import { OutputPreview } from "@/components/OutputPreview";
 import { MidPageCTA } from "@/components/MidPageCTA";
 import { TestimonialWall } from "@/components/TestimonialWall";
 import { FAQAccordion } from "@/components/FAQAccordion";
@@ -53,7 +54,7 @@ export function HomepageLanding({ onSubmit, remainingAudits, hasUsedAudit }: Pro
   return (
     <div className="flex flex-col page-enter">
       {/* Hero with subtle radial gradient */}
-      <div className="relative flex flex-col items-center px-4 sm:px-6 pt-28 sm:pt-36 pb-16 md:pb-20" style={{ minHeight: "85vh", justifyContent: "center" }}>
+      <div className="relative flex flex-col items-center px-4 sm:px-6 pt-20 sm:pt-28 pb-14 md:pb-16" style={{ justifyContent: "center" }}>
         {/* Premium background texture */}
         <div className="absolute inset-0 pointer-events-none" style={{
           background: "radial-gradient(ellipse 80% 50% at 50% 30%, hsla(221, 83%, 53%, 0.04), transparent)",
@@ -86,7 +87,7 @@ export function HomepageLanding({ onSubmit, remainingAudits, hasUsedAudit }: Pro
           </p>
 
           {/* Input */}
-          <div className="w-full" style={{ maxWidth: 672, marginTop: 40, opacity: heroVisible ? 1 : 0, transform: heroVisible ? "translateY(0)" : "translateY(14px)", transition: "opacity 400ms ease-out 200ms, transform 400ms ease-out 200ms" }}>
+          <div className="w-full" style={{ maxWidth: 672, marginTop: 24, opacity: heroVisible ? 1 : 0, transform: heroVisible ? "translateY(0)" : "translateY(14px)", transition: "opacity 400ms ease-out 200ms, transform 400ms ease-out 200ms" }}>
             {/* Desktop */}
             <div className="hidden sm:block">
               <div className={`relative flex items-center ${shake ? "input-shake" : ""}`} style={{
@@ -125,7 +126,7 @@ export function HomepageLanding({ onSubmit, remainingAudits, hasUsedAudit }: Pro
             </p>
           )}
 
-          <div className="mt-5 flex gap-2.5 pb-2 w-full justify-center flex-wrap px-1" style={{ maxWidth: 672 }}>
+          <div className="mt-4 flex gap-2 pb-2 w-full justify-center flex-wrap px-1" style={{ maxWidth: 672 }}>
             {exampleChips.map((chip) => (
               <button key={chip} onClick={() => handleChipClick(chip)} className="rounded-full px-4 py-2 text-sm transition-all duration-200 hover:border-[hsl(var(--primary))] hover:scale-[1.02]" style={{ background: "transparent", border: "1px solid hsl(var(--border))", color: "hsl(var(--text-secondary))", minHeight: 44, whiteSpace: "normal", textAlign: "center", boxShadow: "0 1px 3px hsla(0, 0%, 0%, 0.04)", transition: "transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease" }}
                 onMouseEnter={(e) => { e.currentTarget.style.boxShadow = "0 4px 12px hsla(0, 0%, 0%, 0.08)"; }}
@@ -146,6 +147,7 @@ export function HomepageLanding({ onSubmit, remainingAudits, hasUsedAudit }: Pro
 
       <TrustStrip />
       <SystemSections />
+      <OutputPreview />
       <MidPageCTA />
       <TestimonialWall />
       <FAQAccordion />
