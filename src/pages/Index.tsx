@@ -73,8 +73,9 @@ const Index = () => {
   };
 
   const handleLandingSubmit = (text: string) => {
-    // Demo mode: navigate directly to mock audit results
-    navigate(`/audit-results?decision=${encodeURIComponent(text.trim())}`);
+    setDecision(text.trim());
+    sessionStorage.setItem("stratos_diag_decision", text.trim());
+    setPhase("diagnostic");
   };
 
   const handleSkipDiagnostic = useCallback(() => {
