@@ -45,8 +45,8 @@ export function TestimonialWall() {
     <div className="py-16 md:py-20" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
       <h2 className="text-2xl sm:text-3xl font-bold text-center mb-3" style={{ color: "hsl(var(--text-primary))" }}>Trusted by leaders making high-stakes calls</h2>
       <p className="text-center text-base mb-8" style={{ color: "hsl(var(--text-secondary))" }}>From early users</p>
-      <div className="relative">
-        <div ref={scrollRef} className="flex gap-6 overflow-x-auto scroll-snap-x snap-mandatory px-4 pb-4 scrollbar-hide" style={{ scrollSnapType: "x mandatory" }}>
+      <div className="relative" style={{ overflow: "visible" }}>
+        <div ref={scrollRef} className="flex gap-6 overflow-x-auto scroll-snap-x snap-mandatory px-8 pb-4 scrollbar-hide" style={{ scrollSnapType: "x mandatory" }}>
           {testimonials.map((t, i) => (
             <div key={i} className="testimonial-card flex-shrink-0 rounded-2xl p-8 transition-all duration-200 snap-start hover:shadow-md" style={{ minWidth: 320, maxWidth: 420, width: "85vw", background: "hsl(var(--secondary))", border: "1px solid hsl(var(--border))", borderLeft: "3px solid hsl(var(--primary))" }}>
               <div className="mb-4" style={{ color: "hsl(var(--warning))", fontSize: 16, letterSpacing: 2 }}>★★★★★</div>
@@ -57,10 +57,38 @@ export function TestimonialWall() {
             </div>
           ))}
         </div>
-        <button onClick={() => scroll(-1)} className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 items-center justify-center rounded-full w-10 h-10 transition-all duration-200 hover:scale-[1.05]" style={{ background: "hsl(0, 0%, 100%)", border: "1px solid hsl(var(--border))", boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }} aria-label="Previous">
+        {/* Left arrow */}
+        <button
+          onClick={() => scroll(-1)}
+          className="hidden md:flex absolute items-center justify-center rounded-full w-10 h-10 transition-all duration-200 hover:scale-[1.05] hover:shadow-lg"
+          style={{
+            left: -12,
+            top: "50%",
+            transform: "translateY(-50%)",
+            background: "hsl(0, 0%, 100%)",
+            border: "1px solid hsl(var(--border))",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+            zIndex: 10,
+          }}
+          aria-label="Previous"
+        >
           <ChevronLeft className="w-5 h-5" style={{ color: "hsl(var(--text-primary))" }} />
         </button>
-        <button onClick={() => scroll(1)} className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 items-center justify-center rounded-full w-10 h-10 transition-all duration-200 hover:scale-[1.05]" style={{ background: "hsl(0, 0%, 100%)", border: "1px solid hsl(var(--border))", boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }} aria-label="Next">
+        {/* Right arrow */}
+        <button
+          onClick={() => scroll(1)}
+          className="hidden md:flex absolute items-center justify-center rounded-full w-10 h-10 transition-all duration-200 hover:scale-[1.05] hover:shadow-lg"
+          style={{
+            right: -12,
+            top: "50%",
+            transform: "translateY(-50%)",
+            background: "hsl(0, 0%, 100%)",
+            border: "1px solid hsl(var(--border))",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+            zIndex: 10,
+          }}
+          aria-label="Next"
+        >
           <ChevronRight className="w-5 h-5" style={{ color: "hsl(var(--text-primary))" }} />
         </button>
       </div>

@@ -1,5 +1,5 @@
 import { useSearchParams, Link } from "react-router-dom";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { NavBar } from "@/components/NavBar";
 import { Footer } from "@/components/Footer";
 import { ArrowRight, ArrowLeft, ArrowUp, AlertTriangle, Users, Target, Shield, TrendingUp, Copy, Share2, Swords, ChevronDown } from "lucide-react";
@@ -44,6 +44,16 @@ const mockData = {
   },
 };
 
+const NAV_TABS = [
+  { id: "verdict-section", label: "Verdict" },
+  { id: "mece", label: "Breakdown" },
+  { id: "risks", label: "Risks" },
+  { id: "stakeholders", label: "Stakeholders" },
+  { id: "actions", label: "Actions" },
+  { id: "devils-advocate", label: "Devil's Advocate" },
+  { id: "rapid", label: "RAPID" },
+];
+
 function ScoreGauge({ score }: { score: number }) {
   const [animatedScore, setAnimatedScore] = useState(0);
   const radius = 70;
@@ -58,10 +68,10 @@ function ScoreGauge({ score }: { score: number }) {
     let raf: number;
     const animate = (now: number) => {
       const elapsed = now - start;
-      const progress = Math.min(elapsed / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
+      const p = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
       setAnimatedScore(Math.round(eased * score));
-      if (progress < 1) raf = requestAnimationFrame(animate);
+      if (p < 1) raf = requestAnimationFrame(animate);
     };
     raf = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(raf);
@@ -106,17 +116,17 @@ function FeasibilityBadge({ feasibility }: { feasibility: string }) {
   return <span className="rounded-full px-2.5 py-0.5 text-xs font-semibold" style={{ background: c.bg, color: c.text }}>{feasibility}</span>;
 }
 
-function CollapsibleCard({ title, icon: Icon, label, children, id, defaultOpen = false, expandedSet, onToggle }: {
-  title: string; icon: any; label: string; children: React.ReactNode; id: string; defaultOpen?: boolean;
-  expandedSet: Set<string>; onToggle: (id: string) => void;
+function CollapsibleCard({ title, icon: Icon, label, children, id, expandedSet, onToggle, borderColor }: {
+  title: string; icon: any; label: string; children: React.ReactNode; id: string;
+  expandedSet: Set<string>; onToggle: (id: string) => void; borderColor?: string;
 }) {
   const isOpen = expandedSet.has(id);
   return (
-    <div id={id} className="rounded-xl scroll-mt-24" style={{ background: "hsl(var(--secondary))", border: "1px solid hsl(var(--border))" }}>
+    <div id={id} className="rounded-xl scroll-mt-24" style={{ background: "hsl(var(--secondary))", border: "1px solid hsl(var(--border))", borderLeft: borderColor ? `3px solid ${borderColor}` : undefined }}>
       <button onClick={() => onToggle(id)} className="w-full flex items-center justify-between p-6 text-left transition-colors hover:bg-black/[0.01]">
         <div className="flex items-center gap-2">
-          <Icon className="w-4 h-4" style={{ color: "hsl(var(--primary))" }} />
-          <p className="text-xs font-semibold uppercase tracking-wider" style={{ letterSpacing: "0.1em", color: "hsl(var(--primary))" }}>{label}</p>
+          <Icon className="w-4 h-4" style={{ color: borderColor || "hsl(var(--primary))" }} />
+          <p className="text-xs font-semibold uppercase tracking-wider" style={{ letterSpacing: "0.1em", color: borderColor || "hsl(var(--primary))" }}>{label}</p>
         </div>
         <div className="flex items-center gap-3">
           <span className="text-base font-semibold" style={{ color: "hsl(var(--text-primary))" }}>{title}</span>
@@ -139,7 +149,10 @@ export default function MockAuditResults() {
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(["mece", "risks", "stakeholders", "actions", "devils-advocate", "rapid"]));
   const [verdictPulse, setVerdictPulse] = useState(false);
+  const [activeTab, setActiveTab] = useState("verdict-section");
   const scoreRef = useRef<HTMLDivElement>(null);
+  const tabBarRef = useRef<HTMLDivElement>(null);
+  const indicatorRef = useRef<HTMLDivElement>(null);
 
   const verdictColor = mockData.verdict === "PROCEED" ? "hsl(var(--success))" : mockData.verdict.includes("CONDITIONAL") ? "hsl(var(--warning))" : "hsl(var(--destructive))";
   const verdictBgTint = mockData.confidenceScore <= 30 ? "hsla(0, 84%, 60%, 0.05)" : mockData.confidenceScore <= 60 ? "hsla(38, 92%, 50%, 0.05)" : mockData.confidenceScore <= 80 ? "hsla(173, 58%, 39%, 0.05)" : "hsla(142, 71%, 45%, 0.05)";
@@ -156,12 +169,63 @@ export default function MockAuditResults() {
     return () => window.removeEventListener("scroll", h);
   }, []);
 
+  // Intersection observer for active tab
+  useEffect(() => {
+    const ids = NAV_TABS.map(t => t.id);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setActiveTab(entry.target.id);
+          }
+        }
+      },
+      { rootMargin: "-100px 0px -60% 0px", threshold: 0.1 }
+    );
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+    return () => observer.disconnect();
+  }, []);
+
+  // Sliding underline indicator
+  const updateIndicator = useCallback(() => {
+    if (!tabBarRef.current || !indicatorRef.current) return;
+    const activeBtn = tabBarRef.current.querySelector(`[data-tab="${activeTab}"]`) as HTMLElement;
+    if (!activeBtn) return;
+    const barRect = tabBarRef.current.getBoundingClientRect();
+    const btnRect = activeBtn.getBoundingClientRect();
+    indicatorRef.current.style.left = `${btnRect.left - barRect.left}px`;
+    indicatorRef.current.style.width = `${btnRect.width}px`;
+  }, [activeTab]);
+
+  useEffect(() => {
+    updateIndicator();
+  }, [activeTab, updateIndicator]);
+
+  useEffect(() => {
+    window.addEventListener("resize", updateIndicator);
+    return () => window.removeEventListener("resize", updateIndicator);
+  }, [updateIndicator]);
+
   const toggleSection = (id: string) => {
     setExpandedSections(prev => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id); else next.add(id);
       return next;
     });
+  };
+
+  const handleTabClick = (id: string) => {
+    setExpandedSections(prev => {
+      const next = new Set(prev);
+      next.add(id);
+      return next;
+    });
+    setTimeout(() => {
+      document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 50);
   };
 
   const handleCopySummary = () => {
@@ -190,8 +254,8 @@ export default function MockAuditResults() {
           <p className="text-sm font-medium uppercase tracking-wider mb-2" style={{ letterSpacing: "0.1em", color: "hsl(var(--primary))" }}>Decision Audit</p>
           <h1 className="text-2xl sm:text-3xl font-bold mb-8" style={{ color: "hsl(var(--text-primary))" }}>{decision}</h1>
 
-          {/* Confidence Score with background tint */}
-          <div ref={scoreRef} className="rounded-xl p-6 text-center mb-6" style={{ background: verdictBgTint, border: "1px solid hsl(var(--border))" }}>
+          {/* Confidence Score */}
+          <div id="verdict-section" ref={scoreRef} className="rounded-xl p-6 text-center mb-6 scroll-mt-24" style={{ background: verdictBgTint, border: "1px solid hsl(var(--border))" }}>
             <p className="text-xs font-semibold uppercase tracking-wider mb-1" style={{ letterSpacing: "0.1em", color: "hsl(var(--primary))" }}>Confidence Score</p>
             <div className="mt-4"><ScoreGauge score={mockData.confidenceScore} /></div>
             <span className="inline-block mt-4 rounded-full px-4 py-1.5 text-sm font-bold transition-transform" style={{
@@ -207,10 +271,40 @@ export default function MockAuditResults() {
             </p>
           </div>
 
-          {/* The Reframe */}
-          <div className="rounded-xl p-6 mb-6" style={{ background: "hsla(40, 50%, 95%, 1)", borderLeft: "3px solid hsl(var(--primary))", border: "1px solid hsl(var(--border))", borderLeftWidth: 3, borderLeftColor: "hsl(var(--primary))" }}>
+          {/* The Reframe — styled quote block */}
+          <div className="rounded-xl p-6 mb-6" style={{ background: "hsla(40, 50%, 97%, 1)", borderLeft: "3px solid hsl(var(--primary))", borderTop: "1px solid hsl(var(--border))", borderRight: "1px solid hsl(var(--border))", borderBottom: "1px solid hsl(var(--border))" }}>
             <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ letterSpacing: "0.1em", color: "hsl(var(--primary))" }}>The Reframe</p>
             <p className="text-base italic leading-relaxed" style={{ color: "hsl(var(--text-primary))", lineHeight: 1.7 }}>{mockData.reframeQuestion}</p>
+          </div>
+
+          {/* Sticky Tab Navigation with sliding underline */}
+          <div className="sticky top-16 z-40 -mx-4 px-4 py-2 mb-6" style={{ background: "hsla(0, 0%, 100%, 0.95)", backdropFilter: "blur(8px)", borderBottom: "1px solid hsl(var(--border))" }}>
+            <div ref={tabBarRef} className="flex gap-1 overflow-x-auto scrollbar-hide relative pb-1">
+              {NAV_TABS.map((tab) => (
+                <button
+                  key={tab.id}
+                  data-tab={tab.id}
+                  onClick={() => handleTabClick(tab.id)}
+                  className="flex-shrink-0 px-3 py-2 text-xs font-medium transition-colors duration-200 relative"
+                  style={{
+                    color: activeTab === tab.id ? "hsl(var(--primary))" : "hsl(var(--text-secondary))",
+                    background: "transparent",
+                    border: "none",
+                    minHeight: 36,
+                  }}
+                >
+                  {tab.label}
+                </button>
+              ))}
+              {/* Sliding underline indicator */}
+              <div
+                ref={indicatorRef}
+                className="absolute bottom-0 h-0.5 rounded-full transition-all duration-200 ease-out"
+                style={{ background: "hsl(var(--primary))" }}
+              />
+              {/* Mobile gradient fade */}
+              <div className="absolute right-0 top-0 bottom-0 w-8 pointer-events-none sm:hidden" style={{ background: "linear-gradient(to right, transparent, hsla(0, 0%, 100%, 0.95))" }} />
+            </div>
           </div>
 
           {/* Collapsible Sections */}
@@ -282,24 +376,18 @@ export default function MockAuditResults() {
               </div>
             </CollapsibleCard>
 
-            {/* Devil's Advocate — distinct visual */}
-            <div id="devils-advocate" className="rounded-xl scroll-mt-24" style={{ background: "hsl(var(--secondary))", border: "1px solid hsl(var(--border))", borderLeft: "3px solid hsl(var(--destructive))" }}>
-              <button onClick={() => toggleSection("devils-advocate")} className="w-full flex items-center justify-between p-6 text-left transition-colors hover:bg-black/[0.01]">
-                <div className="flex items-center gap-2">
-                  <Swords className="w-4 h-4" style={{ color: "hsl(var(--destructive))" }} />
-                  <p className="text-xs font-semibold uppercase tracking-wider" style={{ letterSpacing: "0.1em", color: "hsl(var(--destructive))" }}>Devil's Advocate</p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-base font-semibold" style={{ color: "hsl(var(--text-primary))" }}>The Counterargument</span>
-                  <ChevronDown className="w-5 h-5 transition-transform duration-300" style={{ color: "hsl(var(--text-tertiary))", transform: expandedSections.has("devils-advocate") ? "rotate(180deg)" : "rotate(0deg)" }} />
-                </div>
-              </button>
-              <div className="overflow-hidden transition-all duration-300 ease-out" style={{ maxHeight: expandedSections.has("devils-advocate") ? 2000 : 0, opacity: expandedSections.has("devils-advocate") ? 1 : 0 }}>
-                <div className="px-6 pb-6">
-                  <p className="text-base leading-relaxed" style={{ color: "hsl(var(--text-secondary))", lineHeight: 1.7 }}>{mockData.devilsAdvocate}</p>
-                </div>
-              </div>
-            </div>
+            {/* Devil's Advocate — red left border + Swords icon */}
+            <CollapsibleCard
+              id="devils-advocate"
+              icon={Swords}
+              label="Devil's Advocate"
+              title="The Counterargument"
+              expandedSet={expandedSections}
+              onToggle={toggleSection}
+              borderColor="hsla(0, 70%, 60%, 0.6)"
+            >
+              <p className="text-base leading-relaxed" style={{ color: "hsl(var(--text-secondary))", lineHeight: 1.7 }}>{mockData.devilsAdvocate}</p>
+            </CollapsibleCard>
 
             <CollapsibleCard id="rapid" icon={TrendingUp} label="RAPID Framework" title="Role Assignment" expandedSet={expandedSections} onToggle={toggleSection}>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
