@@ -259,7 +259,18 @@ export function NewDiagnosticFlow({ decision, onComplete, onSkip, onBackToLandin
                 rows={3}
               />
               <div className="flex items-center justify-between mt-2">
-                <span className="text-xs" style={{ color: "hsl(var(--text-tertiary))" }}>A sentence or two</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs" style={{ color: "hsl(var(--text-tertiary))" }}>A sentence or two</span>
+                  <button
+                    type="button"
+                    onClick={toggleVoice}
+                    className={`inline-flex items-center justify-center w-8 h-8 rounded-full transition-all ${voice.isListening ? "shazam-pulse" : ""}`}
+                    style={{ background: voice.isListening ? "hsl(var(--primary))" : "hsl(var(--secondary))", color: voice.isListening ? "hsl(var(--primary-foreground))" : "hsl(var(--text-secondary))" }}
+                    title={voice.isListening ? "Stop listening" : "Dictate"}
+                  >
+                    {voice.isListening ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5" />}
+                  </button>
+                </div>
                 <span className="text-xs font-medium" style={{ color: charColor(stakes.length) }}>{stakes.length}/500</span>
               </div>
               <div className="flex items-center gap-3 mt-8">
