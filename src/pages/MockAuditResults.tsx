@@ -8,7 +8,7 @@ import { toast } from "sonner";
 const mockData = {
   confidenceScore: 72,
   verdict: "CONDITIONAL PROCEED",
-  verdictDescription: "The acquisition has strong strategic merit but carries significant integration risks. Proceed only after addressing the three critical risks identified below and securing board alignment on the 18-month integration timeline.",
+  verdictDescription: "Strong strategic merit but significant integration risks. Proceed only after addressing the three critical risks below and securing board alignment on the 18-month timeline.",
   meceBreakdown: [
     { dimension: "Strategic Fit", score: 85, description: "Strong product complementarity and market overlap. Combined entity would hold 34% market share in the target segment." },
     { dimension: "Financial Viability", score: 68, description: "DCF valuation suggests fair value at 1.2x premium. Cash reserves sufficient but will constrain R&D spending for 2 quarters." },
