@@ -10,11 +10,11 @@ const mockData = {
   verdict: "CONDITIONAL PROCEED",
   verdictDescription: "Strong strategic merit but significant integration risks. Proceed only after addressing the three critical risks below and securing board alignment on the 18-month timeline.",
   meceBreakdown: [
-    { dimension: "Strategic Fit", score: 85, description: "Strong product complementarity and market overlap. Combined entity would hold 34% market share in the target segment." },
-    { dimension: "Financial Viability", score: 68, description: "DCF valuation suggests fair value at 1.2x premium. Cash reserves sufficient but will constrain R&D spending for 2 quarters." },
+    { dimension: "Strategic Fit", score: 85, description: "Strong product complementarity. Combined entity holds 34% market share." },
+    { dimension: "Financial Viability", score: 68, description: "DCF valuation fair at 1.2x premium. Will constrain R&D for 2 quarters." },
     { dimension: "Operational Readiness", score: 61, description: "Integration team identified but timeline aggressive. Key dependency on retaining target's engineering leadership." },
-    { dimension: "Market Timing", score: 78, description: "Competitor consolidation accelerating. Window of opportunity narrows significantly after Q3 as regulatory landscape shifts." },
-    { dimension: "Cultural Alignment", score: 55, description: "Significant differences in decision-making culture. Target operates with flat hierarchy vs. acquirer's matrix structure." },
+    { dimension: "Market Timing", score: 78, description: "Competitor consolidation accelerating. Window narrows significantly after Q3." },
+    { dimension: "Cultural Alignment", score: 55, description: "Significant decision-making culture gap. Flat hierarchy vs. matrix structure." },
   ],
   risks: [
     { risk: "Integration timeline exceeds 12-month window", severity: "High", mitigation: "Appoint dedicated integration PMO with weekly executive steering committee reviews. Set 90-day milestone checkpoints." },
