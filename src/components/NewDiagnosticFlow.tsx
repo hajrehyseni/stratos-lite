@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Check, ArrowLeft, ArrowRight, CornerDownLeft } from "lucide-react";
+import { Check, ArrowLeft, ArrowRight, CornerDownLeft, Mic, MicOff } from "lucide-react";
+import { useVoiceInput } from "@/hooks/use-voice-input";
+import { toast } from "@/hooks/use-toast";
 
 export interface DiagnosticResult {
   stakes: string;
