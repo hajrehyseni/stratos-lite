@@ -91,7 +91,7 @@ function OptionCard({
       onClick={onClick}
       className="group text-left relative w-full transition-all duration-200 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
       style={{
-        padding: "20px 24px",
+        padding: window.innerWidth < 640 ? "16px 20px" : "20px 24px",
         borderRadius: 14,
         background: selected ? "hsla(221, 83%, 53%, 0.06)" : "hsl(var(--secondary))",
         border: selected ? "2px solid hsl(var(--primary))" : "1.5px solid hsl(var(--border))",
