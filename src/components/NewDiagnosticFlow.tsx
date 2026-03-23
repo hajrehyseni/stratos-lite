@@ -252,7 +252,7 @@ export function NewDiagnosticFlow({ decision, onComplete, onSkip, onBackToLandin
                 What happens if you get this wrong?
               </h1>
               <p className="text-sm mb-6" style={{ color: "hsl(var(--text-secondary))" }}>
-                Think worst-case: money lost, trust eroded, opportunities missed.
+                Worst case — money, trust, opportunities.
               </p>
               <textarea
                 ref={textareaRef}
