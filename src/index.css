@@ -59,8 +59,14 @@
     line-height: 1.6;
   }
 
-  h1, h2, h3 {
-    font-family: 'Instrument Serif', serif;
+  h1 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+  }
+
+  h2, h3 {
+    font-family: 'Playfair Display', Georgia, serif;
     font-weight: 400;
     letter-spacing: -0.03em;
   }
