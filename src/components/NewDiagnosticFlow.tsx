@@ -206,7 +206,7 @@ export function NewDiagnosticFlow({ decision, onComplete, onSkip, onBackToLandin
   return (
     <div ref={containerRef} className="relative min-h-screen flex flex-col">
       {/* Fixed progress bar */}
-      <div className="fixed top-0 left-0 right-0 z-50 h-1 bg-border/40">
+      <div className="fixed top-0 left-0 right-0 z-50 h-0.5 bg-border/40">
         <div
           className="h-full rounded-r-full transition-all duration-500 ease-out"
           style={{ width: `${progress}%`, background: "hsl(var(--primary))" }}
