@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Copy, Download, Check, BookmarkPlus, ChevronDown, ChevronUp, Share2, ArrowUp } from "lucide-react";
+import { Copy, Download, Check, BookmarkPlus, ChevronDown, ChevronUp, Share2, ArrowUp, Volume2, VolumeX } from "lucide-react";
 import { Link } from "react-router-dom";
 import type { AuditResult } from "@/lib/types";
 import { generateBrief } from "@/lib/copy-brief";
@@ -8,6 +8,7 @@ import { getJournalCount } from "@/lib/journal";
 import { useAuth } from "@/contexts/AuthContext";
 import { ConfidenceGauge } from "@/components/ConfidenceGauge";
 import { toast } from "sonner";
+import { useTTS } from "@/hooks/use-tts";
 
 interface ScorecardProps {
   decision: string;
@@ -133,6 +134,7 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
   const [activeSection, setActiveSection] = useState("section-verdict");
   const { user } = useAuth();
   const journalCount = getJournalCount();
+  const tts = useTTS();
 
   const reframe = result.reframe_question || result.better_question || "";
   const rationale = result.verdict_rationale || result.confidence_rationale || "";
@@ -249,6 +251,24 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
   // Top 3 actions for executive summary
   const topActions = result.recommendations?.filter(r => r.feasible).slice(0, 3) || [];
 
+  const handleListen = () => {
+    if (tts.isSpeaking) {
+      tts.stop();
+      return;
+    }
+    if (!tts.isSupported) {
+      toast.error("Text-to-speech not supported in this browser");
+      return;
+    }
+    const sections: string[] = [
+      `Verdict: ${result.verdict}. Confidence score: ${result.confidence_score} out of 100. ${getReadinessInterpretation(result.confidence_score)}`,
+      reframe ? `The reframe question: ${reframe}` : "",
+      topActions.length > 0 ? `Top recommended actions: ${topActions.map((r, i) => `${i + 1}. ${r.action}`).join(". ")}` : "",
+      result.biggest_risk ? `Biggest risk: ${result.biggest_risk}` : "",
+    ];
+    tts.speak(sections);
+  };
+
   return (
     <div className="min-h-screen px-4 pt-20 pb-16 page-enter">
       {/* Conversion modal */}
@@ -298,6 +318,31 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
               verdict={result.verdict}
               rationale={getReadinessInterpretation(result.confidence_score)}
             />
+          </div>
+
+          {/* Listen button */}
+          <div className="flex justify-center mb-4">
+            <button
+              onClick={handleListen}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+              style={{
+                border: "1px solid hsl(var(--border))",
+                background: tts.isSpeaking ? "hsl(var(--primary))" : "transparent",
+                color: tts.isSpeaking ? "hsl(var(--primary-foreground))" : "hsl(var(--text-secondary))",
+              }}
+            >
+              {tts.isSpeaking ? (
+                <>
+                  <VolumeX className="w-4 h-4 animate-pulse" />
+                  Stop ({tts.currentSection}/{tts.totalSections})
+                </>
+              ) : (
+                <>
+                  <Volume2 className="w-4 h-4" />
+                  Listen to Summary
+                </>
+              )}
+            </button>
           </div>
 
           {/* Reframe */}
@@ -405,49 +450,67 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
             {rationale && <p className="mt-2 text-base" style={{ color: "hsl(var(--text-secondary))" }}>{rationale}</p>}
           </div>
 
-          {/* Time Horizon */}
+          {/* Time Horizon — Visual Timeline */}
           {result.time_horizon && (
             <div className="rounded-xl p-6 mt-3" style={cardStyle}>
               <CardLabel>Time Horizon Check</CardLabel>
-              <div className="space-y-4">
+              <div className="relative flex items-start justify-between gap-2 mt-4">
+                {/* Connecting line */}
+                <div className="absolute top-5 left-[10%] right-[10%] h-px" style={{ background: "hsl(var(--border))" }} />
                 {[
-                  { icon: "⏱", label: "10 minutes", value: result.time_horizon.ten_minutes },
-                  { icon: "📅", label: "10 months", value: result.time_horizon.ten_months },
-                  { icon: "🏛", label: "10 years", value: result.time_horizon.ten_years },
-                ].map((row) => (
-                  <div key={row.label} className="flex gap-3">
-                    <span className="text-base flex-shrink-0">{row.icon}</span>
-                    <div>
-                      <span className="text-xs font-semibold uppercase" style={{ color: "hsl(var(--text-secondary))", letterSpacing: "0.05em" }}>{row.label}:</span>
-                      <p className="text-base mt-1" style={{ color: "hsl(var(--text-primary))", lineHeight: 1.6 }}>{row.value}</p>
+                  { label: "10 min", value: result.time_horizon.ten_minutes, color: "hsl(var(--primary))" },
+                  { label: "10 mo", value: result.time_horizon.ten_months, color: "hsl(var(--warning))" },
+                  { label: "10 yr", value: result.time_horizon.ten_years, color: "hsl(var(--success))" },
+                ].map((node) => (
+                  <div key={node.label} className="relative flex flex-col items-center text-center flex-1 z-10">
+                    <div
+                      className="flex items-center justify-center rounded-full mb-2"
+                      style={{ width: 40, height: 40, background: `${node.color}15`, border: `2px solid ${node.color}` }}
+                    >
+                      <span className="text-xs font-bold" style={{ color: node.color }}>{node.label}</span>
                     </div>
+                    <p className="text-sm" style={{ color: "hsl(var(--text-primary))", lineHeight: 1.5, maxWidth: 160 }}>{node.value}</p>
                   </div>
                 ))}
               </div>
             </div>
           )}
 
-          {/* MECE */}
-          {result.mece_tree?.branches && result.mece_tree.branches.length > 0 && (
-            <div className="mt-3">
-              <CardLabel>Decision Breakdown (MECE)</CardLabel>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {result.mece_tree.branches.map((branch, i) => (
-                  <div key={i} className="rounded-xl p-5" style={cardStyle}>
-                    <p className="text-base font-semibold mb-3" style={{ color: "hsl(var(--text-primary))" }}>{branch.title}</p>
-                    <ul className="space-y-2">
-                      {branch.findings.map((f, j) => (
-                        <li key={j} className="flex gap-2 text-base" style={{ color: "hsl(var(--text-secondary))", lineHeight: 1.6 }}>
-                          <span style={{ color: "hsl(var(--primary))", opacity: 0.5, flexShrink: 0 }}>•</span>
-                          <span>{f}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
+          {/* MECE — Proportional Bars */}
+          {result.mece_tree?.branches && result.mece_tree.branches.length > 0 && (() => {
+            const totalFindings = result.mece_tree!.branches.reduce((sum, b) => sum + b.findings.length, 0);
+            const barColors = ["hsl(var(--primary))", "hsl(var(--success))", "hsl(var(--warning))", "hsl(217, 91%, 60%)", "hsl(var(--destructive))", "hsl(174, 60%, 45%)"];
+            return (
+              <div className="mt-3">
+                <CardLabel>Decision Breakdown (MECE)</CardLabel>
+                <div className="space-y-3">
+                  {result.mece_tree!.branches.map((branch, i) => {
+                    const pct = totalFindings > 0 ? Math.round((branch.findings.length / totalFindings) * 100) : 0;
+                    const color = barColors[i % barColors.length];
+                    return (
+                      <div key={i} className="rounded-xl p-5" style={cardStyle}>
+                        <div className="flex items-center justify-between mb-2">
+                          <p className="text-sm font-semibold" style={{ color: "hsl(var(--text-primary))" }}>{branch.title}</p>
+                          <span className="text-xs font-bold" style={{ color }}>{pct}%</span>
+                        </div>
+                        <div className="w-full rounded-full overflow-hidden mb-3" style={{ height: 6, background: "hsl(var(--border))" }}>
+                          <div className="h-full rounded-full transition-all duration-700" style={{ width: `${pct}%`, background: color }} />
+                        </div>
+                        <ul className="space-y-1.5">
+                          {branch.findings.map((f, j) => (
+                            <li key={j} className="flex gap-2 text-sm" style={{ color: "hsl(var(--text-secondary))", lineHeight: 1.5 }}>
+                              <span style={{ color, opacity: 0.7, flexShrink: 0 }}>•</span>
+                              <span>{f}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
         </CollapsibleSection>
 
         {/* RISKS */}
@@ -610,7 +673,7 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
           </CollapsibleSection>
         )}
 
-        {/* RAPID */}
+        {/* RAPID — Horizontal Badge Row */}
         {result.rapid && (
           <CollapsibleSection
             id="section-rapid"
@@ -618,23 +681,33 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
             forceOpen={allExpanded || undefined}
           >
             <div className="rounded-xl p-6" style={cardStyle}>
-              {[
-                { letter: "R", label: "Recommend", value: result.rapid.recommend },
-                { letter: "A", label: "Agree", value: result.rapid.agree },
-                { letter: "P", label: "Perform", value: result.rapid.perform },
-                { letter: "I", label: "Input", value: result.rapid.input },
-                { letter: "D", label: "Decide", value: result.rapid.decide },
-              ].map((row) => (
-                <div key={row.letter} className="flex items-start gap-4 py-3.5" style={{ borderBottom: "1px solid hsl(var(--border))" }}>
-                  <span className="flex items-center justify-center rounded-lg font-bold" style={{ width: 36, height: 36, flexShrink: 0, background: "hsla(16, 100%, 62%, 0.12)", color: "hsl(var(--primary))", fontSize: 15 }}>
-                    {row.letter}
-                  </span>
-                  <div>
-                    <span className="text-xs font-semibold uppercase" style={{ color: "hsl(var(--text-tertiary))", letterSpacing: "0.05em" }}>{row.label}</span>
-                    <p className="text-base mt-1" style={{ color: "hsl(var(--text-primary))", lineHeight: 1.5 }}>{row.value}</p>
+              {/* Badge row */}
+              <div className="flex flex-wrap gap-2 mb-5">
+                {[
+                  { letter: "R", label: "Recommend", value: result.rapid.recommend, color: "hsl(var(--primary))" },
+                  { letter: "A", label: "Agree", value: result.rapid.agree, color: "hsl(var(--success))" },
+                  { letter: "P", label: "Perform", value: result.rapid.perform, color: "hsl(217, 91%, 60%)" },
+                  { letter: "I", label: "Input", value: result.rapid.input, color: "hsl(var(--warning))" },
+                  { letter: "D", label: "Decide", value: result.rapid.decide, color: "hsl(var(--destructive))" },
+                ].map((row) => (
+                  <div
+                    key={row.letter}
+                    className="inline-flex items-center gap-2 rounded-full px-3 py-1.5"
+                    style={{ background: `${row.color}12`, border: `1px solid ${row.color}30` }}
+                  >
+                    <span className="flex items-center justify-center rounded-full font-bold" style={{ width: 22, height: 22, fontSize: 11, background: row.color, color: "#fff" }}>
+                      {row.letter}
+                    </span>
+                    <span className="text-sm font-medium" style={{ color: "hsl(var(--text-primary))" }}>{row.value}</span>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
+              {/* Legend */}
+              <div className="flex flex-wrap gap-3 text-xs" style={{ color: "hsl(var(--text-tertiary))" }}>
+                {["R = Recommend", "A = Agree", "P = Perform", "I = Input", "D = Decide"].map(l => (
+                  <span key={l}>{l}</span>
+                ))}
+              </div>
             </div>
           </CollapsibleSection>
         )}
@@ -671,23 +744,40 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
           </CollapsibleSection>
         )}
 
-        {/* Stakeholder Map */}
+        {/* Stakeholder Map — Visual Position Dots */}
         {result.stakeholder_map && result.stakeholder_map.length > 0 && (
           <CollapsibleSection id="section-stakeholder-map" title="Stakeholder Map" forceOpen={allExpanded || undefined}>
-            <div className="rounded-xl overflow-hidden" style={cardStyle}>
-              <div className="hidden sm:grid grid-cols-[2fr_1fr_1fr_3fr] gap-2 px-5 py-3" style={{ borderBottom: "1px solid hsl(var(--border))" }}>
-                {["Role", "Position", "Influence", "Action"].map((h) => (
-                  <span key={h} className="text-xs uppercase font-semibold" style={{ letterSpacing: "0.1em", color: "hsl(var(--text-tertiary))" }}>{h}</span>
-                ))}
+            <div className="rounded-xl p-6" style={cardStyle}>
+              {/* Visual dot map */}
+              <div className="flex flex-wrap gap-4 mb-5">
+                {result.stakeholder_map.map((s, i) => {
+                  const dotSize = s.influence === "High" ? 48 : s.influence === "Medium" ? 36 : 28;
+                  const dotColor = positionColors[s.position] || "hsl(var(--text-tertiary))";
+                  return (
+                    <div key={i} className="flex flex-col items-center gap-1.5" style={{ minWidth: 60 }}>
+                      <div
+                        className="rounded-full flex items-center justify-center text-xs font-bold transition-transform hover:scale-110"
+                        style={{ width: dotSize, height: dotSize, background: `${dotColor}20`, border: `2px solid ${dotColor}`, color: dotColor }}
+                        title={`${s.role}: ${s.position} (${s.influence} influence)`}
+                      >
+                        {s.role.charAt(0)}
+                      </div>
+                      <span className="text-xs font-medium text-center" style={{ color: "hsl(var(--text-primary))", maxWidth: 80 }}>{s.role}</span>
+                      <span className="text-xs" style={{ color: dotColor }}>{s.position}</span>
+                    </div>
+                  );
+                })}
               </div>
-              {result.stakeholder_map.map((s, i) => (
-                <div key={i} className="grid grid-cols-1 sm:grid-cols-[2fr_1fr_1fr_3fr] gap-2 px-5 py-3.5" style={{ borderBottom: "1px solid hsl(var(--border))" }}>
-                  <span className="text-base font-medium" style={{ color: "hsl(var(--text-primary))" }}>{s.role}</span>
-                  <span className="text-base" style={{ color: positionColors[s.position] || "hsl(var(--text-tertiary))" }}>{s.position}</span>
-                  <span className="text-base" style={{ color: "hsl(var(--text-secondary))" }}>{s.influence}</span>
-                  <span className="text-base" style={{ color: "hsl(var(--text-secondary))" }}>{s.action}</span>
-                </div>
-              ))}
+              {/* Legend */}
+              <div className="flex items-center gap-4 text-xs" style={{ color: "hsl(var(--text-tertiary))" }}>
+                {Object.entries(positionColors).map(([label, color]) => (
+                  <span key={label} className="flex items-center gap-1.5">
+                    <span className="inline-block rounded-full" style={{ width: 8, height: 8, background: color }} />
+                    {label}
+                  </span>
+                ))}
+                <span className="ml-2">Size = Influence</span>
+              </div>
             </div>
           </CollapsibleSection>
         )}
