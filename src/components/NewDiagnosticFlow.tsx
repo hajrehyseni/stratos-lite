@@ -229,7 +229,7 @@ export function NewDiagnosticFlow({ decision, onComplete, onSkip, onBackToLandin
       </div>
 
       {/* Main content — vertically centered */}
-      <div className="flex-1 flex items-center justify-center px-5 sm:px-8 py-24">
+      <div className="flex-1 flex items-center justify-center px-5 sm:px-8 py-16 sm:py-24">
         <div className={`w-full ${screenClass}`} style={{ maxWidth: 580 }}>
           {/* Decision reminder pill */}
           <div className="mb-8">
