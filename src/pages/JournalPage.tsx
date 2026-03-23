@@ -63,7 +63,9 @@ export default function JournalPage() {
                 />
               </div>
               <div className="rounded-xl overflow-hidden" style={{ background: "hsl(var(--secondary))", border: "1px solid hsl(var(--border))" }}>
-                {entries.map(entry => {
+                {entries
+                  .filter(e => searchQuery.trim() === "" || e.decision.toLowerCase().includes(searchQuery.toLowerCase()) || e.result.verdict.toLowerCase().includes(searchQuery.toLowerCase()))
+                  .map(entry => {
                   const isOpen = expanded === entry.id;
                   return (
                     <div key={entry.id} style={{ borderTop: "1px solid hsl(var(--border))" }}>

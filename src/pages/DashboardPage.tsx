@@ -166,7 +166,13 @@ export default function DashboardPage() {
               <div className="space-y-3"><SkeletonRow /><SkeletonRow /><SkeletonRow /></div>
             ) : (
               <div className="space-y-3">
-                {displayAudits.map(audit => {
+                {displayAudits
+                  .filter(a => {
+                    const matchesSearch = searchQuery.trim() === "" || a.decision.toLowerCase().includes(searchQuery.toLowerCase());
+                    const matchesVerdict = activeVerdict === "All" || a.verdict === activeVerdict;
+                    return matchesSearch && matchesVerdict;
+                  })
+                  .map(audit => {
                   const vc = getVerdictColor(audit.verdict);
                   return (
                     <Link
