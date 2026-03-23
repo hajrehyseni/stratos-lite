@@ -25,7 +25,7 @@ export function TestimonialWall() {
 
   return (
     <div className="py-16 md:py-24 px-4">
-      <h2 className="text-2xl sm:text-3xl font-bold text-center mb-12" style={{ color: "hsl(var(--text-primary))" }}>What leaders say</h2>
+      <h2 className="font-serif text-2xl sm:text-3xl text-center mb-12" style={{ color: "hsl(var(--text-primary))" }}>What leaders say</h2>
       <div className="mx-auto text-center" style={{ maxWidth: 640 }}>
         <div style={{ transition: "opacity 300ms ease", opacity: fade ? 1 : 0 }}>
           <p className="text-xl sm:text-2xl italic leading-relaxed mb-6" style={{ color: "hsl(var(--text-primary))", lineHeight: 1.6 }}>
