@@ -260,7 +260,8 @@ export function NewDiagnosticFlow({ decision, onComplete, onSkip, onBackToLandin
                 onChange={(e) => setStakes(e.target.value.slice(0, 500))}
                 placeholder="e.g. We lose our market window, £3M sunk cost, board loses confidence in leadership..."
                 rows={4}
-                className="typeform-textarea"
+               className="typeform-textarea text-base"
+                rows={window.innerWidth < 640 ? 3 : 4}
               />
               <div className="flex items-center justify-between mt-2">
                 <span className="text-xs" style={{ color: "hsl(var(--text-tertiary))" }}>
