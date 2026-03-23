@@ -836,8 +836,8 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
 
       {/* Mobile sticky bottom bar */}
       {!readOnly && (
-        <div className="fixed bottom-0 left-0 right-0 z-40 sm:hidden flex items-center justify-between gap-2 px-4 py-3" style={{ background: "hsla(228, 35%, 14%, 0.95)", backdropFilter: "blur(8px)", borderTop: "1px solid hsla(0, 0%, 100%, 0.08)" }}>
-          <button onClick={handleCopySummary} className="flex-1 flex items-center justify-center gap-1.5 py-3 rounded-full text-xs font-medium" style={{ border: "1px solid hsla(0, 0%, 100%, 0.12)", color: "hsl(var(--text-secondary))" }}>
+        <div className="fixed bottom-0 left-0 right-0 z-40 sm:hidden flex items-center justify-between gap-2 px-4 py-3" style={{ background: "hsla(0, 0%, 100%, 0.95)", backdropFilter: "blur(8px)", borderTop: "1px solid hsl(var(--border))" }}>
+          <button onClick={handleCopySummary} className="flex-1 flex items-center justify-center gap-1.5 py-3 rounded-full text-xs font-medium" style={{ border: "1px solid hsl(var(--border))", color: "hsl(var(--text-secondary))" }}>
             <Copy className="w-3.5 h-3.5" /> Summary
           </button>
           <button onClick={() => onReset()} className="flex-1 flex items-center justify-center gap-1.5 py-3 rounded-full text-xs font-medium" style={{ background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))" }}>
