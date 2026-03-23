@@ -8,8 +8,8 @@ export function MidPageCTA() {
 
   return (
     <div className="px-4 sm:px-6 py-16 md:py-24 text-center">
-      <h3 className="font-serif text-2xl md:text-3xl mb-8" style={{ color: "hsl(var(--text-primary))" }}>Your next decision, sorted.</h3>
-      <button onClick={handleClick} className="rounded-full px-10 py-4 text-xl font-semibold inline-flex items-center gap-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]" style={{ background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))", minHeight: 56 }}>
+      <h3 className="text-3xl sm:text-4xl font-semibold mb-8" style={{ color: "hsl(var(--text-primary))", letterSpacing: "-0.03em" }}>Your next decision, sorted.</h3>
+      <button onClick={handleClick} className="rounded-xl px-10 py-4 text-lg font-semibold inline-flex items-center gap-2 transition-all duration-200 hover:opacity-85 active:scale-[0.98]" style={{ background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))", minHeight: 56 }}>
         Start free audit <ArrowRight className="w-5 h-5" />
       </button>
     </div>

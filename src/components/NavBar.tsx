@@ -21,7 +21,6 @@ export function NavBar() {
 
   useEffect(() => { setMobileOpen(false); }, [location.pathname]);
 
-  // Lock body scroll when bottom sheet is open
   useEffect(() => {
     if (mobileOpen) { document.body.style.overflow = "hidden"; }
     else { document.body.style.overflow = ""; }
@@ -40,8 +39,8 @@ export function NavBar() {
   const isActive = (path: string) => location.pathname === path;
 
   const navLinkStyle = (path: string) => ({
-    color: isActive(path) ? "hsl(var(--primary))" : "hsl(var(--text-secondary))",
-    borderBottom: isActive(path) ? "2px solid hsl(var(--primary))" : "2px solid transparent",
+    color: isActive(path) ? "hsl(var(--text-primary))" : "hsl(var(--text-secondary))",
+    borderBottom: isActive(path) ? "2px solid hsl(var(--text-primary))" : "2px solid transparent",
     paddingBottom: 2,
   });
 
@@ -57,31 +56,31 @@ export function NavBar() {
         }}
       >
         <div style={{ maxWidth: 1120 }} className="mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
-            <StratOSLogo size={28} />
-            <span className="font-brand text-[22px] tracking-tight" style={{ color: "hsl(var(--text-primary))", letterSpacing: "-0.02em" }}>
-              Strat<span className="font-sans text-[13px] font-semibold tracking-[0.12em] uppercase" style={{ marginLeft: 2 }}>OS</span>
+          <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+            <StratOSLogo size={24} />
+            <span className="text-[20px] font-semibold tracking-tight" style={{ color: "hsl(var(--text-primary))", letterSpacing: "-0.02em" }}>
+              StratOS
             </span>
           </Link>
 
           {/* Desktop nav */}
           <div className="hidden md:flex items-center gap-6">
-            <Link to="/pricing" className="text-base font-medium transition-colors hover:opacity-70" style={navLinkStyle("/pricing")}>Pricing</Link>
+            <Link to="/pricing" className="text-sm font-medium transition-colors hover:opacity-70" style={navLinkStyle("/pricing")}>Pricing</Link>
             {user && (
               <>
-                <Link to="/dashboard" className="text-base font-medium transition-colors hover:opacity-70" style={navLinkStyle("/dashboard")}>Dashboard</Link>
-                <Link to="/journal" className="text-base font-medium transition-colors hover:opacity-70" style={navLinkStyle("/journal")}>Journal</Link>
+                <Link to="/dashboard" className="text-sm font-medium transition-colors hover:opacity-70" style={navLinkStyle("/dashboard")}>Dashboard</Link>
+                <Link to="/journal" className="text-sm font-medium transition-colors hover:opacity-70" style={navLinkStyle("/journal")}>Journal</Link>
               </>
             )}
-            {!user && <Link to="/login" className="text-base font-medium transition-colors hover:opacity-70" style={navLinkStyle("/login")}>Sign in</Link>}
+            {!user && <Link to="/login" className="text-sm font-medium transition-colors hover:opacity-70" style={navLinkStyle("/login")}>Sign in</Link>}
             
-            <div style={{ width: 1, height: 24, background: "hsl(var(--border))" }} />
+            <div style={{ width: 1, height: 20, background: "hsl(var(--border))" }} />
 
             {user && <AccountMenu />}
             <button
               onClick={handleCTA}
-              className="rounded-full px-5 py-2.5 text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-              style={{ background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))", minHeight: 40 }}
+              className="rounded-xl px-5 py-2 text-sm font-medium transition-all duration-200 hover:opacity-85 active:scale-[0.98]"
+              style={{ background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))", minHeight: 36 }}
             >
               {user ? "New Audit" : "Get Started"}
             </button>
@@ -101,7 +100,6 @@ export function NavBar() {
         <>
           <div className="fixed inset-0 z-[60]" style={{ background: "hsla(0, 0%, 0%, 0.4)" }} onClick={() => setMobileOpen(false)} />
           <div className="fixed bottom-0 left-0 right-0 z-[70] flex flex-col bottom-sheet-up" style={{ background: "hsl(0, 0%, 100%)", borderRadius: "16px 16px 0 0", maxHeight: "70vh", boxShadow: "0 -8px 40px hsla(0, 0%, 0%, 0.12)" }}>
-            {/* Handle bar */}
             <div className="flex justify-center pt-3 pb-2">
               <div className="rounded-full" style={{ width: 36, height: 4, background: "hsl(var(--border))" }} />
             </div>
@@ -116,7 +114,7 @@ export function NavBar() {
                   { to: "/settings", label: "Settings", active: isActive("/settings") },
                 ] : []),
               ].map(link => (
-                <Link key={link.to} to={link.to} onClick={() => setMobileOpen(false)} className="flex items-center text-base font-medium transition-colors" style={{ color: link.active ? "hsl(var(--primary))" : "hsl(var(--text-secondary))", height: 56, borderBottom: "1px solid hsl(var(--border))" }}>
+                <Link key={link.to} to={link.to} onClick={() => setMobileOpen(false)} className="flex items-center text-base font-medium transition-colors" style={{ color: link.active ? "hsl(var(--text-primary))" : "hsl(var(--text-secondary))", height: 56, borderBottom: "1px solid hsl(var(--border))" }}>
                   {link.label}
                 </Link>
               ))}
@@ -127,7 +125,7 @@ export function NavBar() {
             </div>
 
             <div className="px-6 pb-8 pt-2">
-              <button onClick={() => { setMobileOpen(false); handleCTA(); }} className="w-full rounded-full py-3.5 text-base font-semibold transition-all duration-200 active:scale-[0.98]" style={{ background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))", minHeight: 52 }}>
+              <button onClick={() => { setMobileOpen(false); handleCTA(); }} className="w-full rounded-xl py-3.5 text-base font-semibold transition-all duration-200 active:scale-[0.98]" style={{ background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))", minHeight: 52 }}>
                 {user ? "New Audit" : "Get Started"}
               </button>
             </div>

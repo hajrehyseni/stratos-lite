@@ -61,7 +61,7 @@ export default function PricingPage() {
 
         <div style={{ maxWidth: 1120 }} className="mx-auto relative">
           <div className="text-center mb-10">
-            <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl" style={{ color: "hsl(var(--text-primary))" }}>Simple pricing</h1>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-semibold" style={{ color: "hsl(var(--text-primary))", letterSpacing: "-0.03em" }}>Simple pricing</h1>
             <p className="mt-5 text-lg md:text-xl" style={{ color: "hsl(var(--text-secondary))", maxWidth: 560, margin: "20px auto 0" }}>All 6 frameworks included. Start free.</p>
             <p className="text-sm mt-3" style={{ color: "hsl(var(--text-tertiary))" }}>One bad decision costs more than a year of StratOS.</p>
           </div>

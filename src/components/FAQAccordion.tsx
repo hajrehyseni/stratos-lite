@@ -11,15 +11,15 @@ export function FAQAccordion() {
   const [openIdx, setOpenIdx] = useState<number | null>(null);
   return (
     <div className="py-16 md:py-24 px-4">
-      <h2 className="font-serif text-2xl sm:text-3xl text-center mb-12" style={{ color: "hsl(var(--text-primary))" }}>Questions leaders ask</h2>
+      <h2 className="text-3xl sm:text-4xl font-semibold text-center mb-12" style={{ color: "hsl(var(--text-primary))", letterSpacing: "-0.03em" }}>Questions leaders ask</h2>
       <div className="mx-auto" style={{ maxWidth: 768 }}>
         {faqs.map((faq, i) => {
           const isOpen = openIdx === i;
           return (
             <div key={i} style={{ borderBottom: "1px solid hsl(var(--border))" }}>
               <button onClick={() => setOpenIdx(isOpen ? null : i)} className="w-full flex items-center justify-between py-5 text-left transition-colors" style={{ background: "none", border: "none", minHeight: 56 }}>
-                <span className="text-lg font-semibold pr-4" style={{ color: isOpen ? "hsl(var(--primary))" : "hsl(var(--text-primary))" }}>{faq.q}</span>
-                <span className="flex-shrink-0 transition-transform duration-300" style={{ color: isOpen ? "hsl(var(--primary))" : "hsl(var(--text-primary))", transform: isOpen ? "rotate(45deg)" : "rotate(0deg)" }}><Plus className="w-5 h-5" /></span>
+                <span className="text-lg font-semibold pr-4" style={{ color: "hsl(var(--text-primary))" }}>{faq.q}</span>
+                <span className="flex-shrink-0 transition-transform duration-300" style={{ color: "hsl(var(--text-tertiary))", transform: isOpen ? "rotate(45deg)" : "rotate(0deg)" }}><Plus className="w-5 h-5" /></span>
               </button>
               <div className="overflow-hidden transition-all duration-300 ease-in-out" style={{ maxHeight: isOpen ? 500 : 0, opacity: isOpen ? 1 : 0 }}>
                 <p className="pb-6 text-base leading-relaxed" style={{ color: "hsl(var(--text-secondary))", lineHeight: 1.7 }}>{faq.a}</p>
