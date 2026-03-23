@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from "react";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Mic, MicOff } from "lucide-react";
+import { useVoiceInput } from "@/hooks/use-voice-input";
+import { toast } from "sonner";
 import { TrustStrip } from "@/components/TrustStrip";
 import { SystemSections } from "@/components/SystemSections";
 import { OutputPreview } from "@/components/OutputPreview";
@@ -31,6 +33,26 @@ export function HomepageLanding({ onSubmit, remainingAudits, hasUsedAudit }: Pro
   const inputRef = useRef<HTMLInputElement>(null);
   const submitRef = useRef<HTMLButtonElement>(null);
   const canSubmit = value.trim().length >= 10;
+  const voice = useVoiceInput();
+
+  // When voice transcript arrives, populate input
+  useEffect(() => {
+    if (voice.transcript) {
+      setValue(voice.transcript);
+      setHasTyped(true);
+      voice.resetTranscript();
+      inputRef.current?.focus();
+    }
+  }, [voice.transcript]);
+
+  const handleMic = () => {
+    if (!voice.isSupported) {
+      toast.error("Voice input not supported in this browser");
+      return;
+    }
+    if (voice.isListening) voice.stopListening();
+    else voice.startListening();
+  };
 
   useEffect(() => {
     const t = setTimeout(() => setHeroVisible(true), 50);
@@ -90,6 +112,9 @@ export function HomepageLanding({ onSubmit, remainingAudits, hasUsedAudit }: Pro
               }}>
                 <label htmlFor="hero-input" className="sr-only">Describe your decision</label>
                 <input ref={inputRef} id="hero-input" type="text" value={value} onChange={handleChange} onFocus={() => setIsFocused(true)} onBlur={() => setIsFocused(false)} onKeyDown={handleKeyDown} placeholder={currentPlaceholder} className="w-full bg-transparent outline-none" style={{ fontSize: 17, fontWeight: 400, color: "hsl(var(--text-primary))", height: 52 }} />
+                <button onClick={handleMic} className={`flex-shrink-0 flex items-center justify-center rounded-full transition-all duration-200 ${voice.isListening ? "shazam-pulse" : ""}`} style={{ width: 40, height: 40, background: voice.isListening ? "hsla(0, 84%, 50%, 0.1)" : "transparent", color: voice.isListening ? "hsl(var(--destructive))" : "hsl(var(--text-tertiary))" }} aria-label={voice.isListening ? "Stop listening" : "Voice input"}>
+                  {voice.isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+                </button>
                 <button ref={submitRef} onClick={handleSubmit} disabled={!canSubmit} className={`flex-shrink-0 flex items-center justify-center gap-2 rounded-full transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${canSubmit && hasTyped ? "cta-glow" : ""}`} style={{ height: 48, paddingLeft: 24, paddingRight: 20, background: canSubmit ? "hsl(var(--primary))" : "hsla(221, 83%, 53%, 0.3)", opacity: canSubmit ? 1 : 0.5, cursor: canSubmit ? "pointer" : "default", color: "hsl(var(--primary-foreground))", fontSize: 15, fontWeight: 600 }} aria-label="Audit this decision">
                   Audit <ArrowRight className="w-4 h-4" />
                 </button>
@@ -105,6 +130,9 @@ export function HomepageLanding({ onSubmit, remainingAudits, hasUsedAudit }: Pro
               }}>
                 <label htmlFor="hero-input-mobile" className="sr-only">Describe your decision</label>
                 <input id="hero-input-mobile" type="text" value={value} onChange={handleChange} onFocus={() => setIsFocused(true)} onBlur={() => setIsFocused(false)} onKeyDown={handleKeyDown} placeholder={currentPlaceholder} className="w-full bg-transparent outline-none" style={{ fontSize: 17, color: "hsl(var(--text-primary))", height: 48 }} />
+                <button onClick={handleMic} className={`flex-shrink-0 flex items-center justify-center rounded-full transition-all duration-200 ${voice.isListening ? "shazam-pulse" : ""}`} style={{ width: 36, height: 36, background: voice.isListening ? "hsla(0, 84%, 50%, 0.1)" : "transparent", color: voice.isListening ? "hsl(var(--destructive))" : "hsl(var(--text-tertiary))" }} aria-label={voice.isListening ? "Stop listening" : "Voice input"}>
+                  {voice.isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+                </button>
               </div>
               <button onClick={handleSubmit} disabled={!canSubmit} className={`w-full flex items-center justify-center gap-2 rounded-full transition-all duration-200 active:scale-[0.98] ${canSubmit && hasTyped ? "cta-glow" : ""}`} style={{ height: 52, background: canSubmit ? "hsl(var(--primary))" : "hsla(221, 83%, 53%, 0.3)", opacity: canSubmit ? 1 : 0.5, color: "hsl(var(--primary-foreground))", fontSize: 16, fontWeight: 600 }}>
                 Audit <ArrowRight className="w-4 h-4" />
