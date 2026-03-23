@@ -763,7 +763,7 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
               <button
                 onClick={handleCopyBrief}
                 className="flex items-center gap-2 px-5 py-3 rounded-full text-sm transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-                style={{ border: "1px solid hsla(0, 0%, 100%, 0.12)", background: "transparent", color: "hsl(var(--text-secondary))", minHeight: 44 }}
+                style={{ border: "1px solid hsl(var(--border))", background: "transparent", color: "hsl(var(--text-secondary))", minHeight: 44 }}
               >
                 {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                 Copy Brief
@@ -771,14 +771,14 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
               <button
                 onClick={handleDownloadPDF}
                 className="flex items-center gap-2 px-5 py-3 rounded-full text-sm transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-                style={{ border: "1px solid hsla(0, 0%, 100%, 0.12)", background: "transparent", color: "hsl(var(--text-secondary))", minHeight: 44 }}
+                style={{ border: "1px solid hsl(var(--border))", background: "transparent", color: "hsl(var(--text-secondary))", minHeight: 44 }}
               >
                 <Download className="w-4 h-4" /> PDF
               </button>
               <button
                 onClick={handleShare}
                 className="flex items-center gap-2 px-5 py-3 rounded-full text-sm transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-                style={{ border: "1px solid hsla(0, 0%, 100%, 0.12)", background: "transparent", color: "hsl(var(--text-secondary))", minHeight: 44 }}
+                style={{ border: "1px solid hsl(var(--border))", background: "transparent", color: "hsl(var(--text-secondary))", minHeight: 44 }}
               >
                 <Share2 className="w-4 h-4" /> Share
               </button>
