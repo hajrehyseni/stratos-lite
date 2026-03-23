@@ -6,7 +6,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Check, Shield, ArrowRight, ArrowDown, Users } from "lucide-react";
-import { getJournalCount } from "@/lib/journal";
 import { useState, useEffect } from "react";
 
 const perAudit: Record<PlanType, string> = { free: "£0 per audit", pro: "£0.76 per audit", executive: "£0.41 per audit" };
@@ -57,7 +56,7 @@ export default function PricingPage() {
 
   return (
     <>
-      <NavBar journalCount={getJournalCount()} />
+      <NavBar />
       <div className="min-h-screen px-4 pt-28 pb-20 page-enter" style={{ background: "hsl(var(--background))" }}>
         <div style={{ maxWidth: 1120 }} className="mx-auto">
           <div className="text-center mb-10">
@@ -118,7 +117,7 @@ export default function PricingPage() {
           {/* Social proof */}
           <div className="flex items-center justify-center gap-2 mt-8">
             <Users className="w-4 h-4" style={{ color: "hsl(var(--text-tertiary))" }} />
-            <span className="text-sm" style={{ color: "hsl(var(--text-secondary))" }}>Join 12,400+ leaders already making better decisions</span>
+            <span className="text-sm" style={{ color: "hsl(var(--text-secondary))" }}>Used by leaders at startups and enterprises alike</span>
           </div>
 
           <div className="flex items-center justify-center gap-2 mt-4">

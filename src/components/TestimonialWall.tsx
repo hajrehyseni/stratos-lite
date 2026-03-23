@@ -43,17 +43,22 @@ export function TestimonialWall() {
 
   return (
     <div className="py-16 md:py-20" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
-      <h2 className="text-2xl sm:text-3xl font-bold text-center mb-3" style={{ color: "hsl(var(--text-primary))" }}>What leaders say</h2>
-      <p className="text-center text-base mb-8" style={{ color: "hsl(var(--text-secondary))" }}>From early users</p>
-      <div className="relative" style={{ overflow: "visible" }}>
-        <div ref={scrollRef} className="flex gap-6 overflow-x-auto scroll-snap-x snap-mandatory px-8 pb-4 scrollbar-hide" style={{ scrollSnapType: "x mandatory" }}>
+      <h2 className="text-2xl sm:text-3xl font-bold text-center mb-2" style={{ color: "hsl(var(--text-primary))" }}>Early feedback</h2>
+      <p className="text-center text-sm mb-8" style={{ color: "hsl(var(--text-tertiary))" }}>From beta users</p>
+      <div className="relative px-4 sm:px-8" style={{ maxWidth: 1120, margin: "0 auto" }}>
+        <div ref={scrollRef} className="flex gap-6 overflow-x-auto scroll-snap-x snap-mandatory pb-4 scrollbar-hide" style={{ scrollSnapType: "x mandatory" }}>
           {testimonials.map((t, i) => (
             <div key={i} className="testimonial-card flex-shrink-0 rounded-2xl p-8 transition-all duration-200 snap-start hover:shadow-md" style={{ minWidth: 320, maxWidth: 420, width: "85vw", background: "hsl(var(--secondary))", border: "1px solid hsl(var(--border))", borderLeft: "3px solid hsl(var(--primary))" }}>
               <div className="mb-4" style={{ color: "hsl(var(--warning))", fontSize: 16, letterSpacing: 2 }}>★★★★★</div>
               <p className="text-base italic leading-relaxed mb-6" style={{ color: "hsl(var(--text-secondary))", lineHeight: 1.7 }}>"{t.quote}"</p>
               <div style={{ height: 1, background: "hsl(var(--border))", marginBottom: 16 }} />
-              <p className="font-semibold text-base" style={{ color: "hsl(var(--text-primary))" }}>{t.name}</p>
-              <p className="text-sm mt-0.5" style={{ color: "hsl(var(--text-secondary))" }}>{t.role}</p>
+              <div className="flex items-center gap-3">
+                <div className="rounded-full" style={{ width: 36, height: 36, background: "hsl(var(--border))", flexShrink: 0 }} />
+                <div>
+                  <p className="font-semibold text-sm" style={{ color: "hsl(var(--text-primary))" }}>{t.name}</p>
+                  <p className="text-xs" style={{ color: "hsl(var(--text-tertiary))" }}>{t.role}</p>
+                </div>
+              </div>
             </div>
           ))}
         </div>
@@ -61,15 +66,7 @@ export function TestimonialWall() {
         <button
           onClick={() => scroll(-1)}
           className="hidden md:flex absolute items-center justify-center rounded-full w-10 h-10 transition-all duration-200 hover:scale-[1.05] hover:shadow-lg"
-          style={{
-            left: -12,
-            top: "50%",
-            transform: "translateY(-50%)",
-            background: "hsl(0, 0%, 100%)",
-            border: "1px solid hsl(var(--border))",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-            zIndex: 10,
-          }}
+          style={{ left: -4, top: "50%", transform: "translateY(-50%)", background: "hsl(0, 0%, 100%)", border: "1px solid hsl(var(--border))", boxShadow: "0 2px 8px hsla(0, 0%, 0%, 0.1)", zIndex: 10 }}
           aria-label="Previous"
         >
           <ChevronLeft className="w-5 h-5" style={{ color: "hsl(var(--text-primary))" }} />
@@ -78,15 +75,7 @@ export function TestimonialWall() {
         <button
           onClick={() => scroll(1)}
           className="hidden md:flex absolute items-center justify-center rounded-full w-10 h-10 transition-all duration-200 hover:scale-[1.05] hover:shadow-lg"
-          style={{
-            right: -12,
-            top: "50%",
-            transform: "translateY(-50%)",
-            background: "hsl(0, 0%, 100%)",
-            border: "1px solid hsl(var(--border))",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-            zIndex: 10,
-          }}
+          style={{ right: -4, top: "50%", transform: "translateY(-50%)", background: "hsl(0, 0%, 100%)", border: "1px solid hsl(var(--border))", boxShadow: "0 2px 8px hsla(0, 0%, 0%, 0.1)", zIndex: 10 }}
           aria-label="Next"
         >
           <ChevronRight className="w-5 h-5" style={{ color: "hsl(var(--text-primary))" }} />

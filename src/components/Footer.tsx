@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { StratOSLogo } from "@/components/StratOSLogo";
 
 export function Footer() {
   const { user } = useAuth();
@@ -9,14 +10,16 @@ export function Footer() {
       <div style={{ maxWidth: 1120 }} className="mx-auto px-4 sm:px-6 py-16">
         <div className="grid grid-cols-2 md:grid-cols-3 gap-8 md:gap-12">
           <div className="col-span-2 md:col-span-1">
-            <span className="text-xl font-bold" style={{ color: "hsl(var(--text-primary))" }}>StratOS</span>
-            <p className="mt-2 text-base" style={{ color: "hsl(var(--text-secondary))" }}>AI decision audits for executives</p>
+            <div className="flex items-center gap-2.5 mb-3">
+              <StratOSLogo size={24} />
+              <span className="text-xl font-bold" style={{ color: "hsl(var(--text-primary))" }}>StratOS</span>
+            </div>
+            <p className="text-base" style={{ color: "hsl(var(--text-secondary))" }}>Decision intelligence for leaders</p>
             <p className="mt-4 text-sm" style={{ color: "hsl(var(--text-tertiary))" }}>© 2026 StratOS</p>
           </div>
           <div>
             <h4 className="text-sm font-semibold mb-4" style={{ color: "hsl(var(--text-primary))" }}>Product</h4>
             <div className="flex flex-col gap-3">
-              {!user && <a href="/#features" onClick={(e) => { if (window.location.pathname === "/") { e.preventDefault(); document.getElementById("features")?.scrollIntoView({ behavior: "smooth" }); } }} className="text-base transition-opacity hover:opacity-80" style={{ color: "hsl(var(--text-secondary))" }}>Features</a>}
               <Link to="/pricing" className="text-base transition-opacity hover:opacity-80" style={{ color: "hsl(var(--text-secondary))" }}>Pricing</Link>
               {user && (
                 <>
@@ -33,11 +36,6 @@ export function Footer() {
               <Link to="/terms" className="text-base transition-opacity hover:opacity-80" style={{ color: "hsl(var(--text-secondary))" }}>Terms of Service</Link>
             </div>
           </div>
-        </div>
-        <div className="mt-12 text-center">
-          <p className="text-sm" style={{ color: "hsl(var(--text-tertiary))" }}>
-            Built on: MECE · Risk Matrix · Stakeholder Analysis · Cynefin · Pre-Mortem · RAPID
-          </p>
         </div>
       </div>
     </footer>

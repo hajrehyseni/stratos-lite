@@ -218,7 +218,7 @@ const Index = () => {
   if (phase === "result" && result) {
     return (
       <>
-        <NavBar journalCount={getJournalCount()} />
+        <NavBar />
         <Scorecard
           decision={decision.trim()}
           result={result}
@@ -235,7 +235,7 @@ const Index = () => {
 
   return (
     <>
-      <NavBar journalCount={getJournalCount()} />
+      <NavBar />
 
       {phase === "landing" && (
         <div
