@@ -681,7 +681,7 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
                 ))}
               </div>
               {result.stakeholder_map.map((s, i) => (
-                <div key={i} className="grid grid-cols-1 sm:grid-cols-[2fr_1fr_1fr_3fr] gap-2 px-5 py-3.5" style={{ borderBottom: "1px solid hsla(0, 0%, 100%, 0.06)" }}>
+                <div key={i} className="grid grid-cols-1 sm:grid-cols-[2fr_1fr_1fr_3fr] gap-2 px-5 py-3.5" style={{ borderBottom: "1px solid hsl(var(--border))" }}>
                   <span className="text-base font-medium" style={{ color: "hsl(var(--text-primary))" }}>{s.role}</span>
                   <span className="text-base" style={{ color: positionColors[s.position] || "hsl(var(--text-tertiary))" }}>{s.position}</span>
                   <span className="text-base" style={{ color: "hsl(var(--text-secondary))" }}>{s.influence}</span>
