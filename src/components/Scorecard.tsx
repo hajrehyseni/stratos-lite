@@ -251,6 +251,24 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
   // Top 3 actions for executive summary
   const topActions = result.recommendations?.filter(r => r.feasible).slice(0, 3) || [];
 
+  const handleListen = () => {
+    if (tts.isSpeaking) {
+      tts.stop();
+      return;
+    }
+    if (!tts.isSupported) {
+      toast.error("Text-to-speech not supported in this browser");
+      return;
+    }
+    const sections: string[] = [
+      `Verdict: ${result.verdict}. Confidence score: ${result.confidence_score} out of 100. ${getReadinessInterpretation(result.confidence_score)}`,
+      reframe ? `The reframe question: ${reframe}` : "",
+      topActions.length > 0 ? `Top recommended actions: ${topActions.map((r, i) => `${i + 1}. ${r.action}`).join(". ")}` : "",
+      result.biggest_risk ? `Biggest risk: ${result.biggest_risk}` : "",
+    ];
+    tts.speak(sections);
+  };
+
   return (
     <div className="min-h-screen px-4 pt-20 pb-16 page-enter">
       {/* Conversion modal */}
