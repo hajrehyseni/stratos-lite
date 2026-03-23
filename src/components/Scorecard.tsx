@@ -57,8 +57,8 @@ const positionColors: Record<string, string> = {
 };
 
 const cardStyle: React.CSSProperties = {
-  background: "hsla(0, 0%, 100%, 0.03)",
-  border: "1px solid hsla(0, 0%, 100%, 0.08)",
+  background: "hsl(var(--secondary))",
+  border: "1px solid hsl(var(--border))",
   borderRadius: 12,
   padding: 24,
 };
