@@ -17,6 +17,7 @@ import AccountSettingsPage from "./pages/AccountSettingsPage";
 import PricingPage from "./pages/PricingPage";
 import PrivacyPage from "./pages/PrivacyPage";
 import TermsPage from "./pages/TermsPage";
+import MockAuditResults from "./pages/MockAuditResults";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -42,6 +43,7 @@ const App = () => (
             <Route path="/pricing" element={<PricingPage />} />
             <Route path="/privacy" element={<PrivacyPage />} />
             <Route path="/terms" element={<TermsPage />} />
+            <Route path="/audit-results" element={<MockAuditResults />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
