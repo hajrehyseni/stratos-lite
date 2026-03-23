@@ -5,7 +5,7 @@ import { STRIPE_TIERS, type PlanType } from "@/lib/stripe-config";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { Check, Shield, ArrowRight, ArrowDown, Users } from "lucide-react";
+import { Check, Shield, ArrowDown, Lock } from "lucide-react";
 import { useState, useEffect } from "react";
 
 const perAudit: Record<PlanType, string> = { free: "£0 per audit", pro: "£0.76 per audit", executive: "£0.41 per audit" };
@@ -21,8 +21,6 @@ const comparisonRows = [
   { label: "Priority processing", free: "—", pro: "—", exec: "✓" },
   { label: "Team sharing", free: "—", pro: "—", exec: "✓" },
 ];
-
-const frameworks = ["MECE analysis", "Risk matrix", "Stakeholder mapping", "Cynefin classification", "Pre-mortem analysis", "RAPID framework"];
 
 export default function PricingPage() {
   const { user, subscription } = useAuth();
@@ -57,8 +55,11 @@ export default function PricingPage() {
   return (
     <>
       <NavBar />
-      <div className="min-h-screen px-4 pt-28 pb-20 page-enter" style={{ background: "hsl(var(--background))" }}>
-        <div style={{ maxWidth: 1120 }} className="mx-auto">
+      <div className="min-h-screen px-4 pt-28 pb-20 page-enter relative" style={{ background: "hsl(var(--background))" }}>
+        {/* Gradient header */}
+        <div className="absolute top-0 left-0 right-0 h-64 pointer-events-none" style={{ background: "linear-gradient(to bottom, hsla(221, 83%, 53%, 0.03), transparent)" }} />
+
+        <div style={{ maxWidth: 1120 }} className="mx-auto relative">
           <div className="text-center mb-10">
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight" style={{ color: "hsl(var(--text-primary))" }}>Simple pricing</h1>
             <p className="mt-5 text-lg md:text-xl" style={{ color: "hsl(var(--text-secondary))", maxWidth: 560, margin: "20px auto 0" }}>All 6 frameworks included. Start free.</p>
@@ -87,7 +88,7 @@ export default function PricingPage() {
               return (
                 <div key={key} className="rounded-2xl p-8 flex flex-col relative transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5" style={{ background: highlight ? "hsl(var(--secondary))" : "hsl(0, 0%, 100%)", border: highlight ? "2px solid hsl(var(--primary))" : "1px solid hsl(var(--border))", boxShadow: highlight ? "0 4px 24px hsla(221, 83%, 53%, 0.1)" : "none" }}>
                   {highlight && (
-                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full px-4 py-1 text-xs font-bold" style={{ background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))" }}>Most Popular</span>
+                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full px-5 py-1.5 text-xs font-bold" style={{ background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))", boxShadow: "0 4px 12px hsla(221, 83%, 53%, 0.3)" }}>Most Popular</span>
                   )}
                   <h3 className="text-xl font-bold" style={{ color: "hsl(var(--text-primary))" }}>{tier.name}</h3>
                   <div className="mt-4 flex items-baseline gap-1">
@@ -98,7 +99,12 @@ export default function PricingPage() {
                   <p className="mt-1 text-sm" style={{ color: "hsl(var(--text-tertiary))" }}>{annual ? annualPerAudit[key] : perAudit[key]}</p>
                   <p className="mt-1 text-sm" style={{ color: "hsl(var(--text-tertiary))" }}>{tier.label}</p>
                   <ul className="mt-6 space-y-3 flex-1">
-                    {tier.features.map((f) => (<li key={f} className="flex items-start gap-2.5"><Check className="w-5 h-5 mt-0.5 flex-shrink-0" style={{ color: "hsl(var(--success))" }} /><span className="text-base" style={{ color: "hsl(var(--text-primary))" }}>{f}</span></li>))}
+                    {tier.features.map((f) => (
+                      <li key={f} className="flex items-start gap-2.5">
+                        <Check className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: "hsl(var(--success))" }} />
+                        <span className="text-sm" style={{ color: "hsl(var(--text-primary))" }}>{f}</span>
+                      </li>
+                    ))}
                   </ul>
                   <div className="mt-8">
                     {isCurrent && key !== "free" ? (
@@ -115,18 +121,10 @@ export default function PricingPage() {
             })}
           </div>
 
-          {/* Social proof */}
           <div className="flex items-center justify-center gap-2 mt-8">
-            <Users className="w-4 h-4" style={{ color: "hsl(var(--text-tertiary))" }} />
-            <span className="text-sm" style={{ color: "hsl(var(--text-secondary))" }}>Used by leaders at startups and enterprises alike</span>
-          </div>
-
-          <div className="flex items-center justify-center gap-2 mt-4">
             <Shield className="w-5 h-5" style={{ color: "hsl(var(--text-tertiary))" }} />
             <span className="text-sm" style={{ color: "hsl(var(--text-tertiary))" }}>30-day money-back guarantee</span>
           </div>
-
-          {/* frameworks list removed — redundant */}
 
           <div id="comparison-table" className="mt-16 overflow-x-auto scroll-mt-24">
             <table className="w-full" style={{ maxWidth: 768, margin: "0 auto" }}>
@@ -141,17 +139,15 @@ export default function PricingPage() {
               <tbody>
                 {comparisonRows.map((row, i) => (
                   <tr key={row.label} style={{ borderBottom: "1px solid hsl(var(--border))", background: i % 2 === 0 ? "transparent" : "hsla(221, 83%, 53%, 0.02)" }}>
-                    <td className="py-4 text-base" style={{ color: "hsl(var(--text-primary))" }}>{row.label}</td>
-                    <td className="text-center py-4 text-base font-medium" style={{ color: row.free === "✓" ? "hsl(var(--success))" : row.free === "—" ? "hsl(var(--text-tertiary))" : "hsl(var(--text-primary))" }}>{row.free}</td>
-                    <td className="text-center py-4 text-base font-medium" style={{ color: row.pro === "✓" ? "hsl(var(--success))" : row.pro === "—" ? "hsl(var(--text-tertiary))" : "hsl(var(--text-primary))" }}>{row.pro}</td>
-                    <td className="text-center py-4 text-base font-medium" style={{ color: row.exec === "✓" ? "hsl(var(--success))" : row.exec === "—" ? "hsl(var(--text-tertiary))" : "hsl(var(--text-primary))" }}>{row.exec}</td>
+                    <td className="py-4 text-sm" style={{ color: "hsl(var(--text-primary))" }}>{row.label}</td>
+                    <td className="text-center py-4 text-sm font-medium" style={{ color: row.free === "✓" ? "hsl(var(--success))" : row.free === "—" ? "hsl(var(--text-tertiary))" : "hsl(var(--text-primary))" }}>{row.free}</td>
+                    <td className="text-center py-4 text-sm font-medium" style={{ color: row.pro === "✓" ? "hsl(var(--success))" : row.pro === "—" ? "hsl(var(--text-tertiary))" : "hsl(var(--text-primary))" }}>{row.pro}</td>
+                    <td className="text-center py-4 text-sm font-medium" style={{ color: row.exec === "✓" ? "hsl(var(--success))" : row.exec === "—" ? "hsl(var(--text-tertiary))" : "hsl(var(--text-primary))" }}>{row.exec}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-
-          {/* bottom CTA removed — redundant */}
         </div>
       </div>
       <Footer />
