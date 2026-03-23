@@ -12,7 +12,7 @@
     --card-foreground: 0 0% 7%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 7%;
-    --primary: 0 0% 10%;
+    --primary: 234 60% 45%;
     --primary-foreground: 0 0% 100%;
     --accent-blue: 225 84% 48%;
     --accent-gold: 42 100% 50%;
@@ -30,7 +30,7 @@
     --warning-foreground: 0 0% 100%;
     --border: 0 0% 90%;
     --input: 0 0% 90%;
-    --ring: 0 0% 10%;
+    --ring: 234 60% 45%;
     --radius: 0.75rem;
     --text-primary: 0 0% 7%;
     --text-secondary: 0 0% 40%;
@@ -143,9 +143,9 @@
 
 /* Shazam pulse for mic */
 @keyframes shazam-pulse-anim {
-  0% { box-shadow: 0 0 0 0 hsla(0, 84%, 50%, 0.3); }
-  70% { box-shadow: 0 0 0 8px hsla(0, 84%, 50%, 0); }
-  100% { box-shadow: 0 0 0 0 hsla(0, 84%, 50%, 0); }
+  0% { box-shadow: 0 0 0 0 hsla(234, 60%, 45%, 0.3); }
+  70% { box-shadow: 0 0 0 8px hsla(234, 60%, 45%, 0); }
+  100% { box-shadow: 0 0 0 0 hsla(234, 60%, 45%, 0); }
 }
 .shazam-pulse { animation: shazam-pulse-anim 1.5s ease-in-out infinite; }
 

@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Check, ArrowLeft, ArrowRight, CornerDownLeft } from "lucide-react";
+import { Check, ArrowLeft, ArrowRight, CornerDownLeft, Mic, MicOff } from "lucide-react";
+import { useVoiceInput } from "@/hooks/use-voice-input";
+import { toast } from "@/hooks/use-toast";
 
 export interface DiagnosticResult {
   stakes: string;
@@ -119,6 +121,37 @@ export function NewDiagnosticFlow({ decision, onComplete, onSkip, onBackToLandin
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  const voice = useVoiceInput();
+
+  // Append voice transcript to the active text field
+  useEffect(() => {
+    if (!voice.transcript) return;
+    if (step === 1) {
+      setStakes((prev) => {
+        const joined = prev ? prev + " " + voice.transcript : voice.transcript;
+        return joined.slice(0, 500);
+      });
+    } else if (step === 5) {
+      setSuccessVision((prev) => {
+        const joined = prev ? prev + " " + voice.transcript : voice.transcript;
+        return joined.slice(0, 500);
+      });
+    }
+    voice.resetTranscript();
+  }, [voice.transcript]);
+
+  const toggleVoice = () => {
+    if (!voice.isSupported) {
+      toast({ title: "Voice input not supported", description: "Try Chrome, Safari, or Edge.", variant: "destructive" });
+      return;
+    }
+    if (voice.isListening) {
+      voice.stopListening();
+    } else {
+      voice.startListening();
+    }
+  };
+
   useEffect(() => {
     saveSession({ step, stakes, decisionType, blastRadius, constraint, successVision });
   }, [step, stakes, decisionType, blastRadius, constraint, successVision]);
@@ -226,7 +259,18 @@ export function NewDiagnosticFlow({ decision, onComplete, onSkip, onBackToLandin
                 rows={3}
               />
               <div className="flex items-center justify-between mt-2">
-                <span className="text-xs" style={{ color: "hsl(var(--text-tertiary))" }}>A sentence or two</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs" style={{ color: "hsl(var(--text-tertiary))" }}>A sentence or two</span>
+                  <button
+                    type="button"
+                    onClick={toggleVoice}
+                    className={`inline-flex items-center justify-center w-8 h-8 rounded-full transition-all ${voice.isListening ? "shazam-pulse" : ""}`}
+                    style={{ background: voice.isListening ? "hsl(var(--primary))" : "hsl(var(--secondary))", color: voice.isListening ? "hsl(var(--primary-foreground))" : "hsl(var(--text-secondary))" }}
+                    title={voice.isListening ? "Stop listening" : "Dictate"}
+                  >
+                    {voice.isListening ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5" />}
+                  </button>
+                </div>
                 <span className="text-xs font-medium" style={{ color: charColor(stakes.length) }}>{stakes.length}/500</span>
               </div>
               <div className="flex items-center gap-3 mt-8">
@@ -297,7 +341,18 @@ export function NewDiagnosticFlow({ decision, onComplete, onSkip, onBackToLandin
                 rows={3}
               />
               <div className="flex items-center justify-between mt-2">
-                <span className="text-xs" style={{ color: "hsl(var(--text-tertiary))" }}>Optional — sharpens the audit</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs" style={{ color: "hsl(var(--text-tertiary))" }}>Optional — sharpens the audit</span>
+                  <button
+                    type="button"
+                    onClick={toggleVoice}
+                    className={`inline-flex items-center justify-center w-8 h-8 rounded-full transition-all ${voice.isListening ? "shazam-pulse" : ""}`}
+                    style={{ background: voice.isListening ? "hsl(var(--primary))" : "hsl(var(--secondary))", color: voice.isListening ? "hsl(var(--primary-foreground))" : "hsl(var(--text-secondary))" }}
+                    title={voice.isListening ? "Stop listening" : "Dictate"}
+                  >
+                    {voice.isListening ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5" />}
+                  </button>
+                </div>
                 <span className="text-xs font-medium" style={{ color: charColor(successVision.length) }}>{successVision.length}/500</span>
               </div>
               <div className="flex items-center gap-3 mt-8">
