@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 function DiagnoseMockup() {
   const cards = ["Market Opportunity", "Financial Risk", "Team Readiness", "Competitive Timing"];
   return (
-    <div className="rounded-2xl p-5" style={{ background: "hsl(var(--secondary))", border: "1px solid hsl(var(--border))", maxWidth: 300 }}>
+    <div className="rounded-2xl p-5 transition-all duration-200 hover:scale-[1.03] hover:shadow-lg" style={{ background: "hsl(var(--secondary))", border: "1px solid hsl(var(--border))", maxWidth: 360 }}>
       <div className="grid grid-cols-2 gap-2.5">
         {cards.map((c) => (
           <div key={c} className="rounded-lg px-3 py-2.5" style={{ background: "hsl(0, 0%, 100%)", borderLeft: "3px solid hsl(var(--primary))" }}>
