@@ -317,7 +317,7 @@ export function NewDiagnosticFlow({ decision, onComplete, onSkip, onBackToLandin
               <p className="text-sm mb-8" style={{ color: "hsl(var(--text-secondary))" }}>
                 This helps us apply the right strategic framework.
               </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                 {decisionTypeOptions.map((opt) => (
                   <OptionCard
                     key={opt.key}
