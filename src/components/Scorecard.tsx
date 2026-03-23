@@ -791,7 +791,7 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
               <button
                 onClick={handleAuditOpposite}
                 className="mt-5 inline-flex items-center justify-center gap-2 rounded-full font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-                style={{ height: 48, fontSize: 15, padding: "0 28px", border: "1px solid hsla(0, 0%, 100%, 0.2)", background: "transparent", color: "hsl(var(--text-primary))", minHeight: 48 }}
+                style={{ height: 48, fontSize: 15, padding: "0 28px", border: "1px solid hsl(var(--border))", background: "transparent", color: "hsl(var(--text-primary))", minHeight: 48 }}
               >
                 Audit the Opposite →
               </button>
