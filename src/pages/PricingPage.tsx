@@ -126,12 +126,7 @@ export default function PricingPage() {
             <span className="text-sm" style={{ color: "hsl(var(--text-tertiary))" }}>30-day money-back guarantee</span>
           </div>
 
-          <div className="mt-16 text-center">
-            <p className="text-xs font-medium uppercase tracking-widest mb-4" style={{ color: "hsl(var(--text-tertiary))" }}>All plans include</p>
-            <div className="flex flex-wrap justify-center gap-x-2 gap-y-1">
-              {frameworks.map((f, i) => (<span key={f} className="text-sm" style={{ color: "hsl(var(--text-secondary))" }}>{f}{i < frameworks.length - 1 ? " ·" : ""}</span>))}
-            </div>
-          </div>
+          {/* frameworks list removed — redundant */}
 
           <div id="comparison-table" className="mt-16 overflow-x-auto scroll-mt-24">
             <table className="w-full" style={{ maxWidth: 768, margin: "0 auto" }}>
