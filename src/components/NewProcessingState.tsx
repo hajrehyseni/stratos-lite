@@ -80,7 +80,7 @@ export function NewProcessingState({ lens, scale, onApiReady, apiResolved, decis
     <div
       className="flex flex-col items-center justify-center px-4"
       style={{
-        minHeight: "90vh",
+        minHeight: window.innerWidth < 640 ? "80vh" : "90vh",
         opacity: visible && !fadingOut ? 1 : 0,
         transform: visible && !fadingOut ? "translateY(0)" : "translateY(10px)",
         transition: "opacity 300ms ease, transform 300ms ease",
