@@ -659,7 +659,7 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
           </CollapsibleSection>
         )}
 
-        {/* RAPID */}
+        {/* RAPID — Horizontal Badge Row */}
         {result.rapid && (
           <CollapsibleSection
             id="section-rapid"
@@ -667,23 +667,33 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
             forceOpen={allExpanded || undefined}
           >
             <div className="rounded-xl p-6" style={cardStyle}>
-              {[
-                { letter: "R", label: "Recommend", value: result.rapid.recommend },
-                { letter: "A", label: "Agree", value: result.rapid.agree },
-                { letter: "P", label: "Perform", value: result.rapid.perform },
-                { letter: "I", label: "Input", value: result.rapid.input },
-                { letter: "D", label: "Decide", value: result.rapid.decide },
-              ].map((row) => (
-                <div key={row.letter} className="flex items-start gap-4 py-3.5" style={{ borderBottom: "1px solid hsl(var(--border))" }}>
-                  <span className="flex items-center justify-center rounded-lg font-bold" style={{ width: 36, height: 36, flexShrink: 0, background: "hsla(16, 100%, 62%, 0.12)", color: "hsl(var(--primary))", fontSize: 15 }}>
-                    {row.letter}
-                  </span>
-                  <div>
-                    <span className="text-xs font-semibold uppercase" style={{ color: "hsl(var(--text-tertiary))", letterSpacing: "0.05em" }}>{row.label}</span>
-                    <p className="text-base mt-1" style={{ color: "hsl(var(--text-primary))", lineHeight: 1.5 }}>{row.value}</p>
+              {/* Badge row */}
+              <div className="flex flex-wrap gap-2 mb-5">
+                {[
+                  { letter: "R", label: "Recommend", value: result.rapid.recommend, color: "hsl(var(--primary))" },
+                  { letter: "A", label: "Agree", value: result.rapid.agree, color: "hsl(var(--success))" },
+                  { letter: "P", label: "Perform", value: result.rapid.perform, color: "hsl(217, 91%, 60%)" },
+                  { letter: "I", label: "Input", value: result.rapid.input, color: "hsl(var(--warning))" },
+                  { letter: "D", label: "Decide", value: result.rapid.decide, color: "hsl(var(--destructive))" },
+                ].map((row) => (
+                  <div
+                    key={row.letter}
+                    className="inline-flex items-center gap-2 rounded-full px-3 py-1.5"
+                    style={{ background: `${row.color}12`, border: `1px solid ${row.color}30` }}
+                  >
+                    <span className="flex items-center justify-center rounded-full font-bold" style={{ width: 22, height: 22, fontSize: 11, background: row.color, color: "#fff" }}>
+                      {row.letter}
+                    </span>
+                    <span className="text-sm font-medium" style={{ color: "hsl(var(--text-primary))" }}>{row.value}</span>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
+              {/* Legend */}
+              <div className="flex flex-wrap gap-3 text-xs" style={{ color: "hsl(var(--text-tertiary))" }}>
+                {["R = Recommend", "A = Agree", "P = Perform", "I = Input", "D = Decide"].map(l => (
+                  <span key={l}>{l}</span>
+                ))}
+              </div>
             </div>
           </CollapsibleSection>
         )}
