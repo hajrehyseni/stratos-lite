@@ -67,9 +67,9 @@ export function HomepageLanding({ onSubmit, remainingAudits, hasUsedAudit }: Pro
 
         <div className="w-full flex flex-col items-center relative z-10" style={{ maxWidth: 1120 }}>
           <h1
-            className="text-center font-serif text-4xl sm:text-5xl lg:text-7xl"
+            className="text-center font-serif font-bold text-4xl sm:text-5xl lg:text-7xl"
             style={{
-              fontWeight: 400, lineHeight: 1.08, letterSpacing: "-0.03em",
+              lineHeight: 1.08, letterSpacing: "-0.04em",
               color: "hsl(var(--text-primary))", maxWidth: 640,
               opacity: heroVisible ? 1 : 0, transform: heroVisible ? "translateY(0)" : "translateY(20px)",
               transition: "opacity 400ms ease-out, transform 400ms ease-out",
