@@ -730,23 +730,40 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
           </CollapsibleSection>
         )}
 
-        {/* Stakeholder Map */}
+        {/* Stakeholder Map — Visual Position Dots */}
         {result.stakeholder_map && result.stakeholder_map.length > 0 && (
           <CollapsibleSection id="section-stakeholder-map" title="Stakeholder Map" forceOpen={allExpanded || undefined}>
-            <div className="rounded-xl overflow-hidden" style={cardStyle}>
-              <div className="hidden sm:grid grid-cols-[2fr_1fr_1fr_3fr] gap-2 px-5 py-3" style={{ borderBottom: "1px solid hsl(var(--border))" }}>
-                {["Role", "Position", "Influence", "Action"].map((h) => (
-                  <span key={h} className="text-xs uppercase font-semibold" style={{ letterSpacing: "0.1em", color: "hsl(var(--text-tertiary))" }}>{h}</span>
-                ))}
+            <div className="rounded-xl p-6" style={cardStyle}>
+              {/* Visual dot map */}
+              <div className="flex flex-wrap gap-4 mb-5">
+                {result.stakeholder_map.map((s, i) => {
+                  const dotSize = s.influence === "High" ? 48 : s.influence === "Medium" ? 36 : 28;
+                  const dotColor = positionColors[s.position] || "hsl(var(--text-tertiary))";
+                  return (
+                    <div key={i} className="flex flex-col items-center gap-1.5" style={{ minWidth: 60 }}>
+                      <div
+                        className="rounded-full flex items-center justify-center text-xs font-bold transition-transform hover:scale-110"
+                        style={{ width: dotSize, height: dotSize, background: `${dotColor}20`, border: `2px solid ${dotColor}`, color: dotColor }}
+                        title={`${s.role}: ${s.position} (${s.influence} influence)`}
+                      >
+                        {s.role.charAt(0)}
+                      </div>
+                      <span className="text-xs font-medium text-center" style={{ color: "hsl(var(--text-primary))", maxWidth: 80 }}>{s.role}</span>
+                      <span className="text-xs" style={{ color: dotColor }}>{s.position}</span>
+                    </div>
+                  );
+                })}
               </div>
-              {result.stakeholder_map.map((s, i) => (
-                <div key={i} className="grid grid-cols-1 sm:grid-cols-[2fr_1fr_1fr_3fr] gap-2 px-5 py-3.5" style={{ borderBottom: "1px solid hsl(var(--border))" }}>
-                  <span className="text-base font-medium" style={{ color: "hsl(var(--text-primary))" }}>{s.role}</span>
-                  <span className="text-base" style={{ color: positionColors[s.position] || "hsl(var(--text-tertiary))" }}>{s.position}</span>
-                  <span className="text-base" style={{ color: "hsl(var(--text-secondary))" }}>{s.influence}</span>
-                  <span className="text-base" style={{ color: "hsl(var(--text-secondary))" }}>{s.action}</span>
-                </div>
-              ))}
+              {/* Legend */}
+              <div className="flex items-center gap-4 text-xs" style={{ color: "hsl(var(--text-tertiary))" }}>
+                {Object.entries(positionColors).map(([label, color]) => (
+                  <span key={label} className="flex items-center gap-1.5">
+                    <span className="inline-block rounded-full" style={{ width: 8, height: 8, background: color }} />
+                    {label}
+                  </span>
+                ))}
+                <span className="ml-2">Size = Influence</span>
+              </div>
             </div>
           </CollapsibleSection>
         )}
