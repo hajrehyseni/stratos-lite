@@ -126,7 +126,7 @@ export function HomepageLanding({ onSubmit, remainingAudits, hasUsedAudit }: Pro
             </p>
           )}
 
-          <div className="mt-5 flex gap-2.5 pb-2 w-full justify-center flex-wrap px-1" style={{ maxWidth: 672 }}>
+          <div className="mt-4 flex gap-2 pb-2 w-full justify-center flex-wrap px-1" style={{ maxWidth: 672 }}>
             {exampleChips.map((chip) => (
               <button key={chip} onClick={() => handleChipClick(chip)} className="rounded-full px-4 py-2 text-sm transition-all duration-200 hover:border-[hsl(var(--primary))] hover:scale-[1.02]" style={{ background: "transparent", border: "1px solid hsl(var(--border))", color: "hsl(var(--text-secondary))", minHeight: 44, whiteSpace: "normal", textAlign: "center", boxShadow: "0 1px 3px hsla(0, 0%, 0%, 0.04)", transition: "transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease" }}
                 onMouseEnter={(e) => { e.currentTarget.style.boxShadow = "0 4px 12px hsla(0, 0%, 0%, 0.08)"; }}
