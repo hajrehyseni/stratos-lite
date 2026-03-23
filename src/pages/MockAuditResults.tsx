@@ -22,10 +22,10 @@ const mockData = {
     { risk: "Customer overlap creates revenue cannibalization", severity: "Medium", mitigation: "Map customer overlap in detail pre-close. Develop unified pricing strategy and account transition plan." },
   ],
   stakeholders: [
-    { name: "Board of Directors", stance: "Supportive", influence: "High", action: "Present updated financial model with integration cost sensitivity analysis at next board meeting." },
-    { name: "CTO / Engineering", stance: "Cautious", influence: "High", action: "Schedule joint architecture review with target's tech team. Address platform consolidation concerns directly." },
-    { name: "Sales Team", stance: "Concerned", influence: "Medium", action: "Communicate clear territory and compensation protection. Share cross-sell opportunity sizing." },
-    { name: "Target's Employees", stance: "Uncertain", influence: "Medium", action: "Prepare Day 1 communication plan. Clarify reporting structures and role continuity within first week." },
+    { name: "Board of Directors", stance: "Supportive", influence: "High", action: "Present updated financial model with integration cost sensitivity analysis." },
+    { name: "CTO / Engineering", stance: "Cautious", influence: "High", action: "Schedule joint architecture review. Address platform consolidation concerns." },
+    { name: "Sales Team", stance: "Concerned", influence: "Medium", action: "Communicate territory and compensation protection. Share cross-sell sizing." },
+    { name: "Target's Employees", stance: "Uncertain", influence: "Medium", action: "Prepare Day 1 communication. Clarify reporting structures within first week." },
   ],
   actions: [
     { action: "Commission independent due diligence on target's tech stack and technical debt", priority: "Immediate", feasibility: "Feasible" },
