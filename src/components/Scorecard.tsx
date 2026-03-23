@@ -57,8 +57,8 @@ const positionColors: Record<string, string> = {
 };
 
 const cardStyle: React.CSSProperties = {
-  background: "hsla(0, 0%, 100%, 0.03)",
-  border: "1px solid hsla(0, 0%, 100%, 0.08)",
+  background: "hsl(var(--secondary))",
+  border: "1px solid hsl(var(--border))",
   borderRadius: 12,
   padding: 24,
 };
@@ -254,7 +254,7 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
       {/* Conversion modal */}
       {showConversionModal && !user && !readOnly && (
         <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)" }}>
-          <div className="rounded-2xl p-10 mx-4" style={{ maxWidth: 460, background: "hsl(228, 35%, 14%)", border: "1px solid hsla(0, 0%, 100%, 0.1)" }}>
+          <div className="rounded-2xl p-10 mx-4" style={{ maxWidth: 460, background: "hsl(var(--background))", border: "1px solid hsl(var(--border))" }}>
             <h3 className="text-xl font-bold text-center" style={{ color: "hsl(var(--text-primary))" }}>
               Save this audit — create free account
             </h3>
@@ -281,7 +281,7 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
 
       <div className="scorecard-entrance" style={{ maxWidth: 720, margin: "0 auto" }}>
         {readOnly && (
-          <div className="text-center mb-8 rounded-lg py-2 px-4" style={{ background: "hsla(0, 0%, 100%, 0.04)", border: "1px solid hsla(0, 0%, 100%, 0.08)" }}>
+          <div className="text-center mb-8 rounded-lg py-2 px-4" style={{ background: "hsl(var(--secondary))", border: "1px solid hsl(var(--border))" }}>
             <span className="text-sm font-medium" style={{ letterSpacing: "0.1em", color: "hsl(var(--text-secondary))" }}>
               Shared Audit — Read Only
             </span>
@@ -349,7 +349,7 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
             {result.decision_classification && classificationLabels[result.decision_classification] && (
               <span
                 className="inline-flex items-center rounded-full px-3.5 py-1.5 text-sm font-bold"
-                style={{ background: "hsla(0, 0%, 100%, 0.05)", border: "1px solid hsla(0, 0%, 100%, 0.15)", color: "hsl(var(--text-secondary))" }}
+                style={{ background: "hsl(var(--secondary))", border: "1px solid hsl(var(--border))", color: "hsl(var(--text-secondary))" }}
               >
                 {classificationLabels[result.decision_classification]}
               </span>
@@ -361,7 +361,7 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
         )}
 
         {/* ═══ STICKY SECTION NAV ═══ */}
-        <div className="sticky top-16 z-40 -mx-4 px-4 py-2 mb-6 flex items-center gap-2" style={{ background: "hsla(228, 35%, 16%, 0.95)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}>
+        <div className="sticky top-16 z-40 -mx-4 px-4 py-2 mb-6 flex items-center gap-2" style={{ background: "hsla(0, 0%, 100%, 0.95)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}>
           <div className="flex gap-2 overflow-x-auto scrollbar-hide flex-1 relative">
             {NAV_ITEMS.map((s) => (
               <button
@@ -369,9 +369,9 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
                 onClick={() => handleScrollToSection(s.id)}
                 className="flex-shrink-0 rounded-full px-3.5 py-1.5 text-xs font-medium transition-all duration-200"
                 style={{
-                  background: activeSection === s.id ? "hsla(16, 100%, 62%, 0.15)" : "hsla(0, 0%, 100%, 0.06)",
+                  background: activeSection === s.id ? "hsla(221, 83%, 53%, 0.1)" : "hsl(var(--secondary))",
                   color: activeSection === s.id ? "hsl(var(--primary))" : "hsl(var(--text-secondary))",
-                  border: activeSection === s.id ? "1px solid hsla(16, 100%, 62%, 0.3)" : "1px solid hsla(0, 0%, 100%, 0.08)",
+                  border: activeSection === s.id ? "1px solid hsla(221, 83%, 53%, 0.3)" : "1px solid hsl(var(--border))",
                   minHeight: 32,
                 }}
               >
@@ -379,12 +379,12 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
               </button>
             ))}
             {/* Gradient fade hint for mobile */}
-            <div className="absolute right-0 top-0 bottom-0 w-8 pointer-events-none sm:hidden" style={{ background: "linear-gradient(to right, transparent, hsla(228, 35%, 16%, 0.95))" }} />
+            <div className="absolute right-0 top-0 bottom-0 w-8 pointer-events-none sm:hidden" style={{ background: "linear-gradient(to right, transparent, hsla(0, 0%, 100%, 0.95))" }} />
           </div>
           <button
             onClick={() => setAllExpanded(!allExpanded)}
             className="flex-shrink-0 text-xs font-medium px-3 py-1.5 rounded-full transition-all duration-200"
-            style={{ background: "hsla(0, 0%, 100%, 0.06)", color: "hsl(var(--text-tertiary))", border: "1px solid hsla(0, 0%, 100%, 0.08)" }}
+            style={{ background: "hsl(var(--secondary))", color: "hsl(var(--text-tertiary))", border: "1px solid hsl(var(--border))" }}
           >
             {allExpanded ? "Collapse" : "Expand All"}
           </button>

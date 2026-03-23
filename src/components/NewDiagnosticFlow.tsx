@@ -252,7 +252,7 @@ export function NewDiagnosticFlow({ decision, onComplete, onSkip, onBackToLandin
                 What happens if you get this wrong?
               </h1>
               <p className="text-sm mb-6" style={{ color: "hsl(var(--text-secondary))" }}>
-                Think worst-case: money lost, trust eroded, opportunities missed.
+                Worst case — money, trust, opportunities.
               </p>
               <textarea
                 ref={textareaRef}
@@ -389,7 +389,7 @@ export function NewDiagnosticFlow({ decision, onComplete, onSkip, onBackToLandin
                 If this goes perfectly, what does the world look like in 12 months?
               </h1>
               <p className="text-sm mb-6" style={{ color: "hsl(var(--text-secondary))" }}>
-                Paint the picture. This anchors our analysis to your definition of success.
+                This anchors your audit to your definition of success.
               </p>
               <textarea
                 ref={textareaRef}
@@ -425,7 +425,7 @@ export function NewDiagnosticFlow({ decision, onComplete, onSkip, onBackToLandin
               </div>
 
               <p className="text-xs mt-6" style={{ color: "hsl(var(--text-faint))" }}>
-                Your answers help our AI apply the right strategic frameworks — McKinsey 7S, SODA, RAPID, and more.
+                Powering your audit: McKinsey 7S · SODA · RAPID · Cynefin · Pre-Mortem
               </p>
             </div>
           )}

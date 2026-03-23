@@ -10,12 +10,12 @@ interface Props {
 }
 
 const analysisSteps = () => [
-  "Parsing decision context...",
-  "Mapping stakeholder landscape...",
-  "Identifying hidden assumptions...",
-  "Stress-testing the inverse position...",
-  "Building risk register...",
-  "Generating strategic recommendation...",
+  "Mapping decision architecture...",
+  "Modelling stakeholder dynamics...",
+  "Stress-testing assumptions...",
+  "Running pre-mortem analysis...",
+  "Quantifying risk exposure...",
+  "Synthesising strategic verdict...",
 ];
 
 export function NewProcessingState({ lens, scale, onApiReady, apiResolved, decisionText }: Props) {
@@ -128,7 +128,7 @@ export function NewProcessingState({ lens, scale, onApiReady, apiResolved, decis
         </div>
 
         <p className="text-center mt-6 text-base" style={{ color: "hsl(var(--text-secondary))" }}>
-          Applying 6 strategic frameworks...
+          6 frameworks · 10-step methodology
         </p>
       </div>
     </div>

@@ -17,7 +17,6 @@ const exampleChips = [
   "Should we acquire our competitor?",
   "Should I restructure my team?",
   "Should we pivot our product strategy?",
-  "Should we enter a new market?",
 ];
 
 export function HomepageLanding({ onSubmit, remainingAudits, hasUsedAudit }: Props) {
@@ -77,7 +76,7 @@ export function HomepageLanding({ onSubmit, remainingAudits, hasUsedAudit }: Pro
               transition: "opacity 400ms ease-out 100ms, transform 400ms ease-out 100ms",
             }}
           >
-            The strategic frameworks behind every Fortune 500 board decision — now in your hands in 30 seconds.
+            Fortune 500 frameworks. 30-second audit. Free.
           </p>
 
           {/* Input */}
@@ -131,9 +130,7 @@ export function HomepageLanding({ onSubmit, remainingAudits, hasUsedAudit }: Pro
             ))}
           </div>
 
-          <p className="text-center mt-4 text-sm" style={{ color: "hsl(var(--text-tertiary))" }}>
-            ✓ Free · No signup · 30 seconds · 🔒 Private &amp; encrypted
-          </p>
+          {/* trust line removed — redundant with subtitle */}
           {hasUsedAudit && remainingAudits !== undefined && remainingAudits > 0 && (
             <p className="text-center mt-2 text-sm font-medium" style={{ color: "hsl(var(--warning))" }}>
               You have {remainingAudits} free audit{remainingAudits !== 1 ? "s" : ""} remaining

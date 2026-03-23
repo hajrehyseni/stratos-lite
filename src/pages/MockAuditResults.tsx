@@ -8,13 +8,13 @@ import { toast } from "sonner";
 const mockData = {
   confidenceScore: 72,
   verdict: "CONDITIONAL PROCEED",
-  verdictDescription: "The acquisition has strong strategic merit but carries significant integration risks. Proceed only after addressing the three critical risks identified below and securing board alignment on the 18-month integration timeline.",
+  verdictDescription: "Strong strategic merit but significant integration risks. Proceed only after addressing the three critical risks below and securing board alignment on the 18-month timeline.",
   meceBreakdown: [
-    { dimension: "Strategic Fit", score: 85, description: "Strong product complementarity and market overlap. Combined entity would hold 34% market share in the target segment." },
-    { dimension: "Financial Viability", score: 68, description: "DCF valuation suggests fair value at 1.2x premium. Cash reserves sufficient but will constrain R&D spending for 2 quarters." },
+    { dimension: "Strategic Fit", score: 85, description: "Strong product complementarity. Combined entity holds 34% market share." },
+    { dimension: "Financial Viability", score: 68, description: "DCF valuation fair at 1.2x premium. Will constrain R&D for 2 quarters." },
     { dimension: "Operational Readiness", score: 61, description: "Integration team identified but timeline aggressive. Key dependency on retaining target's engineering leadership." },
-    { dimension: "Market Timing", score: 78, description: "Competitor consolidation accelerating. Window of opportunity narrows significantly after Q3 as regulatory landscape shifts." },
-    { dimension: "Cultural Alignment", score: 55, description: "Significant differences in decision-making culture. Target operates with flat hierarchy vs. acquirer's matrix structure." },
+    { dimension: "Market Timing", score: 78, description: "Competitor consolidation accelerating. Window narrows significantly after Q3." },
+    { dimension: "Cultural Alignment", score: 55, description: "Significant decision-making culture gap. Flat hierarchy vs. matrix structure." },
   ],
   risks: [
     { risk: "Integration timeline exceeds 12-month window", severity: "High", mitigation: "Appoint dedicated integration PMO with weekly executive steering committee reviews. Set 90-day milestone checkpoints." },
@@ -22,10 +22,10 @@ const mockData = {
     { risk: "Customer overlap creates revenue cannibalization", severity: "Medium", mitigation: "Map customer overlap in detail pre-close. Develop unified pricing strategy and account transition plan." },
   ],
   stakeholders: [
-    { name: "Board of Directors", stance: "Supportive", influence: "High", action: "Present updated financial model with integration cost sensitivity analysis at next board meeting." },
-    { name: "CTO / Engineering", stance: "Cautious", influence: "High", action: "Schedule joint architecture review with target's tech team. Address platform consolidation concerns directly." },
-    { name: "Sales Team", stance: "Concerned", influence: "Medium", action: "Communicate clear territory and compensation protection. Share cross-sell opportunity sizing." },
-    { name: "Target's Employees", stance: "Uncertain", influence: "Medium", action: "Prepare Day 1 communication plan. Clarify reporting structures and role continuity within first week." },
+    { name: "Board of Directors", stance: "Supportive", influence: "High", action: "Present updated financial model with integration cost sensitivity analysis." },
+    { name: "CTO / Engineering", stance: "Cautious", influence: "High", action: "Schedule joint architecture review. Address platform consolidation concerns." },
+    { name: "Sales Team", stance: "Concerned", influence: "Medium", action: "Communicate territory and compensation protection. Share cross-sell sizing." },
+    { name: "Target's Employees", stance: "Uncertain", influence: "Medium", action: "Prepare Day 1 communication. Clarify reporting structures within first week." },
   ],
   actions: [
     { action: "Commission independent due diligence on target's tech stack and technical debt", priority: "Immediate", feasibility: "Feasible" },
@@ -269,6 +269,16 @@ export default function MockAuditResults() {
             <p className="mt-4 text-base leading-relaxed" style={{ color: "hsl(var(--text-secondary))", maxWidth: 600, margin: "16px auto 0" }}>
               {mockData.verdictDescription}
             </p>
+          </div>
+
+          {/* Executive Summary — the board-email block */}
+          <div className="rounded-xl p-5 mb-6 font-mono text-sm" style={{ background: "hsl(var(--secondary))", border: "1px solid hsl(var(--border))" }}>
+            <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ letterSpacing: "0.1em", color: "hsl(var(--primary))", fontFamily: "Inter, sans-serif" }}>Executive Summary</p>
+            <div className="space-y-1.5" style={{ color: "hsl(var(--text-primary))" }}>
+              <p><strong>Verdict:</strong> {mockData.verdict} ({mockData.confidenceScore}/100)</p>
+              <p><strong>Key Risk:</strong> Integration timeline and talent retention</p>
+              <p><strong>Next Step:</strong> Commission independent tech due diligence this week</p>
+            </div>
           </div>
 
           {/* The Reframe — styled quote block */}

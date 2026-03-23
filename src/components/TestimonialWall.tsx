@@ -2,9 +2,9 @@ import { useRef, useState, useEffect, useCallback } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const testimonials = [
-  { quote: "This replaced the 3-hour board prep I used to dread. The risk surface alone saved us from a bad acquisition.", name: "Sarah Chen", role: "VP Strategy, Series B Fintech" },
-  { quote: "StratOS captures 80% of McKinsey's value in 30 seconds. The best pre-meeting prep I've found.", name: "James Wright", role: "Managing Director" },
-  { quote: "The stakeholder analysis caught a political blind spot we all missed. We run every major decision through it.", name: "Priya Sharma", role: "COO, HealthTech Scale-up" },
+  { quote: "Replaced 3 hours of board prep. The risk surface alone saved us from a bad acquisition.", name: "Sarah Chen", role: "VP Strategy, Series B Fintech" },
+  { quote: "80% of McKinsey's value in 30 seconds. Best pre-meeting prep I've found.", name: "James Wright", role: "Managing Director" },
+  { quote: "Caught a political blind spot we all missed. We run every major decision through it.", name: "Priya Sharma", role: "COO, HealthTech Scale-up" },
 ];
 
 export function TestimonialWall() {
@@ -43,7 +43,7 @@ export function TestimonialWall() {
 
   return (
     <div className="py-16 md:py-20" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
-      <h2 className="text-2xl sm:text-3xl font-bold text-center mb-3" style={{ color: "hsl(var(--text-primary))" }}>Trusted by leaders making high-stakes calls</h2>
+      <h2 className="text-2xl sm:text-3xl font-bold text-center mb-3" style={{ color: "hsl(var(--text-primary))" }}>What leaders say</h2>
       <p className="text-center text-base mb-8" style={{ color: "hsl(var(--text-secondary))" }}>From early users</p>
       <div className="relative" style={{ overflow: "visible" }}>
         <div ref={scrollRef} className="flex gap-6 overflow-x-auto scroll-snap-x snap-mandatory px-8 pb-4 scrollbar-hide" style={{ scrollSnapType: "x mandatory" }}>

@@ -61,8 +61,8 @@ export default function PricingPage() {
       <div className="min-h-screen px-4 pt-28 pb-20 page-enter" style={{ background: "hsl(var(--background))" }}>
         <div style={{ maxWidth: 1120 }} className="mx-auto">
           <div className="text-center mb-10">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight" style={{ color: "hsl(var(--text-primary))" }}>Simple pricing for better decisions</h1>
-            <p className="mt-5 text-lg md:text-xl" style={{ color: "hsl(var(--text-secondary))", maxWidth: 560, margin: "20px auto 0" }}>Every plan includes all 6 strategic frameworks. Start free, upgrade when you need more.</p>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight" style={{ color: "hsl(var(--text-primary))" }}>Simple pricing</h1>
+            <p className="mt-5 text-lg md:text-xl" style={{ color: "hsl(var(--text-secondary))", maxWidth: 560, margin: "20px auto 0" }}>All 6 frameworks included. Start free.</p>
           </div>
 
           <div className="flex items-center justify-center gap-3 mb-10">
@@ -126,12 +126,7 @@ export default function PricingPage() {
             <span className="text-sm" style={{ color: "hsl(var(--text-tertiary))" }}>30-day money-back guarantee</span>
           </div>
 
-          <div className="mt-16 text-center">
-            <p className="text-xs font-medium uppercase tracking-widest mb-4" style={{ color: "hsl(var(--text-tertiary))" }}>All plans include</p>
-            <div className="flex flex-wrap justify-center gap-x-2 gap-y-1">
-              {frameworks.map((f, i) => (<span key={f} className="text-sm" style={{ color: "hsl(var(--text-secondary))" }}>{f}{i < frameworks.length - 1 ? " ·" : ""}</span>))}
-            </div>
-          </div>
+          {/* frameworks list removed — redundant */}
 
           <div id="comparison-table" className="mt-16 overflow-x-auto scroll-mt-24">
             <table className="w-full" style={{ maxWidth: 768, margin: "0 auto" }}>
@@ -156,12 +151,7 @@ export default function PricingPage() {
             </table>
           </div>
 
-          <div className="mt-20 text-center">
-            <p className="text-xl font-semibold mb-4" style={{ color: "hsl(var(--text-primary))" }}>Not sure? Try a free audit first.</p>
-            <button onClick={() => navigate("/")} className="inline-flex items-center gap-2 rounded-full px-8 py-4 text-lg font-semibold transition-all duration-200 hover:scale-[1.02] hover:shadow-md active:scale-[0.98]" style={{ background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))", minHeight: 52 }}>
-              Run free audit <ArrowRight className="w-5 h-5" />
-            </button>
-          </div>
+          {/* bottom CTA removed — redundant */}
         </div>
       </div>
       <Footer />
