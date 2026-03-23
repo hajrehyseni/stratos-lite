@@ -54,7 +54,7 @@ export function HomepageLanding({ onSubmit, remainingAudits, hasUsedAudit }: Pro
   return (
     <div className="flex flex-col page-enter">
       {/* Hero with subtle radial gradient */}
-      <div className="relative flex flex-col items-center px-4 sm:px-6 pt-28 sm:pt-36 pb-16 md:pb-20" style={{ minHeight: "85vh", justifyContent: "center" }}>
+      <div className="relative flex flex-col items-center px-4 sm:px-6 pt-20 sm:pt-28 pb-14 md:pb-16" style={{ justifyContent: "center" }}>
         {/* Premium background texture */}
         <div className="absolute inset-0 pointer-events-none" style={{
           background: "radial-gradient(ellipse 80% 50% at 50% 30%, hsla(221, 83%, 53%, 0.04), transparent)",
