@@ -17,7 +17,6 @@ const exampleChips = [
   "Should we acquire our competitor?",
   "Should I restructure my team?",
   "Should we pivot our product strategy?",
-  "Should we enter a new market?",
 ];
 
 export function HomepageLanding({ onSubmit, remainingAudits, hasUsedAudit }: Props) {
