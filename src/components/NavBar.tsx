@@ -59,8 +59,8 @@ export function NavBar() {
         <div style={{ maxWidth: 1120 }} className="mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
             <StratOSLogo size={28} />
-            <span style={{ color: "hsl(var(--text-primary))" }}>
-              <span className="font-serif text-xl" style={{ fontWeight: 400 }}>Strat</span><span className="text-sm font-semibold tracking-widest uppercase" style={{ marginLeft: 1 }}>OS</span>
+            <span className="font-brand text-[22px] tracking-tight" style={{ color: "hsl(var(--text-primary))", letterSpacing: "-0.02em" }}>
+              Strat<span className="font-sans text-[13px] font-semibold tracking-[0.12em] uppercase" style={{ marginLeft: 2 }}>OS</span>
             </span>
           </Link>
 
