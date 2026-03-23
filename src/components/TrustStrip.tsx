@@ -8,13 +8,13 @@ const metrics = [
 
 export function TrustStrip() {
   return (
-    <div className="w-full" style={{ borderTop: "1px solid hsl(var(--border))", borderBottom: "1px solid hsl(var(--border))" }}>
-      <div className="flex items-center justify-center gap-0 px-4 sm:px-6 py-10 mx-auto" style={{ maxWidth: 640 }}>
-        {metrics.map((m, i) => {
+    <div className="w-full py-6">
+      <div className="flex items-center justify-center gap-10 sm:gap-16 px-4 sm:px-6 mx-auto" style={{ maxWidth: 640 }}>
+        {metrics.map((m) => {
           const Icon = m.icon;
           return (
-            <div key={m.value} className="flex flex-col items-center text-center gap-2 flex-1" style={{ borderRight: i < metrics.length - 1 ? "1px solid hsl(var(--border))" : "none" }}>
-              <Icon className="w-6 h-6" style={{ color: "hsl(var(--primary))" }} />
+            <div key={m.value} className="flex flex-col items-center text-center gap-1.5">
+              <Icon className="w-5 h-5" style={{ color: "hsl(var(--primary))" }} />
               <span className="text-xl sm:text-2xl font-bold" style={{ color: "hsl(var(--text-primary))" }}>
                 {m.value}
               </span>
