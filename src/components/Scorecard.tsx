@@ -425,22 +425,26 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
             {rationale && <p className="mt-2 text-base" style={{ color: "hsl(var(--text-secondary))" }}>{rationale}</p>}
           </div>
 
-          {/* Time Horizon */}
+          {/* Time Horizon — Visual Timeline */}
           {result.time_horizon && (
             <div className="rounded-xl p-6 mt-3" style={cardStyle}>
               <CardLabel>Time Horizon Check</CardLabel>
-              <div className="space-y-4">
+              <div className="relative flex items-start justify-between gap-2 mt-4">
+                {/* Connecting line */}
+                <div className="absolute top-5 left-[10%] right-[10%] h-px" style={{ background: "hsl(var(--border))" }} />
                 {[
-                  { icon: "⏱", label: "10 minutes", value: result.time_horizon.ten_minutes },
-                  { icon: "📅", label: "10 months", value: result.time_horizon.ten_months },
-                  { icon: "🏛", label: "10 years", value: result.time_horizon.ten_years },
-                ].map((row) => (
-                  <div key={row.label} className="flex gap-3">
-                    <span className="text-base flex-shrink-0">{row.icon}</span>
-                    <div>
-                      <span className="text-xs font-semibold uppercase" style={{ color: "hsl(var(--text-secondary))", letterSpacing: "0.05em" }}>{row.label}:</span>
-                      <p className="text-base mt-1" style={{ color: "hsl(var(--text-primary))", lineHeight: 1.6 }}>{row.value}</p>
+                  { label: "10 min", value: result.time_horizon.ten_minutes, color: "hsl(var(--primary))" },
+                  { label: "10 mo", value: result.time_horizon.ten_months, color: "hsl(var(--warning))" },
+                  { label: "10 yr", value: result.time_horizon.ten_years, color: "hsl(var(--success))" },
+                ].map((node) => (
+                  <div key={node.label} className="relative flex flex-col items-center text-center flex-1 z-10">
+                    <div
+                      className="flex items-center justify-center rounded-full mb-2"
+                      style={{ width: 40, height: 40, background: `${node.color}15`, border: `2px solid ${node.color}` }}
+                    >
+                      <span className="text-xs font-bold" style={{ color: node.color }}>{node.label}</span>
                     </div>
+                    <p className="text-sm" style={{ color: "hsl(var(--text-primary))", lineHeight: 1.5, maxWidth: 160 }}>{node.value}</p>
                   </div>
                 ))}
               </div>
