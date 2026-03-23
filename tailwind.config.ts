@@ -58,6 +58,7 @@ export default {
         },
         success: "hsl(var(--success))",
         warning: "hsl(var(--warning))",
+        gold: "hsl(var(--accent-gold))",
         coral: "hsl(var(--primary))",
         "text-primary": "hsl(var(--text-primary))",
         "text-secondary": "hsl(var(--text-secondary))",

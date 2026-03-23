@@ -23,7 +23,7 @@ export function SystemSections() {
 
   return (
     <div id="features" ref={ref} className="scroll-mt-20 py-16 md:py-24 px-4 sm:px-6">
-      <h2 className="text-2xl sm:text-3xl font-bold text-center mb-2" style={{ color: "hsl(var(--text-primary))" }}>How it works</h2>
+      <h2 className="font-serif text-2xl sm:text-3xl text-center mb-2" style={{ color: "hsl(var(--text-primary))" }}>How it works</h2>
       <p className="text-center text-sm mb-12" style={{ color: "hsl(var(--text-tertiary))" }}>3 steps, 30 seconds</p>
 
       {/* Desktop: horizontal row */}

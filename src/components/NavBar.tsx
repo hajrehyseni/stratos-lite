@@ -59,7 +59,9 @@ export function NavBar() {
         <div style={{ maxWidth: 1120 }} className="mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
             <StratOSLogo size={28} />
-            <span className="text-xl font-bold tracking-tight" style={{ color: "hsl(var(--text-primary))" }}>StratOS</span>
+            <span style={{ color: "hsl(var(--text-primary))" }}>
+              <span className="font-serif text-xl" style={{ fontWeight: 400 }}>Strat</span><span className="text-sm font-semibold tracking-widest uppercase" style={{ marginLeft: 1 }}>OS</span>
+            </span>
           </Link>
 
           {/* Desktop nav */}
