@@ -361,24 +361,24 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
         )}
 
         {/* ═══ STICKY SECTION NAV ═══ */}
-        <div className="sticky top-16 z-40 -mx-4 px-4 py-2 mb-6 flex items-center gap-2" style={{ background: "hsla(0, 0%, 100%, 0.95)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}>
+        <div className="sticky top-16 z-40 -mx-4 px-4 py-2 mb-6 flex items-center gap-2" style={{ background: "hsla(0, 0%, 100%, 0.95)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", borderBottom: "1px solid hsl(var(--border))" }}>
           <div className="flex gap-2 overflow-x-auto scrollbar-hide flex-1 relative">
             {NAV_ITEMS.map((s) => (
               <button
                 key={s.id}
                 onClick={() => handleScrollToSection(s.id)}
-                className="flex-shrink-0 rounded-full px-3.5 py-1.5 text-xs font-medium transition-all duration-200"
+                className="flex-shrink-0 px-3 py-2 text-xs font-medium transition-all duration-200"
                 style={{
-                  background: activeSection === s.id ? "hsla(221, 83%, 53%, 0.1)" : "hsl(var(--secondary))",
+                  background: "transparent",
                   color: activeSection === s.id ? "hsl(var(--primary))" : "hsl(var(--text-secondary))",
-                  border: activeSection === s.id ? "1px solid hsla(221, 83%, 53%, 0.3)" : "1px solid hsl(var(--border))",
+                  border: "none",
+                  borderBottom: activeSection === s.id ? "2px solid hsl(var(--primary))" : "2px solid transparent",
                   minHeight: 32,
                 }}
               >
                 {s.label}
               </button>
             ))}
-            {/* Gradient fade hint for mobile */}
             <div className="absolute right-0 top-0 bottom-0 w-8 pointer-events-none sm:hidden" style={{ background: "linear-gradient(to right, transparent, hsla(0, 0%, 100%, 0.95))" }} />
           </div>
           <button
