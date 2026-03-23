@@ -281,7 +281,7 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
 
       <div className="scorecard-entrance" style={{ maxWidth: 720, margin: "0 auto" }}>
         {readOnly && (
-          <div className="text-center mb-8 rounded-lg py-2 px-4" style={{ background: "hsla(0, 0%, 100%, 0.04)", border: "1px solid hsla(0, 0%, 100%, 0.08)" }}>
+          <div className="text-center mb-8 rounded-lg py-2 px-4" style={{ background: "hsl(var(--secondary))", border: "1px solid hsl(var(--border))" }}>
             <span className="text-sm font-medium" style={{ letterSpacing: "0.1em", color: "hsl(var(--text-secondary))" }}>
               Shared Audit — Read Only
             </span>
