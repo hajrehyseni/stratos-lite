@@ -369,9 +369,9 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
                 onClick={() => handleScrollToSection(s.id)}
                 className="flex-shrink-0 rounded-full px-3.5 py-1.5 text-xs font-medium transition-all duration-200"
                 style={{
-                  background: activeSection === s.id ? "hsla(16, 100%, 62%, 0.15)" : "hsla(0, 0%, 100%, 0.06)",
+                  background: activeSection === s.id ? "hsla(221, 83%, 53%, 0.1)" : "hsl(var(--secondary))",
                   color: activeSection === s.id ? "hsl(var(--primary))" : "hsl(var(--text-secondary))",
-                  border: activeSection === s.id ? "1px solid hsla(16, 100%, 62%, 0.3)" : "1px solid hsla(0, 0%, 100%, 0.08)",
+                  border: activeSection === s.id ? "1px solid hsla(221, 83%, 53%, 0.3)" : "1px solid hsl(var(--border))",
                   minHeight: 32,
                 }}
               >
