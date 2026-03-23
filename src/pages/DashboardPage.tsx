@@ -5,103 +5,91 @@ import { Footer } from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
 import { getJournalEntries } from "@/lib/journal";
 import type { JournalEntry } from "@/lib/types";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, BarChart3 } from "lucide-react";
 
 const verdictColors: Record<string, string> = {
   "PROCEED": "hsl(var(--success))",
   "CONDITIONAL PROCEED": "hsl(var(--warning))",
   "DO NOT PROCEED": "hsl(var(--destructive))",
-  "DEFER — INFORMATION NEEDED": "hsl(217, 91%, 60%)",
+  "DEFER — INFORMATION NEEDED": "hsl(221, 83%, 53%)",
 };
-const verdictLabels = ["PROCEED", "CONDITIONAL PROCEED", "DO NOT PROCEED", "DEFER — INFORMATION NEEDED"];
+
+const mockAudits = [
+  { id: "1", decision: "Should we acquire our competitor?", date: "2026-03-20", score: 72, verdict: "CONDITIONAL PROCEED" },
+  { id: "2", decision: "Should we pivot our product strategy?", date: "2026-03-18", score: 85, verdict: "PROCEED" },
+  { id: "3", decision: "Should I restructure my team?", date: "2026-03-15", score: 45, verdict: "DO NOT PROCEED" },
+  { id: "4", decision: "Should we expand into the European market?", date: "2026-03-12", score: 68, verdict: "CONDITIONAL PROCEED" },
+];
 
 export default function DashboardPage() {
   const { user, loading } = useAuth();
   const entries = getJournalEntries();
-  const count = entries.length;
-  const avgScore = useMemo(() => count ? Math.round(entries.reduce((s, e) => s + e.result.confidence_score, 0) / count) : 0, [entries]);
-  const verdictDist = useMemo(() => { const m: Record<string, number> = {}; verdictLabels.forEach(v => m[v] = 0); entries.forEach(e => { m[e.result.verdict] = (m[e.result.verdict] || 0) + 1; }); return m; }, [entries]);
-  const totalVerdicts = Object.values(verdictDist).reduce((a, b) => a + b, 0);
   const [expanded, setExpanded] = useState<string | null>(null);
-  const cardBase = { background: "hsla(0, 0%, 100%, 0.04)", border: "1px solid hsla(0, 0%, 100%, 0.08)" };
+
+  // Use mock data for demo, real data when available
+  const displayAudits = entries.length > 0 ? entries.map(e => ({
+    id: e.id, decision: e.decision, date: e.createdAt, score: e.result.confidence_score, verdict: e.result.verdict,
+  })) : mockAudits;
+
+  const count = displayAudits.length;
+  const avgScore = count ? Math.round(displayAudits.reduce((s, e) => s + e.score, 0) / count) : 0;
 
   if (loading) return null;
   if (!user) return <Navigate to="/login?redirect=dashboard" replace />;
 
   return (
     <>
-      <NavBar journalCount={count} />
-      <div className="min-h-screen px-4 sm:px-6 pb-16 pt-20 page-enter">
+      <NavBar journalCount={entries.length} />
+      <div className="min-h-screen px-4 sm:px-6 pb-16 pt-24 page-enter" style={{ background: "hsl(var(--background))" }}>
         <div className="max-w-[960px] mx-auto space-y-8">
-          {count === 0 ? (
-            <div className="flex flex-col items-center justify-center text-center" style={{ minHeight: "50vh" }}>
-              <p className="text-2xl font-bold" style={{ color: "hsl(var(--text-primary))" }}>Run a few audits to unlock your decision intelligence</p>
-              <p className="mt-3 text-lg" style={{ color: "hsl(var(--text-secondary))" }}>Your dashboard will show confidence trends, risk patterns, and more.</p>
-              <Link to="/" className="mt-8 inline-flex items-center gap-2 rounded-full font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]" style={{ height: 52, padding: "0 28px", fontSize: 16, background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))", boxShadow: "0 4px 16px hsla(16, 100%, 62%, 0.3)" }}>
-                Run your first audit <ArrowRight className="w-5 h-5" />
-              </Link>
-            </div>
-          ) : (
-            <>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {[
-                  { val: count, label: "Total Audits" },
-                  { val: avgScore, label: "Avg Readiness" },
-                ].map(m => (
-                  <div key={m.label} className="rounded-xl p-6" style={cardBase}>
-                    <span className="text-4xl font-extrabold" style={{ color: "hsl(var(--text-primary))" }}>{m.val}</span>
-                    <p className="mt-1.5 text-sm" style={{ color: "hsl(var(--text-secondary))" }}>{m.label}</p>
-                  </div>
-                ))}
+          <div className="flex items-center justify-between">
+            <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: "hsl(var(--text-primary))" }}>Dashboard</h1>
+            <Link to="/" className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-all hover:scale-[1.02] active:scale-[0.98]" style={{ background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))" }}>
+              New Audit <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+
+          {/* Stats */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {[
+              { val: count, label: "Total Audits" },
+              { val: avgScore, label: "Avg Readiness" },
+            ].map(m => (
+              <div key={m.label} className="rounded-xl p-6" style={{ background: "hsl(var(--secondary))", border: "1px solid hsl(var(--border))" }}>
+                <span className="text-4xl font-extrabold" style={{ color: "hsl(var(--text-primary))" }}>{m.val}</span>
+                <p className="mt-1.5 text-sm" style={{ color: "hsl(var(--text-secondary))" }}>{m.label}</p>
               </div>
+            ))}
+          </div>
 
-              {totalVerdicts > 0 && (
-                <div className="rounded-xl p-6" style={cardBase}>
-                  <p className="text-sm font-semibold mb-4" style={{ color: "hsl(var(--text-secondary))" }}>Verdict Distribution</p>
-                  <div className="flex rounded-full overflow-hidden" style={{ height: 10, background: "hsla(0, 0%, 100%, 0.06)" }}>
-                    {verdictLabels.map(v => { const c = verdictDist[v] || 0; if (!c) return null; return <div key={v} style={{ flexGrow: c, minWidth: 4, background: verdictColors[v] }} />; })}
-                  </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
-                    {verdictLabels.map(v => (
-                      <div key={v} className="flex items-center gap-2">
-                        <span className="inline-block rounded-full" style={{ width: 10, height: 10, background: verdictColors[v] }} />
-                        <span className="text-sm" style={{ color: "hsl(var(--text-secondary))" }}>{v.split(" ").slice(0, 2).join(" ")}: {verdictDist[v]}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div className="rounded-xl" style={cardBase}>
-                <div className="p-6 pb-0"><p className="text-sm font-semibold mb-3" style={{ color: "hsl(var(--text-secondary))" }}>Recent Decisions</p></div>
-                {entries.slice(0, 10).map(entry => {
-                  const isOpen = expanded === entry.id;
-                  return (
-                    <div key={entry.id} style={{ borderTop: "1px solid hsla(0, 0%, 100%, 0.06)" }}>
-                      <button onClick={() => setExpanded(isOpen ? null : entry.id)} className="w-full px-6 py-4 flex items-center gap-3 text-left hover:bg-white/[0.02] transition-colors" style={{ minHeight: 52 }}>
-                        <span className="hidden sm:inline text-sm" style={{ color: "hsl(var(--text-tertiary))", flexShrink: 0, width: 80 }}>{new Date(entry.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</span>
-                        <span className="flex-1 truncate text-base" style={{ color: "hsl(var(--text-primary))" }}>{entry.decision.slice(0, 60)}{entry.decision.length > 60 ? "..." : ""}</span>
-                        <span className="flex-shrink-0 rounded-full text-center text-sm px-2.5 py-0.5 font-semibold" style={{ color: "hsl(var(--primary))", border: "1px solid hsla(16, 100%, 62%, 0.3)" }}>{entry.result.confidence_score}</span>
-                        <span className="hidden sm:inline-block rounded-full flex-shrink-0" style={{ width: 10, height: 10, background: verdictColors[entry.result.verdict] || "hsl(var(--text-tertiary))" }} />
-                      </button>
-                      {isOpen && (
-                        <div className="px-6 pb-6">
-                          <div className="space-y-3 pt-2">
-                            {[["Verdict", entry.result.verdict], ["Biggest Risk", entry.result.biggest_risk], ["The Reframe", entry.result.better_question], ["Devil's Advocate", entry.result.devils_advocate]].filter(([, v]) => v).map(([label, value]) => (
-                              <div key={label as string}>
-                                <p className="text-xs uppercase font-semibold" style={{ letterSpacing: "0.1em", color: "hsla(16, 100%, 62%, 0.6)", marginBottom: 4 }}>{label}</p>
-                                <p className="text-base" style={{ color: "hsl(var(--text-secondary))", lineHeight: 1.6 }}>{value}</p>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
+          {/* Audits list */}
+          <div>
+            <h2 className="text-lg font-semibold mb-4" style={{ color: "hsl(var(--text-primary))" }}>Recent Decisions</h2>
+            <div className="space-y-3">
+              {displayAudits.map(audit => (
+                <Link
+                  key={audit.id}
+                  to={`/audit-results?decision=${encodeURIComponent(audit.decision)}`}
+                  className="block rounded-xl p-5 transition-all duration-200 hover:shadow-md"
+                  style={{ background: "hsl(var(--secondary))", border: "1px solid hsl(var(--border))" }}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-base font-semibold truncate" style={{ color: "hsl(var(--text-primary))" }}>{audit.decision}</p>
+                      <p className="text-sm mt-1" style={{ color: "hsl(var(--text-tertiary))" }}>
+                        {new Date(audit.date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                      </p>
                     </div>
-                  );
-                })}
-              </div>
-            </>
-          )}
+                    <div className="flex items-center gap-3 flex-shrink-0">
+                      <span className="rounded-full px-3 py-1 text-sm font-bold" style={{ color: "hsl(var(--primary))", background: "hsla(221, 83%, 53%, 0.1)" }}>{audit.score}</span>
+                      <span className="inline-block rounded-full" style={{ width: 10, height: 10, background: verdictColors[audit.verdict] || "hsl(var(--text-tertiary))" }} />
+                      <ArrowRight className="w-4 h-4" style={{ color: "hsl(var(--text-tertiary))" }} />
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
       <Footer />

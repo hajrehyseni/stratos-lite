@@ -12,7 +12,7 @@ const verdictColors: Record<string, string> = {
   "PROCEED": "hsl(var(--success))",
   "CONDITIONAL PROCEED": "hsl(var(--warning))",
   "DO NOT PROCEED": "hsl(var(--destructive))",
-  "DEFER — INFORMATION NEEDED": "hsl(217, 91%, 60%)",
+  "DEFER — INFORMATION NEEDED": "hsl(221, 83%, 53%)",
 };
 
 export default function JournalPage() {
@@ -24,31 +24,19 @@ export default function JournalPage() {
   if (loading) return null;
   if (!user) return <Navigate to="/login?redirect=journal" replace />;
 
-  const handleClearJournal = () => {
-    deleteJournal();
-    setEntries([]);
-    setShowClear(false);
-    toast.success("Journal cleared");
-  };
-
-  const cardBase = { background: "hsla(0, 0%, 100%, 0.04)", border: "1px solid hsla(0, 0%, 100%, 0.08)" };
+  const handleClearJournal = () => { deleteJournal(); setEntries([]); setShowClear(false); toast.success("Journal cleared"); };
 
   return (
     <>
       <NavBar journalCount={entries.length} />
-      <div className="min-h-screen px-4 pt-20 pb-12 page-enter">
+      <div className="min-h-screen px-4 pt-24 pb-12 page-enter" style={{ background: "hsl(var(--background))" }}>
         <div style={{ maxWidth: 720, margin: "0 auto" }}>
           {entries.length === 0 ? (
             <div className="flex flex-col items-center justify-center text-center" style={{ minHeight: "60vh" }}>
               <p className="text-2xl font-bold" style={{ color: "hsl(var(--text-primary))" }}>No audits saved yet</p>
               <p className="mt-3 text-lg" style={{ color: "hsl(var(--text-secondary))" }}>Run your first audit to start building your decision journal.</p>
-              <Link
-                to="/"
-                className="mt-8 inline-flex items-center justify-center gap-2 rounded-full font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-                style={{ height: 52, padding: "0 28px", fontSize: 16, background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))", boxShadow: "0 4px 16px hsla(16, 100%, 62%, 0.3)" }}
-              >
-                Run your first audit
-                <ArrowRight className="w-5 h-5" />
+              <Link to="/" className="mt-8 inline-flex items-center justify-center gap-2 rounded-full font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]" style={{ height: 52, padding: "0 28px", fontSize: 16, background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))" }}>
+                Run your first audit <ArrowRight className="w-5 h-5" />
               </Link>
             </div>
           ) : (
@@ -56,34 +44,26 @@ export default function JournalPage() {
               <div className="text-center space-y-1">
                 <h1 className="text-2xl font-bold" style={{ color: "hsl(var(--text-primary))" }}>Decision Journal</h1>
                 <p className="text-base" style={{ color: "hsl(var(--text-secondary))" }}>
-                  Average Readiness: <span style={{ color: "hsl(var(--primary))", fontWeight: 700 }}>
-                    {Math.round(entries.reduce((sum, e) => sum + e.result.confidence_score, 0) / entries.length)}
-                  </span>/100
+                  Average Readiness: <span style={{ color: "hsl(var(--primary))", fontWeight: 700 }}>{Math.round(entries.reduce((sum, e) => sum + e.result.confidence_score, 0) / entries.length)}</span>/100
                 </p>
               </div>
-              {entries.length >= 5 && (
-                <div className="rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3" style={{ ...cardBase, padding: "16px 24px" }}>
-                  <span className="text-base" style={{ color: "hsl(var(--text-primary))" }}>{entries.length} decisions tracked</span>
-                  <Link to="/dashboard" className="text-base font-semibold" style={{ color: "hsl(var(--primary))" }}>View Dashboard →</Link>
-                </div>
-              )}
-              <div className="rounded-xl overflow-hidden" style={cardBase}>
+              <div className="rounded-xl overflow-hidden" style={{ background: "hsl(var(--secondary))", border: "1px solid hsl(var(--border))" }}>
                 {entries.map(entry => {
                   const isOpen = expanded === entry.id;
                   return (
-                    <div key={entry.id} style={{ borderTop: "1px solid hsla(0, 0%, 100%, 0.06)" }}>
-                      <button onClick={() => setExpanded(isOpen ? null : entry.id)} className="w-full px-5 py-4 flex items-center gap-3 text-left hover:bg-white/[0.02] transition-colors" style={{ minHeight: 52 }}>
+                    <div key={entry.id} style={{ borderTop: "1px solid hsl(var(--border))" }}>
+                      <button onClick={() => setExpanded(isOpen ? null : entry.id)} className="w-full px-5 py-4 flex items-center gap-3 text-left hover:bg-black/[0.02] transition-colors" style={{ minHeight: 52 }}>
                         <span className="text-sm" style={{ color: "hsl(var(--text-tertiary))", flexShrink: 0, width: 70 }}>{new Date(entry.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</span>
                         <span className="flex-1 truncate text-base" style={{ color: "hsl(var(--text-primary))" }}>{entry.decision.slice(0, 60)}{entry.decision.length > 60 ? "..." : ""}</span>
-                        <span className="flex-shrink-0 rounded-full text-center text-sm px-2.5 py-0.5 font-semibold" style={{ color: "hsl(var(--primary))", border: "1px solid hsla(16, 100%, 62%, 0.3)" }}>{entry.result.confidence_score}</span>
+                        <span className="flex-shrink-0 rounded-full text-center text-sm px-2.5 py-0.5 font-semibold" style={{ color: "hsl(var(--primary))", background: "hsla(221, 83%, 53%, 0.1)" }}>{entry.result.confidence_score}</span>
                         <span className="inline-block rounded-full flex-shrink-0" style={{ width: 10, height: 10, background: verdictColors[entry.result.verdict] || "hsl(var(--text-tertiary))" }} />
                       </button>
                       {isOpen && (
                         <div className="px-5 pb-5">
                           <div className="space-y-3 pt-2">
-                            {[["Verdict", entry.result.verdict], ["Biggest Risk", entry.result.biggest_risk], ["The Reframe", entry.result.better_question], ["Devil's Advocate", entry.result.devils_advocate], ["Stakeholder Gap", entry.result.stakeholder_gap]].filter(([, v]) => v).map(([label, value]) => (
+                            {[["Verdict", entry.result.verdict], ["Biggest Risk", entry.result.biggest_risk], ["The Reframe", entry.result.better_question], ["Devil's Advocate", entry.result.devils_advocate]].filter(([, v]) => v).map(([label, value]) => (
                               <div key={label as string}>
-                                <p className="text-xs uppercase font-semibold" style={{ letterSpacing: "0.1em", color: "hsla(16, 100%, 62%, 0.6)", marginBottom: 4 }}>{label}</p>
+                                <p className="text-xs uppercase font-semibold" style={{ letterSpacing: "0.1em", color: "hsl(var(--primary))", marginBottom: 4 }}>{label}</p>
                                 <p className="text-base" style={{ color: "hsl(var(--text-secondary))", lineHeight: 1.6 }}>{value}</p>
                               </div>
                             ))}
@@ -96,12 +76,12 @@ export default function JournalPage() {
               </div>
               <div className="text-center pt-6">
                 {!showClear ? (
-                  <button onClick={() => setShowClear(true)} className="text-sm" style={{ color: "hsl(var(--text-faint))", minHeight: 44 }}>Clear Journal</button>
+                  <button onClick={() => setShowClear(true)} className="text-sm" style={{ color: "hsl(var(--text-tertiary))", minHeight: 44 }}>Clear Journal</button>
                 ) : (
-                  <div className="rounded-xl p-4" style={cardBase}>
+                  <div className="rounded-xl p-4" style={{ background: "hsl(var(--secondary))", border: "1px solid hsl(var(--border))" }}>
                     <p className="text-base mb-3" style={{ color: "hsl(var(--text-primary))" }}>This will permanently delete all saved audits.</p>
                     <div className="flex justify-center gap-3">
-                      <button onClick={() => setShowClear(false)} className="rounded-full px-5 py-2 text-base" style={{ border: "1px solid hsla(0, 0%, 100%, 0.1)", color: "hsl(var(--text-secondary))", minHeight: 44 }}>Cancel</button>
+                      <button onClick={() => setShowClear(false)} className="rounded-full px-5 py-2 text-base" style={{ border: "1px solid hsl(var(--border))", color: "hsl(var(--text-secondary))", minHeight: 44 }}>Cancel</button>
                       <button onClick={handleClearJournal} className="rounded-full px-5 py-2 text-base flex items-center gap-1.5" style={{ background: "hsl(var(--destructive))", color: "hsl(var(--primary-foreground))", fontWeight: 600, minHeight: 44 }}><Trash2 className="w-4 h-4" />Delete All</button>
                     </div>
                   </div>
