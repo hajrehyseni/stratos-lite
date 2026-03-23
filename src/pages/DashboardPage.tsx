@@ -128,6 +128,37 @@ export default function DashboardPage() {
             </div>
           )}
 
+          {/* Search + Filter */}
+          <div className="space-y-4">
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: "hsl(var(--text-tertiary))" }} />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                placeholder="Search decisions..."
+                className="w-full bg-transparent outline-none rounded-xl pl-11 pr-4"
+                style={{ height: 48, background: "hsl(var(--secondary))", border: "1px solid hsl(var(--border))", color: "hsl(var(--text-primary))", fontSize: 15 }}
+              />
+            </div>
+            <div className="flex gap-2 flex-wrap">
+              {verdictFilters.map(f => (
+                <button
+                  key={f}
+                  onClick={() => setActiveVerdict(f)}
+                  className="rounded-full px-3.5 py-1.5 text-xs font-medium transition-all duration-150"
+                  style={{
+                    background: activeVerdict === f ? "hsl(var(--primary))" : "hsl(var(--secondary))",
+                    color: activeVerdict === f ? "hsl(var(--primary-foreground))" : "hsl(var(--text-secondary))",
+                    border: `1px solid ${activeVerdict === f ? "hsl(var(--primary))" : "hsl(var(--border))"}`,
+                  }}
+                >
+                  {f === "CONDITIONAL PROCEED" ? "Conditional" : f === "DO NOT PROCEED" ? "Do Not Proceed" : f}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Audits list with verdict tags */}
           <div>
             <h2 className="text-lg font-semibold mb-4" style={{ color: "hsl(var(--text-primary))" }}>Recent Decisions</h2>
