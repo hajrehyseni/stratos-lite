@@ -47,12 +47,15 @@ export function TestimonialWall() {
       <div className="relative px-4 sm:px-8" style={{ maxWidth: 1120, margin: "0 auto" }}>
         <div ref={scrollRef} className="flex gap-6 overflow-x-auto scroll-snap-x snap-mandatory pb-4 scrollbar-hide" style={{ scrollSnapType: "x mandatory" }}>
           {testimonials.map((t, i) => (
-            <div key={i} className="testimonial-card flex-shrink-0 rounded-2xl p-8 transition-all duration-200 snap-start hover:shadow-md" style={{ minWidth: 320, maxWidth: 420, width: "85vw", background: "hsl(var(--secondary))", border: "1px solid hsl(var(--border))", borderLeft: "3px solid hsl(var(--primary))" }}>
+            <div key={i} className="testimonial-card flex-shrink-0 rounded-2xl p-8 transition-all duration-200 snap-start hover:shadow-md relative" style={{ minWidth: 320, maxWidth: 420, width: "85vw", background: "hsl(var(--secondary))", border: "1px solid hsl(var(--border))", borderLeft: "3px solid hsl(var(--primary))" }}>
+              <span className="absolute top-4 left-6 text-4xl font-serif select-none" style={{ color: "hsla(221, 83%, 53%, 0.08)", lineHeight: 1 }}>"</span>
               <div className="mb-4" style={{ color: "hsl(var(--warning))", fontSize: 16, letterSpacing: 2 }}>★★★★★</div>
               <p className="text-base italic leading-relaxed mb-6" style={{ color: "hsl(var(--text-secondary))", lineHeight: 1.7 }}>"{t.quote}"</p>
               <div style={{ height: 1, background: "hsl(var(--border))", marginBottom: 16 }} />
               <div className="flex items-center gap-3">
-                <div className="rounded-full" style={{ width: 36, height: 36, background: "hsl(var(--border))", flexShrink: 0 }} />
+                <div className="rounded-full flex items-center justify-center text-sm font-bold" style={{ width: 36, height: 36, background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))", flexShrink: 0 }}>
+                  {t.name.charAt(0)}
+                </div>
                 <div>
                   <p className="font-semibold text-sm" style={{ color: "hsl(var(--text-primary))" }}>{t.name}</p>
                   <p className="text-xs" style={{ color: "hsl(var(--text-tertiary))" }}>{t.role}</p>

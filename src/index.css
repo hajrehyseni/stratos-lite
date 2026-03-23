@@ -195,10 +195,10 @@ input::placeholder {
 }
 
 .typeform-screen-in {
-  animation: typeform-slide-in 400ms ease-out forwards;
+  animation: typeform-slide-in 300ms ease-out forwards;
 }
 .typeform-screen-out {
-  animation: typeform-slide-out 250ms ease-in forwards;
+  animation: typeform-slide-out 200ms ease-in forwards;
   pointer-events: none;
 }
 

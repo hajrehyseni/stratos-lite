@@ -109,7 +109,7 @@ function OptionCard({
           <Check className="w-3.5 h-3.5" style={{ color: "hsl(var(--primary-foreground))" }} />
         </div>
       )}
-      <span className="text-2xl">{emoji}</span>
+      <span className="text-xl sm:text-2xl">{emoji}</span>
       <p className="mt-2 text-base font-semibold" style={{ color: "hsl(var(--text-primary))" }}>{label}</p>
       <p className="mt-1 text-sm" style={{ color: "hsl(var(--text-secondary))" }}>{desc}</p>
     </button>

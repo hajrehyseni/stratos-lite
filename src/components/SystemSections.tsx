@@ -98,8 +98,8 @@ function StepSection({ s, i, reversed, Icon }: { s: typeof sections[0]; i: numbe
                     left: "50%",
                     transform: "translateX(-50%)",
                     width: 0,
-                    height: 100,
-                    borderLeft: "2px dashed hsla(221, 83%, 53%, 0.2)",
+                    height: 180,
+                    borderLeft: "2px dashed hsla(221, 83%, 53%, 0.35)",
                   }}
                 />
               )}

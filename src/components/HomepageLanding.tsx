@@ -147,6 +147,7 @@ export function HomepageLanding({ onSubmit, remainingAudits, hasUsedAudit }: Pro
 
       <TrustStrip />
       <SystemSections />
+      <OutputPreview />
       <MidPageCTA />
       <TestimonialWall />
       <FAQAccordion />

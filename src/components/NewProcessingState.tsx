@@ -71,7 +71,7 @@ export function NewProcessingState({ lens, scale, onApiReady, apiResolved, decis
   }, [apiResolved]);
 
   const truncated = decisionText
-    ? decisionText.length > 80 ? decisionText.slice(0, 80) + "…" : decisionText
+    ? decisionText.length > (window.innerWidth < 640 ? 50 : 80) ? decisionText.slice(0, window.innerWidth < 640 ? 47 : 77) + "…" : decisionText
     : null;
 
   const progressPercent = Math.round((completedLines.size / lines.length) * 100);
