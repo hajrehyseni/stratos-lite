@@ -625,7 +625,7 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
                 { letter: "I", label: "Input", value: result.rapid.input },
                 { letter: "D", label: "Decide", value: result.rapid.decide },
               ].map((row) => (
-                <div key={row.letter} className="flex items-start gap-4 py-3.5" style={{ borderBottom: "1px solid hsla(0, 0%, 100%, 0.06)" }}>
+                <div key={row.letter} className="flex items-start gap-4 py-3.5" style={{ borderBottom: "1px solid hsl(var(--border))" }}>
                   <span className="flex items-center justify-center rounded-lg font-bold" style={{ width: 36, height: 36, flexShrink: 0, background: "hsla(16, 100%, 62%, 0.12)", color: "hsl(var(--primary))", fontSize: 15 }}>
                     {row.letter}
                   </span>
