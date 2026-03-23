@@ -860,7 +860,7 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           className="fixed z-50 flex items-center justify-center rounded-full shadow-lg transition-all duration-200 hover:scale-[1.05] active:scale-95 bottom-20 sm:bottom-6 right-6"
-          style={{ width: 48, height: 48, background: "hsl(228, 35%, 20%)", border: "1px solid hsla(0, 0%, 100%, 0.12)", color: "hsl(var(--text-primary))" }}
+          style={{ width: 48, height: 48, background: "hsl(var(--primary))", border: "1px solid hsl(var(--border))", color: "hsl(var(--primary-foreground))" }}
           aria-label="Back to top"
         >
           <ArrowUp className="w-5 h-5" />
