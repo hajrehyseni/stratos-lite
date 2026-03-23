@@ -389,7 +389,7 @@ export function NewDiagnosticFlow({ decision, onComplete, onSkip, onBackToLandin
                 If this goes perfectly, what does the world look like in 12 months?
               </h1>
               <p className="text-sm mb-6" style={{ color: "hsl(var(--text-secondary))" }}>
-                Paint the picture. This anchors our analysis to your definition of success.
+                This anchors your audit to your definition of success.
               </p>
               <textarea
                 ref={textareaRef}
