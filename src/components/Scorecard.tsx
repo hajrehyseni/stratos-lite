@@ -134,6 +134,7 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
   const [activeSection, setActiveSection] = useState("section-verdict");
   const { user } = useAuth();
   const journalCount = getJournalCount();
+  const tts = useTTS();
 
   const reframe = result.reframe_question || result.better_question || "";
   const rationale = result.verdict_rationale || result.confidence_rationale || "";
