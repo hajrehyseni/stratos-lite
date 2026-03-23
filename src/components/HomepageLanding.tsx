@@ -87,7 +87,7 @@ export function HomepageLanding({ onSubmit, remainingAudits, hasUsedAudit }: Pro
           </p>
 
           {/* Input */}
-          <div className="w-full" style={{ maxWidth: 672, marginTop: 40, opacity: heroVisible ? 1 : 0, transform: heroVisible ? "translateY(0)" : "translateY(14px)", transition: "opacity 400ms ease-out 200ms, transform 400ms ease-out 200ms" }}>
+          <div className="w-full" style={{ maxWidth: 672, marginTop: 24, opacity: heroVisible ? 1 : 0, transform: heroVisible ? "translateY(0)" : "translateY(14px)", transition: "opacity 400ms ease-out 200ms, transform 400ms ease-out 200ms" }}>
             {/* Desktop */}
             <div className="hidden sm:block">
               <div className={`relative flex items-center ${shake ? "input-shake" : ""}`} style={{
