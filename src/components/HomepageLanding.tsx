@@ -33,6 +33,26 @@ export function HomepageLanding({ onSubmit, remainingAudits, hasUsedAudit }: Pro
   const inputRef = useRef<HTMLInputElement>(null);
   const submitRef = useRef<HTMLButtonElement>(null);
   const canSubmit = value.trim().length >= 10;
+  const voice = useVoiceInput();
+
+  // When voice transcript arrives, populate input
+  useEffect(() => {
+    if (voice.transcript) {
+      setValue(voice.transcript);
+      setHasTyped(true);
+      voice.resetTranscript();
+      inputRef.current?.focus();
+    }
+  }, [voice.transcript]);
+
+  const handleMic = () => {
+    if (!voice.isSupported) {
+      toast.error("Voice input not supported in this browser");
+      return;
+    }
+    if (voice.isListening) voice.stopListening();
+    else voice.startListening();
+  };
 
   useEffect(() => {
     const t = setTimeout(() => setHeroVisible(true), 50);
