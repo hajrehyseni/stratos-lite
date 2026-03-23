@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from "react";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Mic, MicOff } from "lucide-react";
+import { useVoiceInput } from "@/hooks/use-voice-input";
+import { toast } from "sonner";
 import { TrustStrip } from "@/components/TrustStrip";
 import { SystemSections } from "@/components/SystemSections";
 import { OutputPreview } from "@/components/OutputPreview";
