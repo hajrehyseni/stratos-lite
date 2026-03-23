@@ -731,14 +731,14 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
               <button
                 onClick={handleCopySummary}
                 className="flex items-center gap-2 px-5 py-3 rounded-full text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] hover:shadow-md"
-                style={{ border: "1px solid hsla(0, 0%, 100%, 0.12)", background: "transparent", color: "hsl(var(--text-secondary))", minHeight: 44 }}
+                style={{ border: "1px solid hsl(var(--border))", background: "transparent", color: "hsl(var(--text-secondary))", minHeight: 44 }}
               >
                 <Copy className="w-4 h-4" /> Copy Summary
               </button>
               <button
                 onClick={() => onReset()}
                 className="flex items-center gap-2 px-5 py-3 rounded-full text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] hover:shadow-md"
-                style={{ border: "1px solid hsla(0, 0%, 100%, 0.12)", background: "transparent", color: "hsl(var(--text-secondary))", minHeight: 44 }}
+                style={{ border: "1px solid hsl(var(--border))", background: "transparent", color: "hsl(var(--text-secondary))", minHeight: 44 }}
               >
                 New Audit
               </button>
