@@ -143,9 +143,9 @@
 
 /* Shazam pulse for mic */
 @keyframes shazam-pulse-anim {
-  0% { box-shadow: 0 0 0 0 hsla(0, 84%, 50%, 0.3); }
-  70% { box-shadow: 0 0 0 8px hsla(0, 84%, 50%, 0); }
-  100% { box-shadow: 0 0 0 0 hsla(0, 84%, 50%, 0); }
+  0% { box-shadow: 0 0 0 0 hsla(234, 60%, 45%, 0.3); }
+  70% { box-shadow: 0 0 0 8px hsla(234, 60%, 45%, 0); }
+  100% { box-shadow: 0 0 0 0 hsla(234, 60%, 45%, 0); }
 }
 .shazam-pulse { animation: shazam-pulse-anim 1.5s ease-in-out infinite; }
 

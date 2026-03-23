@@ -121,6 +121,37 @@ export function NewDiagnosticFlow({ decision, onComplete, onSkip, onBackToLandin
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  const voice = useVoiceInput();
+
+  // Append voice transcript to the active text field
+  useEffect(() => {
+    if (!voice.transcript) return;
+    if (step === 1) {
+      setStakes((prev) => {
+        const joined = prev ? prev + " " + voice.transcript : voice.transcript;
+        return joined.slice(0, 500);
+      });
+    } else if (step === 5) {
+      setSuccessVision((prev) => {
+        const joined = prev ? prev + " " + voice.transcript : voice.transcript;
+        return joined.slice(0, 500);
+      });
+    }
+    voice.resetTranscript();
+  }, [voice.transcript]);
+
+  const toggleVoice = () => {
+    if (!voice.isSupported) {
+      toast({ title: "Voice input not supported", description: "Try Chrome, Safari, or Edge.", variant: "destructive" });
+      return;
+    }
+    if (voice.isListening) {
+      voice.stopListening();
+    } else {
+      voice.startListening();
+    }
+  };
+
   useEffect(() => {
     saveSession({ step, stakes, decisionType, blastRadius, constraint, successVision });
   }, [step, stakes, decisionType, blastRadius, constraint, successVision]);
