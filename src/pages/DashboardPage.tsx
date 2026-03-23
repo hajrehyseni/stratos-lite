@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, Navigate } from "react-router-dom";
 import { NavBar } from "@/components/NavBar";
 import { Footer } from "@/components/Footer";
@@ -27,9 +27,42 @@ function getScoreBg(score: number) {
   return "hsla(142, 71%, 40%, 0.1)";
 }
 
+function SkeletonCard() {
+  return (
+    <div className="rounded-xl p-6 animate-pulse" style={{ background: "hsl(var(--secondary))", border: "1px solid hsl(var(--border))" }}>
+      <div className="flex items-center gap-2 mb-2">
+        <div className="h-10 w-24 rounded-lg" style={{ background: "hsl(var(--border))" }} />
+        <div className="h-4 w-4 rounded" style={{ background: "hsl(var(--border))" }} />
+      </div>
+      <div className="h-4 w-20 rounded mt-2" style={{ background: "hsl(var(--border))" }} />
+    </div>
+  );
+}
+
+function SkeletonRow() {
+  return (
+    <div className="rounded-xl p-5 animate-pulse" style={{ background: "hsl(var(--secondary))", border: "1px solid hsl(var(--border))" }}>
+      <div className="flex items-center gap-4">
+        <div className="flex-1">
+          <div className="h-5 w-3/4 rounded" style={{ background: "hsl(var(--border))" }} />
+          <div className="h-4 w-24 rounded mt-2" style={{ background: "hsl(var(--border))" }} />
+        </div>
+        <div className="h-8 w-10 rounded-full" style={{ background: "hsl(var(--border))" }} />
+        <div className="h-4 w-4 rounded" style={{ background: "hsl(var(--border))" }} />
+      </div>
+    </div>
+  );
+}
+
 export default function DashboardPage() {
   const { user, loading } = useAuth();
+  const [isLoading, setIsLoading] = useState(true);
   const entries = getJournalEntries();
+
+  useEffect(() => {
+    const t = setTimeout(() => setIsLoading(false), 800);
+    return () => clearTimeout(t);
+  }, []);
 
   const displayAudits = entries.length > 0 ? entries.map(e => ({
     id: e.id, decision: e.decision, date: e.createdAt, score: e.result.confidence_score, verdict: e.result.verdict,
@@ -58,47 +91,63 @@ export default function DashboardPage() {
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {[
-              { val: count, label: "Total Audits" },
-              { val: avgScore, label: "Avg Readiness" },
-            ].map(m => (
-              <div key={m.label} className="rounded-xl p-6 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5" style={{ background: "linear-gradient(135deg, hsla(221, 83%, 53%, 0.04), hsl(0, 0%, 100%))", border: "1px solid hsl(var(--border))" }}>
-                <div className="flex items-center gap-2">
-                  <span className="text-4xl font-extrabold" style={{ color: "hsl(var(--text-primary))" }}>{m.val}</span>
-                  <TrendingUp className="w-4 h-4" style={{ color: "hsl(var(--success))" }} />
+          {isLoading ? (
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <SkeletonCard />
+              <SkeletonCard />
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              {[
+                { val: count, label: "Total Audits" },
+                { val: avgScore, label: "Avg Readiness" },
+              ].map(m => (
+                <div key={m.label} className="rounded-xl p-6 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5" style={{ background: "linear-gradient(135deg, hsla(221, 83%, 53%, 0.04), hsl(0, 0%, 100%))", border: "1px solid hsl(var(--border))" }}>
+                  <div className="flex items-center gap-2">
+                    <span className="text-4xl font-extrabold" style={{ color: "hsl(var(--text-primary))" }}>{m.val}</span>
+                    <TrendingUp className="w-4 h-4" style={{ color: "hsl(var(--success))" }} />
+                  </div>
+                  <p className="mt-1.5 text-sm" style={{ color: "hsl(var(--text-secondary))" }}>{m.label}</p>
                 </div>
-                <p className="mt-1.5 text-sm" style={{ color: "hsl(var(--text-secondary))" }}>{m.label}</p>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
 
           {/* Audits list */}
           <div>
             <h2 className="text-lg font-semibold mb-4" style={{ color: "hsl(var(--text-primary))" }}>Recent Decisions</h2>
-            <div className="space-y-3">
-              {displayAudits.map(audit => (
-                <Link
-                  key={audit.id}
-                  to={`/audit-results?decision=${encodeURIComponent(audit.decision)}`}
-                  className="group block rounded-xl p-5 transition-all duration-200 hover:shadow-md hover:bg-[hsla(221,83%,53%,0.02)]"
-                  style={{ background: "hsl(var(--secondary))", border: "1px solid hsl(var(--border))" }}
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="flex-1 min-w-0">
-                      <p className="text-base font-semibold truncate" style={{ color: "hsl(var(--text-primary))" }}>{audit.decision}</p>
-                      <p className="text-sm mt-1" style={{ color: "hsl(var(--text-tertiary))" }}>
-                        {new Date(audit.date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
-                      </p>
+            {isLoading ? (
+              <div className="space-y-3">
+                <SkeletonRow />
+                <SkeletonRow />
+                <SkeletonRow />
+                <SkeletonRow />
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {displayAudits.map(audit => (
+                  <Link
+                    key={audit.id}
+                    to={`/audit-results?decision=${encodeURIComponent(audit.decision)}`}
+                    className="group block rounded-xl p-5 transition-all duration-200 hover:shadow-md hover:bg-[hsla(221,83%,53%,0.02)]"
+                    style={{ background: "hsl(var(--secondary))", border: "1px solid hsl(var(--border))" }}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-base font-semibold truncate" style={{ color: "hsl(var(--text-primary))" }}>{audit.decision}</p>
+                        <p className="text-sm mt-1" style={{ color: "hsl(var(--text-tertiary))" }}>
+                          {new Date(audit.date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-3 flex-shrink-0">
+                        <span className="rounded-full px-3 py-1 text-sm font-bold flex items-center justify-center" style={{ color: getScoreColor(audit.score), background: getScoreBg(audit.score), minWidth: 36 }}>{audit.score}</span>
+                        <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" style={{ color: "hsl(var(--text-tertiary))" }} />
+                      </div>
                     </div>
-                    <div className="flex items-center gap-3 flex-shrink-0">
-                      <span className="rounded-full px-3 py-1 text-sm font-bold flex items-center justify-center" style={{ color: getScoreColor(audit.score), background: getScoreBg(audit.score), minWidth: 36 }}>{audit.score}</span>
-                      <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" style={{ color: "hsl(var(--text-tertiary))" }} />
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

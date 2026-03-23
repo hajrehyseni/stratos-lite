@@ -65,14 +65,26 @@ export function SystemSections() {
         const Icon = stepIcons[i];
         return (
           <div key={s.num} className="relative">
-            {/* Dotted connector line between steps */}
-            {i < sections.length - 1 && (
-              <div className="hidden md:block absolute left-[18px] top-[72px] bottom-0" style={{ width: 1, borderLeft: "2px dotted hsl(var(--border))", height: "calc(100% - 36px)" }} />
-            )}
             <div className="py-10 md:py-14 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center">
               <div className={reversed ? "md:order-2" : ""}>
                 <div className="flex items-center gap-3 mb-5">
-                  <span className="inline-flex items-center justify-center rounded-lg font-extrabold" style={{ width: 36, height: 36, background: "hsla(221, 83%, 53%, 0.1)", color: "hsl(var(--primary))", fontSize: 14 }}>{s.num}</span>
+                  <div className="relative flex flex-col items-center">
+                    <span className="inline-flex items-center justify-center rounded-lg font-extrabold" style={{ width: 36, height: 36, background: "hsla(221, 83%, 53%, 0.1)", color: "hsl(var(--primary))", fontSize: 14 }}>{s.num}</span>
+                    {/* Dotted connector line below the badge */}
+                    {i < sections.length - 1 && (
+                      <div
+                        className="hidden md:block absolute"
+                        style={{
+                          top: 44,
+                          left: "50%",
+                          transform: "translateX(-50%)",
+                          width: 0,
+                          height: 80,
+                          borderLeft: "2px dashed hsla(215, 20%, 65%, 0.4)",
+                        }}
+                      />
+                    )}
+                  </div>
                   <Icon className="w-5 h-5" style={{ color: "hsl(var(--primary))" }} />
                   <span className="text-sm font-semibold uppercase" style={{ letterSpacing: "0.1em", color: "hsl(var(--primary))" }}>{s.tag}</span>
                 </div>

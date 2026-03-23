@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { NavBar } from "@/components/NavBar";
 import { Scorecard } from "@/components/Scorecard";
 import { HomepageLanding } from "@/components/HomepageLanding";
@@ -32,6 +33,7 @@ const SKIP_DEFAULTS: DiagnosticResult = {
 
 const Index = () => {
   const { user, subscription, refreshSubscription } = useAuth();
+  const navigate = useNavigate();
   const [phase, setPhase] = useState<Phase>("landing");
   const [decision, setDecision] = useState("");
   const [diagnosticResult, setDiagnosticResult] = useState<DiagnosticResult>(SKIP_DEFAULTS);
@@ -71,14 +73,8 @@ const Index = () => {
   };
 
   const handleLandingSubmit = (text: string) => {
-    setDecision(text);
-    if (!canRunAudit()) return;
-    sessionStorage.setItem("stratos_diag_decision", text);
-    setLandingExiting(true);
-    setTimeout(() => {
-      setPhase("diagnostic");
-      setLandingExiting(false);
-    }, 400);
+    // Demo mode: navigate directly to mock audit results
+    navigate(`/audit-results?decision=${encodeURIComponent(text.trim())}`);
   };
 
   const handleSkipDiagnostic = useCallback(() => {

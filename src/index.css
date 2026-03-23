@@ -82,11 +82,11 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: hsla(221, 83%, 53%, 0.2);
+  background: hsla(221, 83%, 53%, 0.3);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: hsla(221, 83%, 53%, 0.4);
+  background: hsla(221, 83%, 53%, 0.5);
 }
 
 /* Hide scrollbar utility */

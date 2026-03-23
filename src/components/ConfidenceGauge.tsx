@@ -66,7 +66,7 @@ export function ConfidenceGauge({ score, size = 160, verdict, rationale }: Props
             cy={size / 2}
             r={radius}
             fill="none"
-            stroke="hsla(0, 0%, 100%, 0.06)"
+            stroke="hsl(var(--border))"
             strokeWidth={strokeWidth}
           />
           <circle
