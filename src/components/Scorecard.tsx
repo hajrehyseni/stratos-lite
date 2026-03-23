@@ -675,7 +675,7 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
         {result.stakeholder_map && result.stakeholder_map.length > 0 && (
           <CollapsibleSection id="section-stakeholder-map" title="Stakeholder Map" forceOpen={allExpanded || undefined}>
             <div className="rounded-xl overflow-hidden" style={cardStyle}>
-              <div className="hidden sm:grid grid-cols-[2fr_1fr_1fr_3fr] gap-2 px-5 py-3" style={{ borderBottom: "1px solid hsla(0, 0%, 100%, 0.06)" }}>
+              <div className="hidden sm:grid grid-cols-[2fr_1fr_1fr_3fr] gap-2 px-5 py-3" style={{ borderBottom: "1px solid hsl(var(--border))" }}>
                 {["Role", "Position", "Influence", "Action"].map((h) => (
                   <span key={h} className="text-xs uppercase font-semibold" style={{ letterSpacing: "0.1em", color: "hsl(var(--text-tertiary))" }}>{h}</span>
                 ))}
