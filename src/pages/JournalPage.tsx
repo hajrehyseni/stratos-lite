@@ -6,7 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { NavBar } from "@/components/NavBar";
 import { Footer } from "@/components/Footer";
 import { toast } from "sonner";
-import { Trash2, ArrowRight, BookOpen } from "lucide-react";
+import { Trash2, ArrowRight, BookOpen, Search } from "lucide-react";
 
 const verdictColors: Record<string, string> = {
   "PROCEED": "hsl(var(--success))",
