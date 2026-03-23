@@ -379,7 +379,7 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
               </button>
             ))}
             {/* Gradient fade hint for mobile */}
-            <div className="absolute right-0 top-0 bottom-0 w-8 pointer-events-none sm:hidden" style={{ background: "linear-gradient(to right, transparent, hsla(228, 35%, 16%, 0.95))" }} />
+            <div className="absolute right-0 top-0 bottom-0 w-8 pointer-events-none sm:hidden" style={{ background: "linear-gradient(to right, transparent, hsla(0, 0%, 100%, 0.95))" }} />
           </div>
           <button
             onClick={() => setAllExpanded(!allExpanded)}
