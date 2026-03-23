@@ -327,10 +327,15 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
                 color: tts.isSpeaking ? "hsl(var(--primary-foreground))" : "hsl(var(--text-secondary))",
               }}
             >
-              {tts.isSpeaking ? (
+              {tts.isLoading ? (
+                <>
+                  <Volume2 className="w-4 h-4 animate-spin" />
+                  Generating...
+                </>
+              ) : tts.isSpeaking ? (
                 <>
                   <VolumeX className="w-4 h-4 animate-pulse" />
-                  Stop ({tts.currentSection}/{tts.totalSections})
+                  Stop Listening
                 </>
               ) : (
                 <>
