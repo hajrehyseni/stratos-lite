@@ -785,7 +785,7 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
             </div>
 
             {/* Audit opposite */}
-            <div className="mt-10 rounded-2xl text-center p-7" style={{ background: "hsla(0, 0%, 100%, 0.02)", border: "1px dashed hsla(0, 0%, 100%, 0.12)" }}>
+            <div className="mt-10 rounded-2xl text-center p-7" style={{ background: "hsl(var(--secondary))", border: "1px dashed hsl(var(--border))" }}>
               <h3 className="text-lg font-semibold" style={{ color: "hsl(var(--text-primary))" }}>↕ What if you chose the opposite?</h3>
               <p className="mt-2 text-base" style={{ color: "hsl(var(--text-secondary))" }}>Stress-test your thinking from the other side</p>
               <button
