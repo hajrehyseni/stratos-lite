@@ -361,7 +361,7 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
         )}
 
         {/* ═══ STICKY SECTION NAV ═══ */}
-        <div className="sticky top-16 z-40 -mx-4 px-4 py-2 mb-6 flex items-center gap-2" style={{ background: "hsla(228, 35%, 16%, 0.95)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}>
+        <div className="sticky top-16 z-40 -mx-4 px-4 py-2 mb-6 flex items-center gap-2" style={{ background: "hsla(0, 0%, 100%, 0.95)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}>
           <div className="flex gap-2 overflow-x-auto scrollbar-hide flex-1 relative">
             {NAV_ITEMS.map((s) => (
               <button
