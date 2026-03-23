@@ -10,6 +10,7 @@ const testimonials = [
 export function TestimonialWall() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [activeIdx, setActiveIdx] = useState(0);
+  const [paused, setPaused] = useState(false);
 
   const scrollTo = useCallback((idx: number) => {
     const el = scrollRef.current;
@@ -35,18 +36,19 @@ export function TestimonialWall() {
   }, []);
 
   useEffect(() => {
+    if (paused) return;
     const iv = setInterval(() => scroll(1), 5000);
     return () => clearInterval(iv);
-  }, [scroll]);
+  }, [scroll, paused]);
 
   return (
-    <div className="py-16 md:py-24">
+    <div className="py-16 md:py-20" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
       <h2 className="text-2xl sm:text-3xl font-bold text-center mb-3" style={{ color: "hsl(var(--text-primary))" }}>Trusted by leaders making high-stakes calls</h2>
       <p className="text-center text-base mb-8" style={{ color: "hsl(var(--text-secondary))" }}>From early users</p>
       <div className="relative">
         <div ref={scrollRef} className="flex gap-6 overflow-x-auto scroll-snap-x snap-mandatory px-4 pb-4 scrollbar-hide" style={{ scrollSnapType: "x mandatory" }}>
           {testimonials.map((t, i) => (
-            <div key={i} className="testimonial-card flex-shrink-0 rounded-2xl p-8 transition-colors duration-200 snap-start" style={{ minWidth: 320, maxWidth: 420, width: "85vw", background: "hsl(var(--secondary))", border: "1px solid hsl(var(--border))", borderLeft: "3px solid hsl(var(--primary))" }}>
+            <div key={i} className="testimonial-card flex-shrink-0 rounded-2xl p-8 transition-all duration-200 snap-start hover:shadow-md" style={{ minWidth: 320, maxWidth: 420, width: "85vw", background: "hsl(var(--secondary))", border: "1px solid hsl(var(--border))", borderLeft: "3px solid hsl(var(--primary))" }}>
               <div className="mb-4" style={{ color: "hsl(var(--warning))", fontSize: 16, letterSpacing: 2 }}>★★★★★</div>
               <p className="text-base italic leading-relaxed mb-6" style={{ color: "hsl(var(--text-secondary))", lineHeight: 1.7 }}>"{t.quote}"</p>
               <div style={{ height: 1, background: "hsl(var(--border))", marginBottom: 16 }} />
