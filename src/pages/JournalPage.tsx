@@ -20,6 +20,7 @@ export default function JournalPage() {
   const [entries, setEntries] = useState<JournalEntry[]>(getJournalEntries());
   const [showClear, setShowClear] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   if (loading) return null;
   if (!user) return <Navigate to="/login?redirect=journal" replace />;
