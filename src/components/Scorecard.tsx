@@ -476,27 +476,41 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
             </div>
           )}
 
-          {/* MECE */}
-          {result.mece_tree?.branches && result.mece_tree.branches.length > 0 && (
-            <div className="mt-3">
-              <CardLabel>Decision Breakdown (MECE)</CardLabel>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {result.mece_tree.branches.map((branch, i) => (
-                  <div key={i} className="rounded-xl p-5" style={cardStyle}>
-                    <p className="text-base font-semibold mb-3" style={{ color: "hsl(var(--text-primary))" }}>{branch.title}</p>
-                    <ul className="space-y-2">
-                      {branch.findings.map((f, j) => (
-                        <li key={j} className="flex gap-2 text-base" style={{ color: "hsl(var(--text-secondary))", lineHeight: 1.6 }}>
-                          <span style={{ color: "hsl(var(--primary))", opacity: 0.5, flexShrink: 0 }}>•</span>
-                          <span>{f}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
+          {/* MECE — Proportional Bars */}
+          {result.mece_tree?.branches && result.mece_tree.branches.length > 0 && (() => {
+            const totalFindings = result.mece_tree!.branches.reduce((sum, b) => sum + b.findings.length, 0);
+            const barColors = ["hsl(var(--primary))", "hsl(var(--success))", "hsl(var(--warning))", "hsl(217, 91%, 60%)", "hsl(var(--destructive))", "hsl(174, 60%, 45%)"];
+            return (
+              <div className="mt-3">
+                <CardLabel>Decision Breakdown (MECE)</CardLabel>
+                <div className="space-y-3">
+                  {result.mece_tree!.branches.map((branch, i) => {
+                    const pct = totalFindings > 0 ? Math.round((branch.findings.length / totalFindings) * 100) : 0;
+                    const color = barColors[i % barColors.length];
+                    return (
+                      <div key={i} className="rounded-xl p-5" style={cardStyle}>
+                        <div className="flex items-center justify-between mb-2">
+                          <p className="text-sm font-semibold" style={{ color: "hsl(var(--text-primary))" }}>{branch.title}</p>
+                          <span className="text-xs font-bold" style={{ color }}>{pct}%</span>
+                        </div>
+                        <div className="w-full rounded-full overflow-hidden mb-3" style={{ height: 6, background: "hsl(var(--border))" }}>
+                          <div className="h-full rounded-full transition-all duration-700" style={{ width: `${pct}%`, background: color }} />
+                        </div>
+                        <ul className="space-y-1.5">
+                          {branch.findings.map((f, j) => (
+                            <li key={j} className="flex gap-2 text-sm" style={{ color: "hsl(var(--text-secondary))", lineHeight: 1.5 }}>
+                              <span style={{ color, opacity: 0.7, flexShrink: 0 }}>•</span>
+                              <span>{f}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
         </CollapsibleSection>
 
         {/* RISKS */}
