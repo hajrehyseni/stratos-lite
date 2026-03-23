@@ -23,7 +23,7 @@ function AssessMockup() {
     { text: "CTO opposes but hasn't voiced it yet", color: "hsl(221, 83%, 53%)" },
   ];
   return (
-    <div className="space-y-2.5" style={{ maxWidth: 300 }}>
+    <div className="space-y-2.5 transition-all duration-200 hover:scale-[1.03]" style={{ maxWidth: 360 }}>
       {risks.map((r, i) => (
         <div key={i} className="rounded-lg px-4 py-3" style={{ background: "hsl(var(--secondary))", border: "1px solid hsl(var(--border))", borderLeft: `3px solid ${r.color}` }}>
           <span className="text-sm" style={{ color: "hsl(var(--text-secondary))" }}>{r.text}</span>
