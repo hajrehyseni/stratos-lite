@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from "react";
-import { Check, ArrowLeft, ArrowRight } from "lucide-react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { Check, ArrowLeft, ArrowRight, CornerDownLeft } from "lucide-react";
 
 export interface DiagnosticResult {
   stakes: string;
@@ -26,134 +26,167 @@ const SKIP_DEFAULTS: DiagnosticResult = {
   success_vision: "",
 };
 
+const TOTAL_STEPS = 5;
+
+/* ─── Option data ─── */
 const decisionTypeOptions = [
   { key: "investment", emoji: "💰", label: "Investment", desc: "Spend money now for future returns" },
   { key: "growth", emoji: "🚀", label: "Growth", desc: "Enter new markets, launch products, scale up" },
-  { key: "risk", emoji: "⚠️", label: "Risk/Crisis", desc: "Something's gone wrong or might go wrong" },
-  { key: "people", emoji: "👥", label: "People/Org", desc: "Hiring, firing, restructuring, culture" },
+  { key: "risk", emoji: "⚠️", label: "Risk / Crisis", desc: "Something's gone wrong or might go wrong" },
+  { key: "people", emoji: "👥", label: "People / Org", desc: "Hiring, firing, restructuring, culture" },
 ];
 
 const blastRadiusOptions = [
-  { key: "team", emoji: "🎯", label: "My team", desc: "5-15 people, contained impact" },
-  { key: "department", emoji: "🏢", label: "My department", desc: "50-200 people, budget implications" },
+  { key: "team", emoji: "🎯", label: "My team", desc: "5–15 people, contained impact" },
+  { key: "department", emoji: "🏢", label: "My department", desc: "50–200 people, budget implications" },
   { key: "company", emoji: "🏛️", label: "The whole company", desc: "Revenue, strategy, or culture shift" },
   { key: "bet-the-company", emoji: "🌍", label: "Bet-the-company", desc: "Existential: we win big or we're done" },
 ];
 
 const constraintOptions = [
-  { key: "time", emoji: "⏰", label: "Time pressure", desc: "Decision needed within days/weeks" },
+  { key: "time", emoji: "⏰", label: "Time pressure", desc: "Decision needed within days or weeks" },
   { key: "budget", emoji: "💷", label: "Budget ceiling", desc: "Limited funds, need ROI justification" },
   { key: "politics", emoji: "🏛️", label: "Political complexity", desc: "Multiple stakeholders with competing interests" },
-  { key: "data", emoji: "📊", label: "Incomplete data", desc: "We're deciding with 60% of the picture" },
+  { key: "data", emoji: "📊", label: "Incomplete data", desc: "Deciding with 60% of the picture" },
 ];
 
-type Stage = 1 | 2 | 3;
-
-function SelectableCard({
-  emoji, label, desc, selected, dimmed, onClick,
-}: {
-  emoji: string; label: string; desc: string; selected: boolean; dimmed: boolean; onClick: () => void;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className="text-left relative transition-all duration-200 cursor-pointer"
-      style={{
-        padding: 20, borderRadius: 12,
-        background: selected ? "hsla(221, 83%, 53%, 0.06)" : "hsl(var(--secondary))",
-        border: selected ? "1.5px solid hsl(var(--primary))" : "1px solid hsl(var(--border))",
-        opacity: dimmed ? 0.5 : 1,
-        transform: selected ? "scale(1.02)" : "scale(1)",
-        minHeight: 48,
-      }}
-    >
-      {selected && (
-        <div className="absolute top-3 right-3 w-5 h-5 rounded-full flex items-center justify-center" style={{ background: "hsl(var(--primary))" }}>
-          <Check className="w-3 h-3" style={{ color: "hsl(var(--primary-foreground))" }} />
-        </div>
-      )}
-      <span style={{ fontSize: 20 }}>{emoji}</span>
-      <p style={{ fontSize: 15, fontWeight: 600, marginTop: 8, color: "hsl(var(--text-primary))" }}>{label}</p>
-      <p style={{ fontSize: 12, marginTop: 4, color: "hsl(var(--text-secondary))" }}>{desc}</p>
-    </button>
-  );
+/* ─── Session persistence ─── */
+interface SessionState {
+  step: number;
+  stakes: string;
+  decisionType: string | null;
+  blastRadius: string | null;
+  constraint: string | null;
+  successVision: string;
 }
 
-const stageNames: Record<Stage, string> = { 1: "Stakes", 2: "Context", 3: "Constraints" };
-
-function StageLabel({ current }: { current: Stage }) {
-  return (
-    <p style={{ fontSize: 10, fontWeight: 500, letterSpacing: "1.5px", textTransform: "uppercase", color: "hsl(var(--text-tertiary))" }}>
-      STAGE {current} OF 3 — {stageNames[current]}
-    </p>
-  );
-}
-
-function saveSessionState(data: { stage: Stage; stakes: string; decisionType: string | null; blastRadius: string | null; constraint: string | null; successVision: string }) {
+function saveSession(data: SessionState) {
   try { sessionStorage.setItem(SESSION_KEY, JSON.stringify(data)); } catch {}
 }
-
+function loadSession(): SessionState | null {
+  try {
+    const raw = sessionStorage.getItem(SESSION_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
 export function clearDiagnosticSession() {
   try { sessionStorage.removeItem(SESSION_KEY); } catch {}
 }
 
-function loadSessionState(): { stage: Stage; stakes: string; decisionType: string | null; blastRadius: string | null; constraint: string | null; successVision: string } | null {
-  try {
-    const raw = sessionStorage.getItem(SESSION_KEY);
-    if (!raw) return null;
-    return JSON.parse(raw);
-  } catch { return null; }
-}
-
-function getCharCountColor(len: number) {
+/* ─── Helpers ─── */
+function charColor(len: number) {
   if (len < 50) return "hsl(var(--text-tertiary))";
   if (len <= 400) return "hsl(var(--success))";
   return "hsl(var(--warning))";
 }
 
+/* ─── Card component ─── */
+function OptionCard({
+  emoji, label, desc, selected, hasSelection, onClick,
+}: {
+  emoji: string; label: string; desc: string; selected: boolean; hasSelection: boolean; onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className="group text-left relative w-full transition-all duration-200 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+      style={{
+        padding: "20px 24px",
+        borderRadius: 14,
+        background: selected ? "hsla(221, 83%, 53%, 0.06)" : "hsl(var(--secondary))",
+        border: selected ? "2px solid hsl(var(--primary))" : "1.5px solid hsl(var(--border))",
+        opacity: hasSelection && !selected ? 0.4 : 1,
+        transform: selected ? "scale(1.02)" : "scale(1)",
+        cursor: "pointer",
+        minHeight: 56,
+      }}
+    >
+      {selected && (
+        <div
+          className="absolute top-3 right-3 w-6 h-6 rounded-full flex items-center justify-center"
+          style={{ background: "hsl(var(--primary))", animation: "typeform-check-pop 300ms ease" }}
+        >
+          <Check className="w-3.5 h-3.5" style={{ color: "hsl(var(--primary-foreground))" }} />
+        </div>
+      )}
+      <span className="text-2xl">{emoji}</span>
+      <p className="mt-2 text-base font-semibold" style={{ color: "hsl(var(--text-primary))" }}>{label}</p>
+      <p className="mt-1 text-sm" style={{ color: "hsl(var(--text-secondary))" }}>{desc}</p>
+    </button>
+  );
+}
+
+/* ─── Main component ─── */
 export function NewDiagnosticFlow({ decision, onComplete, onSkip, onBackToLanding }: Props) {
-  const saved = loadSessionState();
-  const [stage, setStage] = useState<Stage>(saved?.stage || 1);
-  const [stakes, setStakes] = useState(saved?.stakes || "");
-  const [decisionType, setDecisionType] = useState<string | null>(saved?.decisionType || null);
-  const [blastRadius, setBlastRadius] = useState<string | null>(saved?.blastRadius || null);
-  const [constraint, setConstraint] = useState<string | null>(saved?.constraint || null);
-  const [successVision, setSuccessVision] = useState(saved?.successVision || "");
-  const [visible, setVisible] = useState(false);
-  const [stageKey, setStageKey] = useState(0);
+  const saved = loadSession();
+  const [step, setStep] = useState(saved?.step ?? 1);
+  const [stakes, setStakes] = useState(saved?.stakes ?? "");
+  const [decisionType, setDecisionType] = useState<string | null>(saved?.decisionType ?? null);
+  const [blastRadius, setBlastRadius] = useState<string | null>(saved?.blastRadius ?? null);
+  const [constraint, setConstraint] = useState<string | null>(saved?.constraint ?? null);
+  const [successVision, setSuccessVision] = useState(saved?.successVision ?? "");
+
+  const [animating, setAnimating] = useState(false);
+  const [slideDir, setSlideDir] = useState<"in" | "out">("in");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
+  // Persist
   useEffect(() => {
-    requestAnimationFrame(() => setVisible(true));
-  }, []);
+    saveSession({ step, stakes, decisionType, blastRadius, constraint, successVision });
+  }, [step, stakes, decisionType, blastRadius, constraint, successVision]);
 
-  // Auto-focus textarea on stage 1
+  // Auto-focus textareas
   useEffect(() => {
-    if (stage === 1 && textareaRef.current) {
-      setTimeout(() => textareaRef.current?.focus(), 300);
+    if ((step === 1 || step === 5) && textareaRef.current && !animating) {
+      setTimeout(() => textareaRef.current?.focus(), 350);
     }
-  }, [stage]);
+  }, [step, animating]);
 
+  // Transition helper
+  const goTo = useCallback((nextStep: number) => {
+    if (animating) return;
+    setAnimating(true);
+    setSlideDir("out");
+    setTimeout(() => {
+      setStep(nextStep);
+      setSlideDir("in");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      setTimeout(() => setAnimating(false), 400);
+    }, 250);
+  }, [animating]);
+
+  // Card auto-advance
+  const selectAndAdvance = useCallback((setter: (v: string) => void, value: string, nextStep: number) => {
+    setter(value);
+    setTimeout(() => goTo(nextStep), 500);
+  }, [goTo]);
+
+  // Keyboard nav
   useEffect(() => {
-    setStageKey((k) => k + 1);
-  }, [stage]);
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        if (step === 1 && stakes.length > 0) { e.preventDefault(); goTo(2); }
+        if (step === 5) { e.preventDefault(); handleFinalSubmit(); }
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [step, stakes, constraint, goTo]);
 
-  useEffect(() => {
-    saveSessionState({ stage, stakes, decisionType, blastRadius, constraint, successVision });
-  }, [stage, stakes, decisionType, blastRadius, constraint, successVision]);
-
-  const progressSegments = [true, stage >= 2, stage >= 3];
-
-  const handleStakesSubmit = () => {
-    setStage(2);
+  const handleBack = () => {
+    if (step === 1 && onBackToLanding) {
+      clearDiagnosticSession();
+      onBackToLanding();
+    } else if (step > 1) {
+      goTo(step - 1);
+    }
   };
 
-  useEffect(() => {
-    if (stage === 2 && decisionType && blastRadius) {
-      const t = setTimeout(() => setStage(3), 600);
-      return () => clearTimeout(t);
-    }
-  }, [stage, decisionType, blastRadius]);
+  const handleSkip = () => {
+    clearDiagnosticSession();
+    onSkip();
+  };
 
   const handleFinalSubmit = () => {
     clearDiagnosticSession();
@@ -166,163 +199,237 @@ export function NewDiagnosticFlow({ decision, onComplete, onSkip, onBackToLandin
     });
   };
 
-  const handleSkip = () => {
-    clearDiagnosticSession();
-    onSkip();
-  };
+  const progress = (step / TOTAL_STEPS) * 100;
 
-  const handleBack = () => {
-    if (stage === 1 && onBackToLanding) {
-      clearDiagnosticSession();
-      onBackToLanding();
-    } else if (stage === 2) setStage(1);
-    else if (stage === 3) setStage(2);
-  };
-
-  const textareaStyle: React.CSSProperties = {
-    background: "hsl(var(--secondary))",
-    border: "1.5px solid hsl(var(--border))",
-    borderRadius: 10,
-    padding: "14px 16px",
-    fontSize: 16,
-    fontFamily: "'Inter', system-ui, sans-serif",
-    color: "hsl(var(--text-primary))",
-    width: "100%",
-    resize: "none",
-    outline: "none",
-    lineHeight: 1.5,
-  };
+  const screenClass = `typeform-screen-${slideDir}`;
 
   return (
-    <div
-      className="flex flex-col items-center justify-center px-4 transition-all duration-400"
-      style={{
-        minHeight: "90vh",
-        opacity: visible ? 1 : 0,
-        transform: visible ? "translateY(0)" : "translateY(10px)",
-        transition: "opacity 400ms ease 200ms, transform 400ms ease 200ms",
-      }}
-    >
-      <div className="w-full" style={{ maxWidth: 640 }}>
-        {/* Progress bar */}
-        <div className="mb-10">
-          <div className="flex gap-1 mb-2">
-            {progressSegments.map((filled, i) => (
-              <div key={i} className="flex-1 rounded-full transition-all duration-500" style={{ height: 3, background: filled ? "hsl(var(--primary))" : "hsl(var(--border))" }} />
-            ))}
-          </div>
-          <div className="flex justify-between">
-            {(["Stakes", "Context", "Constraints"] as const).map((label, i) => (
-              <span key={label} className="text-xs" style={{ color: i + 1 <= stage ? "hsl(var(--primary))" : "hsl(var(--text-tertiary))", fontWeight: i + 1 === stage ? 600 : 400 }}>
-                {label}
-              </span>
-            ))}
-          </div>
-        </div>
+    <div ref={containerRef} className="relative min-h-screen flex flex-col">
+      {/* Fixed progress bar */}
+      <div className="fixed top-0 left-0 right-0 z-50 h-1 bg-border/40">
+        <div
+          className="h-full rounded-r-full transition-all duration-500 ease-out"
+          style={{ width: `${progress}%`, background: "hsl(var(--primary))" }}
+        />
+      </div>
 
-        <button onClick={handleBack} className="flex items-center gap-1 mb-6 transition-colors duration-200 hover:opacity-70" style={{ fontSize: 13, background: "none", border: "none", padding: 0, color: "hsl(var(--text-secondary))" }}>
+      {/* Fixed top bar */}
+      <div className="fixed top-1 left-0 right-0 z-40 flex items-center justify-between px-4 sm:px-8 py-4">
+        <button
+          onClick={handleBack}
+          className="flex items-center gap-1.5 text-sm transition-colors hover:opacity-70"
+          style={{ color: "hsl(var(--text-secondary))", background: "none", border: "none" }}
+        >
           <ArrowLeft className="w-4 h-4" />
-          Back
+          <span className="hidden sm:inline">Back</span>
         </button>
+        <span className="text-xs font-medium" style={{ color: "hsl(var(--text-tertiary))" }}>
+          {step} of {TOTAL_STEPS}
+        </span>
+      </div>
 
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-2">
-            <span style={{ fontSize: 10, fontWeight: 500, letterSpacing: "1.5px", textTransform: "uppercase", color: "hsl(var(--primary))" }}>YOUR DECISION</span>
-            <span style={{ color: "hsl(var(--primary))", fontSize: 14, opacity: 0.5 }}>✓</span>
+      {/* Main content — vertically centered */}
+      <div className="flex-1 flex items-center justify-center px-5 sm:px-8 py-24">
+        <div className={`w-full ${screenClass}`} style={{ maxWidth: 580 }}>
+          {/* Decision reminder pill */}
+          <div className="mb-8">
+            <span
+              className="inline-block text-xs font-medium px-3 py-1.5 rounded-full"
+              style={{
+                background: "hsla(221, 83%, 53%, 0.08)",
+                color: "hsl(var(--primary))",
+                letterSpacing: "0.5px",
+              }}
+            >
+              {decision.length > 60 ? decision.slice(0, 57) + "…" : decision}
+            </span>
           </div>
-          <p style={{ fontSize: 15, fontWeight: 400, borderLeft: "2px solid hsla(221, 83%, 53%, 0.3)", paddingLeft: 16, color: "hsl(var(--text-secondary))" }}>{decision}</p>
+
+          {/* ─── STEP 1: Stakes ─── */}
+          {step === 1 && (
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold mb-3" style={{ color: "hsl(var(--text-primary))", lineHeight: 1.2 }}>
+                What happens if you get this wrong?
+              </h1>
+              <p className="text-sm mb-6" style={{ color: "hsl(var(--text-secondary))" }}>
+                Think worst-case: money lost, trust eroded, opportunities missed.
+              </p>
+              <textarea
+                ref={textareaRef}
+                value={stakes}
+                onChange={(e) => setStakes(e.target.value.slice(0, 500))}
+                placeholder="e.g. We lose our market window, £3M sunk cost, board loses confidence in leadership..."
+                rows={4}
+                className="typeform-textarea"
+              />
+              <div className="flex items-center justify-between mt-2">
+                <span className="text-xs" style={{ color: "hsl(var(--text-tertiary))" }}>
+                  A sentence or two gives the best results
+                </span>
+                <span
+                  className="text-xs font-medium transition-colors duration-200"
+                  style={{ color: charColor(stakes.length) }}
+                >
+                  {stakes.length}/500
+                </span>
+              </div>
+
+              <div className="flex items-center gap-3 mt-8">
+                <button
+                  onClick={() => goTo(2)}
+                  disabled={stakes.length === 0}
+                  className="typeform-cta group"
+                  style={{
+                    opacity: stakes.length === 0 ? 0.4 : 1,
+                    cursor: stakes.length === 0 ? "not-allowed" : "pointer",
+                  }}
+                >
+                  Next
+                  <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                </button>
+                <span className="text-xs flex items-center gap-1" style={{ color: "hsl(var(--text-tertiary))" }}>
+                  press <CornerDownLeft className="w-3 h-3" /> Enter
+                </span>
+              </div>
+
+              <div className="mt-10">
+                <button
+                  onClick={handleSkip}
+                  className="text-xs transition-opacity hover:underline"
+                  style={{ color: "hsl(var(--text-tertiary))", background: "none", border: "none", padding: 0 }}
+                >
+                  Skip to instant audit →
+                </button>
+                <p className="text-[10px] mt-1" style={{ color: "hsl(var(--text-faint))" }}>
+                  Faster, but less personalised results
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* ─── STEP 2: Decision Type ─── */}
+          {step === 2 && (
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold mb-3" style={{ color: "hsl(var(--text-primary))", lineHeight: 1.2 }}>
+                What kind of decision is this?
+              </h1>
+              <p className="text-sm mb-8" style={{ color: "hsl(var(--text-secondary))" }}>
+                This helps us apply the right strategic framework.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {decisionTypeOptions.map((opt) => (
+                  <OptionCard
+                    key={opt.key}
+                    emoji={opt.emoji}
+                    label={opt.label}
+                    desc={opt.desc}
+                    selected={decisionType === opt.key}
+                    hasSelection={decisionType !== null}
+                    onClick={() => selectAndAdvance(setDecisionType, opt.key, 3)}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ─── STEP 3: Blast Radius ─── */}
+          {step === 3 && (
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold mb-3" style={{ color: "hsl(var(--text-primary))", lineHeight: 1.2 }}>
+                Who gets affected if this goes sideways?
+              </h1>
+              <p className="text-sm mb-8" style={{ color: "hsl(var(--text-secondary))" }}>
+                The blast radius shapes how deep we go in our analysis.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {blastRadiusOptions.map((opt) => (
+                  <OptionCard
+                    key={opt.key}
+                    emoji={opt.emoji}
+                    label={opt.label}
+                    desc={opt.desc}
+                    selected={blastRadius === opt.key}
+                    hasSelection={blastRadius !== null}
+                    onClick={() => selectAndAdvance(setBlastRadius, opt.key, 4)}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ─── STEP 4: Constraint ─── */}
+          {step === 4 && (
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold mb-3" style={{ color: "hsl(var(--text-primary))", lineHeight: 1.2 }}>
+                What's the constraint that makes this hard?
+              </h1>
+              <p className="text-sm mb-8" style={{ color: "hsl(var(--text-secondary))" }}>
+                Every great decision has a limiting factor. What's yours?
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {constraintOptions.map((opt) => (
+                  <OptionCard
+                    key={opt.key}
+                    emoji={opt.emoji}
+                    label={opt.label}
+                    desc={opt.desc}
+                    selected={constraint === opt.key}
+                    hasSelection={constraint !== null}
+                    onClick={() => selectAndAdvance(setConstraint, opt.key, 5)}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ─── STEP 5: Success Vision ─── */}
+          {step === 5 && (
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold mb-3" style={{ color: "hsl(var(--text-primary))", lineHeight: 1.2 }}>
+                If this goes perfectly, what does the world look like in 12 months?
+              </h1>
+              <p className="text-sm mb-6" style={{ color: "hsl(var(--text-secondary))" }}>
+                Paint the picture. This anchors our analysis to your definition of success.
+              </p>
+              <textarea
+                ref={textareaRef}
+                value={successVision}
+                onChange={(e) => setSuccessVision(e.target.value.slice(0, 500))}
+                placeholder="e.g. We've captured 15% market share, the new team is shipping weekly, board approved Series B..."
+                rows={4}
+                className="typeform-textarea"
+              />
+              <div className="flex items-center justify-between mt-2">
+                <span className="text-xs" style={{ color: "hsl(var(--text-tertiary))" }}>
+                  Optional — but it sharpens the audit significantly
+                </span>
+                <span
+                  className="text-xs font-medium transition-colors duration-200"
+                  style={{ color: charColor(successVision.length) }}
+                >
+                  {successVision.length}/500
+                </span>
+              </div>
+
+              <div className="flex items-center gap-3 mt-8">
+                <button
+                  onClick={handleFinalSubmit}
+                  className="typeform-cta-primary group"
+                >
+                  Run Audit
+                  <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                </button>
+                <span className="text-xs flex items-center gap-1" style={{ color: "hsl(var(--text-tertiary))" }}>
+                  press <CornerDownLeft className="w-3 h-3" /> Enter
+                </span>
+              </div>
+
+              <p className="text-xs mt-6" style={{ color: "hsl(var(--text-faint))" }}>
+                Your answers help our AI apply the right strategic frameworks — McKinsey 7S, SODA, RAPID, and more.
+              </p>
+            </div>
+          )}
         </div>
-
-        {/* STAGE 1: Stakes */}
-        {stage === 1 && (
-          <div key={`stage-${stageKey}`} style={{ animation: "slideInFromBottom 300ms ease forwards" }}>
-            <StageLabel current={1} />
-            <h2 style={{ fontSize: 22, fontWeight: 600, marginTop: 8, marginBottom: 16, color: "hsl(var(--text-primary))" }}>
-              What happens if you get this wrong?
-            </h2>
-            <textarea
-              ref={textareaRef}
-              value={stakes}
-              onChange={(e) => setStakes(e.target.value.slice(0, 500))}
-              placeholder="e.g. We lose our market window, £3M sunk cost, board loses confidence in leadership..."
-              rows={3}
-              style={textareaStyle}
-              onFocus={(e) => { e.currentTarget.style.borderColor = "hsl(var(--primary))"; e.currentTarget.style.boxShadow = "0 0 0 3px hsla(221, 83%, 53%, 0.12)"; }}
-              onBlur={(e) => { e.currentTarget.style.borderColor = "hsl(var(--border))"; e.currentTarget.style.boxShadow = "none"; }}
-            />
-            <div className="flex items-center justify-between mt-1">
-              <span style={{ fontSize: 11, color: "hsl(var(--text-tertiary))" }}>Write at least a sentence or two for best results</span>
-              <span style={{ fontSize: 11, color: getCharCountColor(stakes.length), fontWeight: 500, transition: "color 0.2s ease" }}>{stakes.length}/500</span>
-            </div>
-            <div className="flex items-center gap-4 mt-4">
-              <button onClick={handleStakesSubmit} className="flex items-center justify-center gap-2 rounded-full transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]" style={{ height: 44, paddingLeft: 20, paddingRight: 16, background: "hsl(var(--primary))", border: "none", cursor: "pointer", fontSize: 14, fontWeight: 600, color: "hsl(var(--primary-foreground))" }}>
-                Next <ArrowRight className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="mt-6 group relative inline-block">
-              <button onClick={handleSkip} className="transition-opacity duration-200 hover:underline" style={{ fontSize: 11, background: "none", border: "none", padding: 0, color: "hsl(var(--text-tertiary))" }}>
-                Skip to instant audit →
-              </button>
-              <span className="absolute bottom-full left-0 mb-2 px-3 py-1.5 text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap" style={{ background: "hsl(var(--text-primary))", color: "hsl(var(--background))" }}>
-                Skip context questions for a faster but less personalised audit
-              </span>
-              <p className="mt-1" style={{ fontSize: 10, color: "hsl(var(--text-tertiary))" }}>Results will be less personalized</p>
-            </div>
-          </div>
-        )}
-
-        {/* STAGE 2 */}
-        {stage === 2 && (
-          <div key={`stage-${stageKey}`} style={{ animation: "slideInFromBottom 300ms ease forwards" }}>
-            <StageLabel current={2} />
-            <h2 style={{ fontSize: 22, fontWeight: 600, marginTop: 8, marginBottom: 16, color: "hsl(var(--text-primary))" }}>What kind of decision is this?</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-10">
-              {decisionTypeOptions.map((opt) => (<SelectableCard key={opt.key} emoji={opt.emoji} label={opt.label} desc={opt.desc} selected={decisionType === opt.key} dimmed={decisionType !== null && decisionType !== opt.key} onClick={() => setDecisionType(opt.key)} />))}
-            </div>
-            <h2 style={{ fontSize: 22, fontWeight: 600, marginBottom: 16, color: "hsl(var(--text-primary))" }}>Who gets affected if this goes sideways?</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {blastRadiusOptions.map((opt) => (<SelectableCard key={opt.key} emoji={opt.emoji} label={opt.label} desc={opt.desc} selected={blastRadius === opt.key} dimmed={blastRadius !== null && blastRadius !== opt.key} onClick={() => setBlastRadius(opt.key)} />))}
-            </div>
-            <div className="mt-6">
-              <button onClick={handleSkip} className="transition-opacity duration-200 hover:underline" style={{ fontSize: 11, background: "none", border: "none", padding: 0, color: "hsl(var(--text-tertiary))" }}>Skip to instant audit →</button>
-              <p className="mt-1" style={{ fontSize: 10, color: "hsl(var(--text-tertiary))" }}>Results will be less personalized</p>
-            </div>
-          </div>
-        )}
-
-        {/* STAGE 3 */}
-        {stage === 3 && (
-          <div key={`stage-${stageKey}`} style={{ animation: "slideInFromBottom 300ms ease forwards" }}>
-            <StageLabel current={3} />
-            <h2 style={{ fontSize: 22, fontWeight: 600, marginTop: 8, marginBottom: 16, color: "hsl(var(--text-primary))" }}>What's the constraint that makes this hard?</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-10">
-              {constraintOptions.map((opt) => (<SelectableCard key={opt.key} emoji={opt.emoji} label={opt.label} desc={opt.desc} selected={constraint === opt.key} dimmed={constraint !== null && constraint !== opt.key} onClick={() => setConstraint(opt.key)} />))}
-            </div>
-            <h2 style={{ fontSize: 22, fontWeight: 600, marginBottom: 16, color: "hsl(var(--text-primary))" }}>If this decision goes perfectly, what does the world look like in 12 months?</h2>
-            <textarea
-              value={successVision}
-              onChange={(e) => setSuccessVision(e.target.value.slice(0, 500))}
-              placeholder="e.g. We've captured 15% market share, the new team is shipping weekly, board approved Series B..."
-              rows={3}
-              style={textareaStyle}
-              onFocus={(e) => { e.currentTarget.style.borderColor = "hsl(var(--primary))"; e.currentTarget.style.boxShadow = "0 0 0 3px hsla(221, 83%, 53%, 0.12)"; }}
-              onBlur={(e) => { e.currentTarget.style.borderColor = "hsl(var(--border))"; e.currentTarget.style.boxShadow = "none"; }}
-            />
-            <div className="flex items-center justify-between mt-1">
-              <span style={{ fontSize: 11, color: "hsl(var(--text-tertiary))" }}>Write at least a sentence or two for best results</span>
-              <span style={{ fontSize: 11, color: getCharCountColor(successVision.length), fontWeight: 500, transition: "color 0.2s ease" }}>{successVision.length}/500</span>
-            </div>
-            <div className="flex items-center gap-4 mt-6">
-              <button onClick={handleFinalSubmit} disabled={!constraint} className="px-6 py-3 rounded-lg font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]" style={{ background: constraint ? "hsl(var(--primary))" : "hsla(221, 83%, 53%, 0.3)", cursor: constraint ? "pointer" : "not-allowed", fontSize: 15, border: "none", color: "hsl(var(--primary-foreground))" }}>
-                Run Audit
-              </button>
-            </div>
-            <div className="mt-6">
-              <button onClick={handleSkip} className="transition-opacity duration-200 hover:underline" style={{ fontSize: 11, background: "none", border: "none", padding: 0, color: "hsl(var(--text-tertiary))" }}>Skip to instant audit →</button>
-              <p className="mt-1" style={{ fontSize: 10, color: "hsl(var(--text-tertiary))" }}>Results will be less personalized</p>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

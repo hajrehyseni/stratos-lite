@@ -179,6 +179,91 @@ input::placeholder {
 }
 .animate-wiggle { animation: wiggle 600ms ease; }
 
+/* ─── Typeform-style diagnostic ─── */
+@keyframes typeform-slide-in {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes typeform-slide-out {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-16px); }
+}
+@keyframes typeform-check-pop {
+  0% { transform: scale(0); }
+  60% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.typeform-screen-in {
+  animation: typeform-slide-in 400ms ease-out forwards;
+}
+.typeform-screen-out {
+  animation: typeform-slide-out 250ms ease-in forwards;
+  pointer-events: none;
+}
+
+.typeform-textarea {
+  width: 100%;
+  resize: none;
+  outline: none;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid hsl(var(--border));
+  padding: 16px 0;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 17px;
+  line-height: 1.6;
+  color: hsl(var(--text-primary));
+  transition: border-color 200ms ease;
+}
+.typeform-textarea:focus {
+  border-color: hsl(var(--primary));
+}
+.typeform-textarea::placeholder {
+  color: hsl(var(--text-faint));
+  font-weight: 400;
+}
+
+.typeform-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 48px;
+  padding: 0 24px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  border: 2px solid hsl(var(--primary));
+  background: transparent;
+  color: hsl(var(--primary));
+  transition: all 200ms ease;
+}
+.typeform-cta:hover:not(:disabled) {
+  background: hsla(221, 83%, 53%, 0.06);
+  transform: scale(1.02);
+}
+
+.typeform-cta-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 52px;
+  padding: 0 32px;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  cursor: pointer;
+  transition: all 200ms ease;
+  box-shadow: 0 4px 16px hsla(221, 83%, 53%, 0.3);
+}
+.typeform-cta-primary:hover {
+  transform: scale(1.02);
+  box-shadow: 0 6px 24px hsla(221, 83%, 53%, 0.4);
+}
+
 /* Responsive adjustments */
 @media (max-width: 480px) {
   .diagnostic-grid { grid-template-columns: 1fr !important; }
