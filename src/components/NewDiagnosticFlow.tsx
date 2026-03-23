@@ -398,7 +398,8 @@ export function NewDiagnosticFlow({ decision, onComplete, onSkip, onBackToLandin
                 onChange={(e) => setSuccessVision(e.target.value.slice(0, 500))}
                 placeholder="e.g. We've captured 15% market share, the new team is shipping weekly, board approved Series B..."
                 rows={4}
-                className="typeform-textarea"
+               className="typeform-textarea text-base"
+                rows={window.innerWidth < 640 ? 3 : 4}
               />
               <div className="flex items-center justify-between mt-2">
                 <span className="text-xs" style={{ color: "hsl(var(--text-tertiary))" }}>
