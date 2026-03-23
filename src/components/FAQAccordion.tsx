@@ -11,7 +11,7 @@ export function FAQAccordion() {
   const [openIdx, setOpenIdx] = useState<number | null>(null);
   return (
     <div className="py-16 md:py-24 px-4">
-      <h2 className="text-2xl sm:text-3xl font-bold text-center mb-12" style={{ color: "hsl(var(--text-primary))" }}>Questions leaders ask</h2>
+      <h2 className="font-serif text-2xl sm:text-3xl text-center mb-12" style={{ color: "hsl(var(--text-primary))" }}>Questions leaders ask</h2>
       <div className="mx-auto" style={{ maxWidth: 768 }}>
         {faqs.map((faq, i) => {
           const isOpen = openIdx === i;

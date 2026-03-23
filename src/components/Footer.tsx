@@ -12,9 +12,11 @@ export function Footer() {
           <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-2.5 mb-3">
               <StratOSLogo size={24} />
-              <span className="text-xl font-bold" style={{ color: "hsl(var(--text-primary))" }}>StratOS</span>
+              <span style={{ color: "hsl(var(--text-primary))" }}>
+                <span className="font-serif text-xl" style={{ fontWeight: 400 }}>Strat</span><span className="text-sm font-semibold tracking-widest uppercase" style={{ marginLeft: 1 }}>OS</span>
+              </span>
             </div>
-            <p className="text-base" style={{ color: "hsl(var(--text-secondary))" }}>Decision intelligence for leaders</p>
+            <p className="font-serif italic text-base" style={{ color: "hsl(var(--text-secondary))" }}>Clarity for every decision</p>
             <p className="mt-4 text-sm" style={{ color: "hsl(var(--text-tertiary))" }}>© 2026 StratOS</p>
           </div>
           <div>
