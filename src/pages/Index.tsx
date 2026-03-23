@@ -235,7 +235,7 @@ const Index = () => {
 
   return (
     <>
-      <NavBar journalCount={getJournalCount()} />
+      <NavBar />
 
       {phase === "landing" && (
         <div

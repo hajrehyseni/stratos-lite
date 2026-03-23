@@ -57,7 +57,7 @@ export default function PricingPage() {
 
   return (
     <>
-      <NavBar journalCount={getJournalCount()} />
+      <NavBar />
       <div className="min-h-screen px-4 pt-28 pb-20 page-enter" style={{ background: "hsl(var(--background))" }}>
         <div style={{ maxWidth: 1120 }} className="mx-auto">
           <div className="text-center mb-10">

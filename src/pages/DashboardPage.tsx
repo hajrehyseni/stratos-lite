@@ -77,7 +77,7 @@ export default function DashboardPage() {
 
   return (
     <>
-      <NavBar journalCount={entries.length} />
+      <NavBar />
       <div className="min-h-screen px-4 sm:px-6 pb-16 pt-24 page-enter" style={{ background: "hsl(var(--background))" }}>
         <div className="max-w-[960px] mx-auto space-y-8">
           <div className="flex items-center justify-between">

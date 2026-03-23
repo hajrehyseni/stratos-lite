@@ -28,7 +28,7 @@ export default function JournalPage() {
 
   return (
     <>
-      <NavBar journalCount={entries.length} />
+      <NavBar />
       <div className="min-h-screen px-4 pt-24 pb-12 page-enter" style={{ background: "hsl(var(--background))" }}>
         <div style={{ maxWidth: 720, margin: "0 auto" }}>
           {entries.length === 0 ? (
