@@ -1,96 +1,69 @@
 
 
-# Plan: Fix the Logo Typography — Make the Wordmark Feel Intentional
+# Plan: Voice Input + Audit Search — Both
 
-## What’s wrong now
-The new display font is loading globally, but the **logo wordmark itself is the weak point**:
+## What We're Building
 
-- `Strat` in Playfair at `text-xl` is too delicate at nav size
-- `OS` in small uppercase sans feels tacked on, not designed
-- The serif/sans split works in theory, but at 20–24px it reads as two mismatched fragments instead of one premium brand
-- Footer repeats the same issue, so the brand inconsistency shows up twice on every visit
+Two features that make StratOS faster for executives:
 
-This is not a font-loading problem anymore. It’s a **wordmark design problem**.
+1. **Voice Input** — A microphone button on the hero input that converts speech to text using the browser's built-in Web Speech API (free, no API key needed, works on all modern browsers). No need for external APIs — the browser handles it natively.
 
-## Best direction
-Instead of trying to force a magazine-style serif into a tiny logo, StratOS should use a **cleaner, more controlled premium wordmark system**:
+2. **Audit History Search** — A search bar on the Dashboard and Journal pages that filters past audits by keyword, verdict, or score range.
 
-- Keep the **app headings** premium and expressive
-- Make the **logo text** tighter, simpler, and more custom-feeling
-- Treat the logo like a brand mark, not like a heading
+---
 
-## Proposed fix
+## Why NOT an external voice API
 
-### 1. Rebuild the wordmark in `NavBar.tsx` and `Footer.tsx`
-Replace the current:
-- `Strat` = serif
-- `OS` = small uppercase sans
+The Web Speech API is built into Chrome, Safari, and Edge. It's instant, free, and requires zero backend. For a simple "speak your decision" use case, it's the right tool. ElevenLabs or similar would add cost and complexity for no gain here — we're transcribing a single sentence, not building a podcast tool.
 
-with a more intentional wordmark layout:
+---
 
-**Option I would implement**
-- `StratOS` as a single lockup
-- `Strat` in a refined display serif or premium sans
-- `OS` still distinguished, but not shrunken so much that it looks detached
-- Tighter letter spacing, balanced baseline, slightly more spacing from the icon
+## Changes
 
-This will make the logo feel like one brand instead of two text styles stitched together.
+### 1. Voice Input Button — Hero
+**`src/components/HomepageLanding.tsx`**
+- Add a microphone icon button (Lucide `Mic`) inside the input card, to the left of the submit arrow
+- On click: start `webkitSpeechRecognition` / `SpeechRecognition`
+- While listening: button pulses with the existing `shazam-pulse` animation, icon changes to `MicOff`
+- On result: populate the input field with the transcript, auto-focus
+- On error or unsupported browser: show toast "Voice input not supported in this browser"
+- Extract voice logic into a small hook: `src/hooks/use-voice-input.ts`
 
-### 2. Separate “brand font” from “heading font”
-Right now the same display logic is being reused too broadly.
+### 2. Voice Input Hook
+**`src/hooks/use-voice-input.ts`** (new file)
+- Returns `{ isListening, startListening, stopListening, transcript, isSupported }`
+- Uses `window.SpeechRecognition || window.webkitSpeechRecognition`
+- Sets `lang = "en-US"`, `continuous = false`, `interimResults = false`
+- Handles `onresult`, `onerror`, `onend` events
 
-I’d introduce a clearer system:
-- **Brand wordmark font**: optimized for small sizes in nav/footer
-- **Display heading font**: optimized for hero/section titles
-- **Body/UI font**: Inter
+### 3. Dashboard Search
+**`src/pages/DashboardPage.tsx`**
+- Add a search input below the welcome header (Search icon + text input, full width)
+- Filters `mockAudits` array by decision text (case-insensitive substring match)
+- Add verdict filter pills: All | Proceed | Conditional | Do Not Proceed
+- Filtering is instant (client-side), no debounce needed for 4 items
 
-That gives StratOS a more world-class identity system instead of one font doing every job.
+### 4. Journal Search
+**`src/pages/JournalPage.tsx`**
+- Add same search input pattern above the journal entries list
+- Filters entries by decision text and verdict
+- Show "No results" state when filter returns empty
 
-### 3. Choose a stronger wordmark font
-Playfair works better in large editorial headlines than in compact logos.
+### 5. TypeScript Declaration
+**`src/vite-env.d.ts`**
+- Add `SpeechRecognition` and `webkitSpeechRecognition` type declarations to avoid TS errors
 
-For the **logo**, I’d test a better premium candidate such as:
-- **Cormorant Garamond** — more elegant, less stiff than Playfair
-- **DM Serif Display** — stronger personality, cleaner at small brand sizes
-- **Canela-style direction** — closest to Claude/Anthropic feel, if we can approximate with available web fonts
-- If staying sans for the logo: **Manrope / Plus Jakarta / Satoshi-style direction** for a premium modern intelligence brand
+## Files Changed
 
-My recommendation:
-- **Keep a premium serif for hero headings**
-- **Use a more controlled, luxury-modern font for the logo wordmark**
-This usually produces a stronger brand than using the same serif everywhere.
+1. **`src/hooks/use-voice-input.ts`** — New hook for Web Speech API
+2. **`src/vite-env.d.ts`** — Speech API type declarations
+3. **`src/components/HomepageLanding.tsx`** — Mic button in hero input
+4. **`src/pages/DashboardPage.tsx`** — Search bar + verdict filter pills
+5. **`src/pages/JournalPage.tsx`** — Search bar for journal entries
 
-### 4. Refine the icon + wordmark relationship
-In `StratOSLogo.tsx`, the prism mark is solid, but the lockup likely needs:
-- slightly smaller gap between icon and text
-- slightly larger text height relative to the icon
-- more vertical optical alignment
-- a single visual rhythm between mark and wordmark
-
-### 5. Apply consistently in footer and brand surfaces
-Update:
-- `NavBar.tsx`
-- `Footer.tsx`
-
-so the brand appears identical across the app.
-If needed, I’d also check any page-level brand mentions to keep the system consistent.
-
-## Files to change
-1. `src/components/NavBar.tsx` — redesign the wordmark lockup
-2. `src/components/Footer.tsx` — match the new brand lockup
-3. `src/index.css` — define a clearer typography system for brand vs headings
-4. `tailwind.config.ts` — add the new brand/display font families if needed
-5. `src/components/StratOSLogo.tsx` — minor spacing/alignment polish if needed
-
-## Result
-After this change:
-- the **hero can stay premium**
-- the **logo becomes recognisable and intentional**
-- the brand feels less like “a font swap” and more like a real executive-grade identity system
-
-## Success criteria
-- Logo reads clearly on mobile at nav size
-- `StratOS` feels like one mark, not two mismatched text treatments
-- Footer brand feels premium instead of decorative
-- Typography hierarchy becomes deliberate: **brand / display / UI**
+## What Doesn't Change
+- AI engine, edge functions, database
+- No new API keys or secrets needed
+- No new dependencies
+- Authentication, routing, pricing
 
