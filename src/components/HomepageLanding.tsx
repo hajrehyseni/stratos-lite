@@ -76,7 +76,7 @@ export function HomepageLanding({ onSubmit, remainingAudits, hasUsedAudit }: Pro
               transition: "opacity 400ms ease-out 100ms, transform 400ms ease-out 100ms",
             }}
           >
-            The strategic frameworks behind every Fortune 500 board decision — now in your hands in 30 seconds.
+            Fortune 500 frameworks. 30-second audit. Free.
           </p>
 
           {/* Input */}
