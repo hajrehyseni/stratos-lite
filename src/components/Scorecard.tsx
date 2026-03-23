@@ -384,7 +384,7 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
           <button
             onClick={() => setAllExpanded(!allExpanded)}
             className="flex-shrink-0 text-xs font-medium px-3 py-1.5 rounded-full transition-all duration-200"
-            style={{ background: "hsla(0, 0%, 100%, 0.06)", color: "hsl(var(--text-tertiary))", border: "1px solid hsla(0, 0%, 100%, 0.08)" }}
+            style={{ background: "hsl(var(--secondary))", color: "hsl(var(--text-tertiary))", border: "1px solid hsl(var(--border))" }}
           >
             {allExpanded ? "Collapse" : "Expand All"}
           </button>

@@ -151,12 +151,7 @@ export default function PricingPage() {
             </table>
           </div>
 
-          <div className="mt-20 text-center">
-            <p className="text-xl font-semibold mb-4" style={{ color: "hsl(var(--text-primary))" }}>Not sure? Try a free audit first.</p>
-            <button onClick={() => navigate("/")} className="inline-flex items-center gap-2 rounded-full px-8 py-4 text-lg font-semibold transition-all duration-200 hover:scale-[1.02] hover:shadow-md active:scale-[0.98]" style={{ background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))", minHeight: 52 }}>
-              Run free audit <ArrowRight className="w-5 h-5" />
-            </button>
-          </div>
+          {/* bottom CTA removed — redundant */}
         </div>
       </div>
       <Footer />

@@ -271,6 +271,16 @@ export default function MockAuditResults() {
             </p>
           </div>
 
+          {/* Executive Summary — the board-email block */}
+          <div className="rounded-xl p-5 mb-6 font-mono text-sm" style={{ background: "hsl(var(--secondary))", border: "1px solid hsl(var(--border))" }}>
+            <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ letterSpacing: "0.1em", color: "hsl(var(--primary))", fontFamily: "Inter, sans-serif" }}>Executive Summary</p>
+            <div className="space-y-1.5" style={{ color: "hsl(var(--text-primary))" }}>
+              <p><strong>Verdict:</strong> {mockData.verdict} ({mockData.confidenceScore}/100)</p>
+              <p><strong>Key Risk:</strong> Integration timeline and talent retention</p>
+              <p><strong>Next Step:</strong> Commission independent tech due diligence this week</p>
+            </div>
+          </div>
+
           {/* The Reframe — styled quote block */}
           <div className="rounded-xl p-6 mb-6" style={{ background: "hsla(40, 50%, 97%, 1)", borderLeft: "3px solid hsl(var(--primary))", borderTop: "1px solid hsl(var(--border))", borderRight: "1px solid hsl(var(--border))", borderBottom: "1px solid hsl(var(--border))" }}>
             <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ letterSpacing: "0.1em", color: "hsl(var(--primary))" }}>The Reframe</p>
