@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { ArrowRight } from "lucide-react";
 import { TrustStrip } from "@/components/TrustStrip";
 import { SystemSections } from "@/components/SystemSections";
+import { OutputPreview } from "@/components/OutputPreview";
 import { MidPageCTA } from "@/components/MidPageCTA";
 import { TestimonialWall } from "@/components/TestimonialWall";
 import { FAQAccordion } from "@/components/FAQAccordion";
