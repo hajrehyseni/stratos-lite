@@ -1,120 +1,74 @@
 
 
-# Plan: World-Class UX Patterns — Borrowing from the Best
+# Plan: Premium Brand Identity Overhaul
 
-## Best Practices We're Borrowing
+## Current State
 
-| App | Pattern | What We Take |
-|-----|---------|-------------|
-| **Shazam** | One action, instant result | Pulsing circular CTA, "listening" processing state |
-| **Uber** | Bottom-sheet navigation on mobile | Slide-up mobile menu instead of slide-right |
-| **Apple** | Dramatic whitespace + single focal point | Hero with one headline, one input, nothing else |
-| **Stripe** | Rotating placeholder in input | Already have this — keep it |
-| **Linear** | Keyboard-first, snappy 200ms transitions | Reduce all transitions, add keyboard hints |
-| **Notion** | Minimal chrome, content is king | Strip nav to essentials, remove visual clutter |
-| **Spotify** | Bold typography hierarchy, card-based browsing | Results page as swipeable cards on mobile |
-| **Google Search** | Dead-simple input → rich results | Hero = just input. Results = rich dashboard |
-| **Calm** | Progressive disclosure, one thing at a time | Diagnostic flow already does this — polish it |
-
----
+The branding looks like a generic SaaS template: Inter bold, plain blue logo, no typographic personality. Compare to Anthropic's Claude (elegant serif "Claude"), Stripe (clean geometric wordmark), or Linear (distinctive tight sans). StratOS needs its own visual DNA.
 
 ## Changes
 
-### 1. Hero — Google Search Simplicity
+### 1. Typography — Premium Display Font
+**`index.css` + `tailwind.config.ts`**
+- Import **"Instrument Serif"** (Google Fonts) for headlines/logo only — it's the same class of elegant serif that Claude, Anthropic, and premium fintech brands use
+- Keep Inter for body text (proven readability)
+- Headlines (`h1-h3`): Instrument Serif, weight 400, tight letter-spacing (-0.03em)
+- This single change transforms the entire feel from "SaaS template" to "premium intelligence platform"
+
+### 2. Logo Mark — Refined Geometric Symbol
+**`StratOSLogo.tsx` + `favicon.svg`**
+- Redesign the SVG mark: replace the stacked chevrons with a clean **diamond/prism** shape — a single elegant geometric form suggesting clarity and precision
+- Use a deeper gradient (brand blue → navy) for more sophistication
+- Larger corner radius on the container (rx="8")
+- The mark should work at 16px (favicon) and 32px (nav) without losing clarity
+
+### 3. Wordmark — "StratOS" Typography
+**`NavBar.tsx` + `Footer.tsx`**
+- Render "Strat" in Instrument Serif (regular weight) + "OS" in Inter (semibold, slightly smaller, uppercase tracking)
+- This creates a distinctive wordmark without needing a custom font file — the serif/sans contrast IS the brand
+- Add a subtle dot separator or thin space between "Strat" and "OS"
+
+### 4. Hero Headline — Serif Impact
 **`HomepageLanding.tsx`**
-- Remove subtitle "Board-ready audit. 30 seconds." — the headline is strong enough alone
-- Headline shortened: **"Audit any decision."** (3 words, Apple-level brevity)
-- Move input 8px closer to headline (marginTop 24→16)
-- Below input: 3 micro-badges inline — `Free · 30 seconds · Private` (styled as subtle gray pills, not text)
-- Remove all remaining paragraph text from hero — zero body copy
-- Social proof line removed (was adding clutter, not credibility at this stage)
+- "Audit any decision." rendered in Instrument Serif — immediately feels like a premium consulting brand, not a tech startup
+- Reduce font-weight to 400 (serifs don't need 800 weight — they carry authority naturally)
+- Slightly increase size on desktop (text-6xl → text-7xl) for dramatic impact
 
-### 2. Nav — Uber Bottom Sheet on Mobile
-**`NavBar.tsx`**
-- Replace slide-from-right mobile panel with **bottom sheet** (slides up from bottom, dark overlay)
-- Reduce nav height from `h-16` to `h-14` for tighter feel
-- Bottom sheet: rounded top corners (16px), max-height 70vh, smooth spring animation
-- Links inside as large tap-friendly rows (56px height each)
-- CTA button pinned at bottom of sheet
+### 5. Section Headings — Consistent Serif Treatment
+**`SystemSections.tsx`, `MidPageCTA.tsx`, `TestimonialWall.tsx`, `FAQAccordion.tsx`, `PricingPage.tsx`**
+- All section headings (How it works, What leaders say, etc.) use Instrument Serif
+- Body text, labels, buttons, badges stay Inter — the contrast creates visual hierarchy
 
-### 3. How It Works — Linear's Icon-Forward Simplicity
-**`SystemSections.tsx`**
-- Replace alternating 2-column layout with **3 icon circles in a horizontal row** (Shazam/Linear style)
-- Each: 56px circle (brand blue bg, white icon) → bold label → one-line description
-- Diagnose: "Every angle mapped" / Assess: "Risks surfaced" / Decide: "Verdict delivered"
-- Remove all mockup cards — the OutputPreview below IS the visual proof
-- On mobile: vertical stack with thin 40px connecting line between circles
-- Keep "How it works" heading + "3 steps, 30 seconds"
-
-### 4. Output Preview — Spotify Card Energy
-**`OutputPreview.tsx`**
-- Increase max-width to 640px
-- Add floating shadow (`0 12px 40px hsla(221, 83%, 53%, 0.08)`) — like a device mockup
-- Score number larger (text-3xl)
-- Add "Try it free →" link below that scrolls back to hero input
-- Subtle border-radius increase to 20px for premium feel
-
-### 5. Trust Strip — Apple Minimalism
-**`TrustStrip.tsx`**
-- Remove vertical dividers between metrics
-- Icons smaller (w-5 h-5), values stay bold
-- Wider spacing between items
-- Reduce padding from py-10 to py-6 — it's context, not a section
-
-### 6. Diagnostic Flow — Calm + Linear Speed
-**`NewDiagnosticFlow.tsx`**
-- Replace "1 of 5" counter with **dot indicators** (● ○ ○ ○ ○) — Calm/Typeform pattern
-- Remove subtitles on card steps 2, 3, 4 (questions + card labels are enough)
-- Reduce auto-advance delay from 500ms to 350ms (Linear speed)
-- Reduce transition duration from 400ms to 250ms
-- Remove "Skip to instant audit" link on step 1 — breaks confidence
-- Step 5: remove framework mention ("McKinsey 7S · SODA...") — users don't care about internals
-
-### 7. Processing State — Shazam Listening Mode
-**`NewProcessingState.tsx`**
-- Replace checklist-in-a-box with **pulsing concentric rings** (center of viewport)
-- Current step text cross-fades below the rings
-- Remove the card wrapper — let it breathe full-viewport
-- Keep thin progress bar at bottom (h-0.5)
-- Decision pill stays at top, truncated
-
-### 8. Results Page — Bold Visual Hierarchy
-**`MockAuditResults.tsx`**
-- Score gauge increased to 240px on desktop — make it the hero
-- Remove `verdictDescription` paragraph — the 3-column exec summary says it all
-- "Copy Summary" button → full-width on mobile, prominent primary style
-- Add subtle score-reveal animation (scale 0.8→1 with opacity on mount)
-
-### 9. MidPageCTA — One Punch
-**`MidPageCTA.tsx`**
-- Heading: **"Your next decision, sorted."** (keep — it's good)
-- Remove card wrapper — just centered text + button on clean background
-- Button: rounded-full, `py-4 px-10`, with arrow icon
-
-### 10. Global CSS — Linear Speed
+### 6. Color Refinement — Deeper, Richer
 **`index.css`**
-- Add concentric ring pulse animation for processing state
-- Reduce `typeform-slide-in` from 300ms to 250ms
-- Add `.shazam-pulse` utility (scale 1→1.15→1, infinite, 2s)
-- Add bottom-sheet slide-up animation
+- Primary blue: shift from `221 83% 53%` to `225 84% 48%` — slightly deeper, more authoritative (closer to navy-blue territory)
+- Add a secondary accent: warm gold `--accent-gold: 42 100% 50%` for premium touches (verdict badges, "Pro" tags)
+- Update scrollbar thumb and CTA glow to match new primary
+
+### 7. Footer — Brand Presence
+**`Footer.tsx`**
+- Use the new serif/sans wordmark
+- Add tagline in Instrument Serif italic: *"Clarity for every decision"*
+- Subtle gold accent on the copyright year
 
 ## Files Changed
 
-1. **`src/components/HomepageLanding.tsx`** — "Audit any decision.", micro-badges, no subtitle
-2. **`src/components/NavBar.tsx`** — Bottom-sheet mobile menu, h-14
-3. **`src/components/SystemSections.tsx`** — 3 icon circles, no mockup cards
-4. **`src/components/OutputPreview.tsx`** — Larger, floating shadow, "Try it free"
-5. **`src/components/TrustStrip.tsx`** — No dividers, tighter padding
-6. **`src/components/NewDiagnosticFlow.tsx`** — Dot indicators, faster transitions, no subtitles on card steps
-7. **`src/components/NewProcessingState.tsx`** — Pulsing rings, no card wrapper
-8. **`src/pages/MockAuditResults.tsx`** — 240px gauge, no verdict paragraph, prominent copy button
-9. **`src/components/MidPageCTA.tsx`** — Remove card wrapper, cleaner layout
-10. **`src/index.css`** — Ring pulse, bottom-sheet, faster transitions
+1. **`src/index.css`** — Import Instrument Serif, update primary color, add accent-gold variable
+2. **`tailwind.config.ts`** — Add `font-serif: ["Instrument Serif"]` family
+3. **`src/components/StratOSLogo.tsx`** — Refined diamond/prism mark with deeper gradient
+4. **`public/favicon.svg`** — Matching updated mark
+5. **`src/components/NavBar.tsx`** — Serif/sans wordmark ("Strat" serif + "OS" sans)
+6. **`src/components/Footer.tsx`** — Serif wordmark + italic tagline
+7. **`src/components/HomepageLanding.tsx`** — Headline in Instrument Serif, 400 weight
+8. **`src/components/SystemSections.tsx`** — Section heading in serif
+9. **`src/components/MidPageCTA.tsx`** — Heading in serif
+10. **`src/components/TestimonialWall.tsx`** — Section heading + quote in serif italic
+11. **`src/components/FAQAccordion.tsx`** — Heading in serif
+12. **`src/pages/PricingPage.tsx`** — Heading in serif
 
 ## What Doesn't Change
-- AI engine, edge function, prompt engineering
-- Diagnostic data collected (same 5 fields)
+- AI engine, edge function, processing animation
+- Diagnostic flow, results page layout, dashboard
 - Authentication, routing, database
-- Pricing page, Footer, FAQ, Scorecard
-- All existing data structures
+- All existing animations and interaction patterns
 
