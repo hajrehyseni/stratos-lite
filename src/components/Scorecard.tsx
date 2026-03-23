@@ -844,7 +844,7 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
             New Audit
           </button>
           {user && onSaveToJournal && !journalSaved ? (
-            <button onClick={onSaveToJournal} className="flex-1 flex items-center justify-center gap-1.5 py-3 rounded-full text-xs font-medium" style={{ border: "1px solid hsla(0, 0%, 100%, 0.12)", color: "hsl(var(--text-secondary))" }}>
+            <button onClick={onSaveToJournal} className="flex-1 flex items-center justify-center gap-1.5 py-3 rounded-full text-xs font-medium" style={{ border: "1px solid hsl(var(--border))", color: "hsl(var(--text-secondary))" }}>
               <BookmarkPlus className="w-3.5 h-3.5" /> Save
             </button>
           ) : journalSaved ? (
