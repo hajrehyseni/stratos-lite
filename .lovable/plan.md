@@ -1,46 +1,46 @@
 
 
-# Plan: Upgrade Audit Results — Visual Data + Listen Mode
+# Plan: Upgrade TTS to ElevenLabs (David Attenborough-style Voice)
 
-## Current State
-The Scorecard is text-heavy with collapsible sections. The only visual element is the confidence gauge (SVG ring). Risk cards, MECE branches, stakeholder analysis, and RAPID roles are all rendered as plain text blocks. For a busy executive scanning on mobile, there's too much reading and not enough visual signal.
+## What Changes
 
-## Two Upgrades
+Replace the robotic browser `SpeechSynthesis` API with ElevenLabs TTS via an edge function. ElevenLabs produces natural, warm narration — the closest to a David Attenborough documentary feel available via API.
 
-### 1. Visual Enhancements — Make Data Scannable
+**Voice choice**: "George" (`JBFqnCBsd6RMkjVDRZzb`) — a deep, authoritative British male voice. With stability at 0.6 and style at 0.4, it delivers calm, measured narration perfect for executive briefings.
 
-**Risk Heat Strip** — Replace the 3 plain text risk cards (Biggest Risk, Hidden Assumption, Blind Spot) with a horizontal severity bar. Each risk gets a colored dot (red/amber/blue) with a one-line label, and tapping expands to full text. This is how Notion and Linear surface risk — compact, color-coded, scannable.
+## Architecture
 
-**MECE Horizontal Bars** — Each MECE branch gets a proportional bar chart (width based on number of findings vs total). Visual weight instantly shows which dimension dominates the analysis without reading anything.
+```text
+Scorecard → useTTS hook → Edge Function → ElevenLabs API → MP3 audio → browser playback
+```
 
-**RAPID Role Badges** — Instead of a vertical list, render RAPID as a horizontal badge row (like GitHub labels). Each letter gets a distinct color chip with the person's name. One glance shows who owns what.
+## Changes
 
-**Stakeholder Position Dots** — Add a visual "support map": green dots for Support, red for Oppose, gray for Neutral, sized by influence (High = large, Low = small). This gives instant political read of the room.
+### 1. Connect ElevenLabs
+Link the ElevenLabs connector to the project so the API key is available as an environment variable in edge functions.
 
-**Time Horizon Timeline** — Replace the 3 text blocks with a horizontal 3-node timeline (10min → 10mo → 10yr) connected by a line, each node showing a condensed insight. Visual progression instead of stacked paragraphs.
+### 2. New Edge Function: `supabase/functions/elevenlabs-tts/index.ts`
+- Accepts `{ text: string }` in the POST body
+- Calls ElevenLabs `/v1/text-to-speech/JBFqnCBsd6RMkjVDRZzb` with model `eleven_multilingual_v2`
+- Voice settings: stability 0.6, similarity_boost 0.75, style 0.4 (warm, natural narration)
+- Returns raw MP3 audio bytes
+- Input validation with length check (max 5000 chars)
 
-### 2. Listen to Results — Text-to-Speech via Browser API
+### 3. Rewrite `src/hooks/use-tts.ts`
+- Replace `SpeechSynthesis` with fetch calls to the edge function
+- Concatenate all sections into one text block (instead of reading section-by-section via browser API)
+- Play returned MP3 via `new Audio(URL.createObjectURL(blob))`
+- Keep the same interface: `speak(sections)`, `stop()`, `isSpeaking`
+- Add loading state while audio generates
+- Remove `currentSection`/`totalSections` (no longer section-by-section) — replace with simple `isLoading` + `isSpeaking`
 
-Add a "Listen" button at the top of the results page (next to the gauge) that reads the executive summary aloud using the browser's built-in `SpeechSynthesis` API. Free, no API key, works on all modern browsers.
-
-**What it reads** (in order):
-1. Verdict + score
-2. The Reframe question
-3. Top 3 recommended actions
-4. Biggest risk
-
-**UX**: A `Volume2` icon button. While playing, shows a pulsing speaker icon. Tapping again stops. A progress indicator shows which section is being read. Executive can listen while driving, walking, or multitasking.
-
-**Why not ElevenLabs?** The browser `SpeechSynthesis` API is instant, free, and good enough for reading 4 short paragraphs. ElevenLabs would add API cost, latency, and a secret key dependency for marginal voice quality improvement on what amounts to 30 seconds of speech.
+### 4. Update `src/components/Scorecard.tsx`
+- Minor: handle new `isLoading` state from the hook (show spinner on button while audio generates)
+- The `speak()` call stays the same — pass sections array, hook joins them internally
 
 ## Files Changed
 
-1. **`src/components/Scorecard.tsx`** — Add Listen button, visual risk strip, MECE bars, RAPID badges, stakeholder dots, time horizon timeline
-2. **`src/hooks/use-tts.ts`** (new) — Simple hook wrapping `window.speechSynthesis` with start/stop/progress state
-3. **`src/components/ConfidenceGauge.tsx`** — Minor: add Listen button integration slot below the gauge
-
-## What Doesn't Change
-- AI engine, edge functions, database schema
-- PDF export, sharing, journal
-- No new dependencies or API keys
+1. **`supabase/functions/elevenlabs-tts/index.ts`** (new) — Edge function calling ElevenLabs API
+2. **`src/hooks/use-tts.ts`** — Rewrite to use edge function + Audio playback
+3. **`src/components/Scorecard.tsx`** — Handle loading state on Listen button
 
