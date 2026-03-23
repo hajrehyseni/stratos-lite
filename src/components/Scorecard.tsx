@@ -349,7 +349,7 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
             {result.decision_classification && classificationLabels[result.decision_classification] && (
               <span
                 className="inline-flex items-center rounded-full px-3.5 py-1.5 text-sm font-bold"
-                style={{ background: "hsla(0, 0%, 100%, 0.05)", border: "1px solid hsla(0, 0%, 100%, 0.15)", color: "hsl(var(--text-secondary))" }}
+                style={{ background: "hsl(var(--secondary))", border: "1px solid hsl(var(--border))", color: "hsl(var(--text-secondary))" }}
               >
                 {classificationLabels[result.decision_classification]}
               </span>
