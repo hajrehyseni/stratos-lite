@@ -1,87 +1,120 @@
-# Plan: Typeform-Style Diagnostic Flow Redesign
 
-## Problem
 
-The current 3-stage diagnostic flow crams multiple questions onto single screens (Stage 2 has two card grids), uses small form elements, and feels like a traditional form rather than a guided conversation. It lacks the smooth, one-question-at-a-time rhythm that makes Typeform feel effortless.
+# Plan: Content Refinement & Value Delivery Overhaul
 
-## Design: One Question Per Screen, Full-Viewport
+## Core Problem
 
-Redesign the flow into **5 individual screens** (one question each), each taking the full viewport height, with smooth cross-fade transitions between them. This mirrors Typeform's core pattern.
+The app has too much text, the homepage feels generic, and the output doesn't feel worth £49/month. The diagnostic flow questions are solid but the surrounding content — homepage sections, testimonials, FAQ answers, results page descriptions — is verbose. The actual AI engine (10-step SSM/SODA methodology) is genuinely powerful but the presentation undersells it.
 
-```text
-Screen 1: "What happens if you get this wrong?"     [textarea]
-Screen 2: "What kind of decision is this?"           [4 cards]
-Screen 3: "Who gets affected?"                       [4 cards]
-Screen 4: "What makes this hard?"                    [4 cards]
-Screen 5: "What does success look like?"             [textarea]
-           → [Run Audit] button
+## Philosophy: Less Text, More Impact
+
+Every word earns its place or gets cut. The user should feel the value within 5 seconds of seeing any screen.
+
+---
+
+## 1. HOMEPAGE — Strip to Essentials
+
+**Hero** — Tighten copy:
+- Headline stays (it's strong)
+- Subtitle: cut to **"Fortune 500 frameworks. 30-second audit. Free."** (from 20 words to 6)
+- Remove "✓ Free · No signup · 30 seconds · 🔒 Private & encrypted" — redundant with new subtitle
+- Keep chips but reduce to 3 (cut "Should we enter a new market?" — least specific)
+
+**How It Works (SystemSections)** — Make punchy:
+- Cut body text from 2 sentences to 1 each:
+  - Diagnose: "MECE decomposition. Every angle mapped. No blind spots."
+  - Assess: "Top 3 risks surfaced with specific mitigations."
+  - Decide: "Confidence score, clear verdict, devil's advocate challenge."
+- Remove visual mockups on mobile entirely (already hidden) — on desktop make them smaller
+
+**TrustStrip** — Keep as-is (numbers are good, already concise)
+
+**MidPageCTA** — Tighten:
+- Heading: "Ready?" (from "Ready to make a better call?")
+- Subtext: "30 seconds to clarity." (from "Your next big decision deserves more than instinct.")
+
+**Testimonials** — Shorter quotes, add role credibility:
+- Cut each quote to ~15 words max
+- Quote 1: "Replaced 3 hours of board prep. The risk surface alone saved us from a bad acquisition."
+- Quote 2: "80% of McKinsey's value in 30 seconds. Best pre-meeting prep I've found."  
+- Quote 3: "Caught a political blind spot we all missed. We run every major decision through it."
+- Section heading: "What leaders say" (from "Trusted by leaders making high-stakes calls")
+
+**FAQ** — Cut to 4 questions (from 6), shorter answers:
+- Keep: Privacy, How different from ChatGPT, Who's it for, Is it free
+- Drop: "What frameworks" (already shown in How It Works) and "Can I trust AI" (defensive)
+- Trim each answer to 2 sentences max
+
+## 2. DIAGNOSTIC FLOW — Already Good, Minor Tweaks
+
+- Step 1 subtitle: "Worst case — money, trust, opportunities." (from "Think worst-case: money lost, trust eroded, opportunities missed.")
+- Step 5 subtitle: "This anchors your audit to your definition of success." (from "Paint the picture. This anchors our analysis to your definition of success.")
+- Bottom text on step 5: "Powering your audit: McKinsey 7S · SODA · RAPID · Cynefin · Pre-Mortem" (shorter, more impressive)
+
+## 3. PROCESSING STATE — Add Gravitas
+
+- Change step labels to feel more premium:
+  - "Parsing decision context..." → "Mapping decision architecture..."
+  - "Mapping stakeholder landscape..." → "Modelling stakeholder dynamics..."
+  - "Identifying hidden assumptions..." → "Stress-testing assumptions..."
+  - "Stress-testing the inverse position..." → "Running pre-mortem analysis..."
+  - "Building risk register..." → "Quantifying risk exposure..."
+  - "Generating strategic recommendation..." → "Synthesising strategic verdict..."
+- Bottom text: "6 frameworks · 10-step methodology" (from "Applying 6 strategic frameworks...")
+
+## 4. RESULTS PAGE (MockAuditResults) — Deliver 100x Value
+
+This is the money shot. The current mock data is good but the presentation buries the value.
+
+**Score section** — Tighten verdict description to 2 sentences max. Current is 3 sentences. Cut the middle one about cash reserves.
+
+**MECE cards** — Cut descriptions to 1 sentence each (currently 2). The score bar already communicates magnitude.
+
+**Risk cards** — Keep as-is (already concise and actionable)
+
+**Stakeholder cards** — Shorten action text to 1 sentence each
+
+**Devil's Advocate** — Keep (this is a differentiator)
+
+**RAPID** — Keep (unique value)
+
+**Add "Executive Summary" export-ready block** at the very top after the score — a 3-line TL;DR:
 ```
+Verdict: CONDITIONAL PROCEED (72/100)
+Key Risk: Integration timeline and talent retention
+Next Step: Commission independent tech due diligence this week
+```
+This alone is worth £49/month — it's what an exec copies into their board email.
 
-### Key UX Improvements
+## 5. SCORECARD (Live Results) — Fix Dark Theme Remnants
 
-**Layout & Typography**
+The `Scorecard.tsx` still uses dark theme styles (`hsla(228, 35%, 14%)`, `hsla(0, 0%, 100%, 0.03)`). Update card styles and sticky nav to match the light theme used in MockAuditResults.
 
-- Each question centered vertically in full viewport (min-h-screen, flexbox center)
-- Large headline text (28-32px) for the question — feels like a conversation, not a form
-- Generous whitespace, max-width 580px content area
-- Subtle step counter: "1 of 5" top-right, not a complex progress bar
+## 6. PRICING PAGE — Tighten
 
-**Transitions**
-
-- Cross-fade + slide-up between screens (opacity 0→1, translateY 20px→0, 400ms ease-out)
-- Exit animation: slide-up + fade-out before next question enters
-- No jarring hard-swaps
-
-**Card Selection (screens 2-4)**
-
-- Single-select cards auto-advance after 500ms delay (visual confirmation, then slide to next)
-- Cards grow slightly on hover (scale 1.03) with a subtle shadow lift
-- Selected card gets a smooth border + checkmark animation
-- Unselected cards dim to 40% opacity with a 200ms transition
-
-**Textarea Screens (1, 5)**
-
-- Auto-focus on mount with a subtle cursor blink
-- Large, borderless-feeling textarea (just a bottom border, like Typeform)
-- Press Enter or click "Next" to advance
-- Helpful placeholder text in lighter weight
-- Character guidance below (same color-coded counter)
-
-**Navigation**
-
-- Up/Down arrow key navigation between screens (Typeform signature)
-- "Press Enter ↵" hint next to the advance button
-- Back arrow top-left to go to previous question
-- Smooth scroll-to-top on each transition
-
-**Progress Indicator**
-
-- Thin horizontal progress bar at the very top of the viewport (fixed position)
-- Fills proportionally: 0% → 20% → 40% → 60% → 80% → 100%
-- Animated width transition (300ms ease)
-
-**Skip Flow**
-
-- Small "Skip to instant audit" link at bottom of screen 1 only
-- On screens 2-5, just the back arrow — no skip clutter
-
-**Final Screen Polish**
-
-- Screen 5 has both the textarea and the "Run Audit" CTA
-- CTA button pulses gently once when constraint is selected (draws the eye)
-- Below CTA: "Your answers help our AI apply the right strategic frameworks"
+- Cut heading to: "Simple pricing" (from "Simple pricing for better decisions")
+- Subtitle to: "All 6 frameworks included. Start free." (from current 20+ words)
+- Remove the "All plans include" framework list at bottom (redundant — already in cards)
+- Remove "Not sure? Try a free audit first" section at bottom (redundant — Free card already says this)
 
 ## Files Changed
 
-1. `**src/components/NewDiagnosticFlow.tsx**` — Complete rewrite. Same interface (Props, DiagnosticResult), same session persistence, but entirely new 5-screen Typeform-style layout with cross-fade transitions, auto-advance on card select, keyboard navigation, and full-viewport centering.
-2. `**src/index.css**` — Add keyframes for the new slide-fade transitions if not already present.
+1. **`src/components/HomepageLanding.tsx`** — Tighter subtitle, fewer chips, remove redundant trust line
+2. **`src/components/SystemSections.tsx`** — 1-sentence body text per step
+3. **`src/components/MidPageCTA.tsx`** — 2-word heading, shorter subtext
+4. **`src/components/TestimonialWall.tsx`** — Shorter section heading, trimmed quotes
+5. **`src/components/FAQAccordion.tsx`** — 4 FAQs, 2-sentence answers
+6. **`src/components/NewDiagnosticFlow.tsx`** — Tighter subtitles, better bottom text
+7. **`src/components/NewProcessingState.tsx`** — Premium step labels, shorter bottom text
+8. **`src/pages/MockAuditResults.tsx`** — Executive summary block, trimmed descriptions, tighter copy
+9. **`src/components/Scorecard.tsx`** — Fix dark theme remnants to light theme
+10. **`src/pages/PricingPage.tsx`** — Tighter heading/subtitle, remove redundant sections
 
 ## What Doesn't Change
 
-- Props interface and DiagnosticResult type (Index.tsx integration unchanged)
-- Session persistence logic (same keys)
-- All other pages, components, and the processing/results flow
-- The data collected is identical — same 5 fields sent to the audit engine  
-  
-Remember, I want a super engine for super business users signing up to my service. It needs to deliver world class McKinsey audit reports
-- &nbsp;
+- Diagnostic flow structure (5 screens, same data collected)
+- AI engine and edge function
+- Authentication, routing, database
+- All animations and transitions
+- Mobile responsive behaviour
+
