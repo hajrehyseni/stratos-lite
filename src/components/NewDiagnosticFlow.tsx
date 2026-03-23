@@ -241,7 +241,7 @@ export function NewDiagnosticFlow({ decision, onComplete, onSkip, onBackToLandin
                 letterSpacing: "0.5px",
               }}
             >
-              {decision.length > 60 ? decision.slice(0, 57) + "…" : decision}
+              {decision.length > (window.innerWidth < 640 ? 40 : 60) ? decision.slice(0, window.innerWidth < 640 ? 37 : 57) + "…" : decision}
             </span>
           </div>
 
