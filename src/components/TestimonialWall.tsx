@@ -43,8 +43,7 @@ export function TestimonialWall() {
 
   return (
     <div className="py-16 md:py-20" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
-      <h2 className="text-2xl sm:text-3xl font-bold text-center mb-2" style={{ color: "hsl(var(--text-primary))" }}>Early feedback</h2>
-      <p className="text-center text-sm mb-8" style={{ color: "hsl(var(--text-tertiary))" }}>From beta users</p>
+      <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8" style={{ color: "hsl(var(--text-primary))" }}>What leaders say</h2>
       <div className="relative px-4 sm:px-8" style={{ maxWidth: 1120, margin: "0 auto" }}>
         <div ref={scrollRef} className="flex gap-6 overflow-x-auto scroll-snap-x snap-mandatory pb-4 scrollbar-hide" style={{ scrollSnapType: "x mandatory" }}>
           {testimonials.map((t, i) => (
