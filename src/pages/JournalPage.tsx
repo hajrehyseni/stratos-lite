@@ -51,6 +51,17 @@ export default function JournalPage() {
                   Average Readiness: <span style={{ color: "hsl(var(--primary))", fontWeight: 700 }}>{Math.round(entries.reduce((sum, e) => sum + e.result.confidence_score, 0) / entries.length)}</span>/100
                 </p>
               </div>
+              <div className="relative">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: "hsl(var(--text-tertiary))" }} />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  placeholder="Search audits..."
+                  className="w-full bg-transparent outline-none rounded-xl pl-11 pr-4"
+                  style={{ height: 48, background: "hsl(var(--secondary))", border: "1px solid hsl(var(--border))", color: "hsl(var(--text-primary))", fontSize: 15 }}
+                />
+              </div>
               <div className="rounded-xl overflow-hidden" style={{ background: "hsl(var(--secondary))", border: "1px solid hsl(var(--border))" }}>
                 {entries.map(entry => {
                   const isOpen = expanded === entry.id;
