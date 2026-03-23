@@ -254,7 +254,7 @@ export function Scorecard({ decision, result, auditId, onReset, onSaveToJournal,
       {/* Conversion modal */}
       {showConversionModal && !user && !readOnly && (
         <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)" }}>
-          <div className="rounded-2xl p-10 mx-4" style={{ maxWidth: 460, background: "hsl(228, 35%, 14%)", border: "1px solid hsla(0, 0%, 100%, 0.1)" }}>
+          <div className="rounded-2xl p-10 mx-4" style={{ maxWidth: 460, background: "hsl(var(--background))", border: "1px solid hsl(var(--border))" }}>
             <h3 className="text-xl font-bold text-center" style={{ color: "hsl(var(--text-primary))" }}>
               Save this audit — create free account
             </h3>
