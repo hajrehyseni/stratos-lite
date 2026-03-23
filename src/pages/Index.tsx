@@ -33,6 +33,7 @@ const SKIP_DEFAULTS: DiagnosticResult = {
 
 const Index = () => {
   const { user, subscription, refreshSubscription } = useAuth();
+  const navigate = useNavigate();
   const [phase, setPhase] = useState<Phase>("landing");
   const [decision, setDecision] = useState("");
   const [diagnosticResult, setDiagnosticResult] = useState<DiagnosticResult>(SKIP_DEFAULTS);
