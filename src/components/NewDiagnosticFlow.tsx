@@ -416,7 +416,8 @@ export function NewDiagnosticFlow({ decision, onComplete, onSkip, onBackToLandin
               <div className="flex items-center gap-3 mt-8">
                 <button
                   onClick={handleFinalSubmit}
-                  className="typeform-cta-primary group"
+                  className="typeform-cta-primary group w-full sm:w-auto"
+                  style={{ minHeight: 56 }}
                 >
                   Run Audit
                   <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
