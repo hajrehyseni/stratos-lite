@@ -269,3 +269,9 @@ input::placeholder {
   .diagnostic-grid { grid-template-columns: 1fr !important; }
   .processing-line-text { font-size: 14px !important; }
 }
+
+/* Dot grid background texture */
+.dot-grid-bg {
+  background-image: radial-gradient(circle, hsla(221, 83%, 53%, 0.04) 1px, transparent 1px);
+  background-size: 24px 24px;
+}

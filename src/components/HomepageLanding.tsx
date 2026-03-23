@@ -52,9 +52,15 @@ export function HomepageLanding({ onSubmit, remainingAudits, hasUsedAudit }: Pro
 
   return (
     <div className="flex flex-col page-enter">
-      {/* Hero */}
-      <div className="flex flex-col items-center px-4 sm:px-6 pt-28 sm:pt-36 pb-16 md:pb-20" style={{ minHeight: "85vh", justifyContent: "center" }}>
-        <div className="w-full flex flex-col items-center" style={{ maxWidth: 1120 }}>
+      {/* Hero with subtle radial gradient */}
+      <div className="relative flex flex-col items-center px-4 sm:px-6 pt-28 sm:pt-36 pb-16 md:pb-20" style={{ minHeight: "85vh", justifyContent: "center" }}>
+        {/* Premium background texture */}
+        <div className="absolute inset-0 pointer-events-none" style={{
+          background: "radial-gradient(ellipse 80% 50% at 50% 30%, hsla(221, 83%, 53%, 0.04), transparent)",
+        }} />
+        <div className="absolute inset-0 pointer-events-none dot-grid-bg" />
+
+        <div className="w-full flex flex-col items-center relative z-10" style={{ maxWidth: 1120 }}>
           <h1
             className="text-center text-4xl sm:text-5xl lg:text-6xl"
             style={{
@@ -76,7 +82,7 @@ export function HomepageLanding({ onSubmit, remainingAudits, hasUsedAudit }: Pro
               transition: "opacity 400ms ease-out 100ms, transform 400ms ease-out 100ms",
             }}
           >
-            Fortune 500 frameworks. 30-second audit. Free.
+            Fortune 500 frameworks. 30-second audit. <strong style={{ color: "hsl(var(--text-primary))" }}>Free.</strong>
           </p>
 
           {/* Input */}
@@ -130,7 +136,6 @@ export function HomepageLanding({ onSubmit, remainingAudits, hasUsedAudit }: Pro
             ))}
           </div>
 
-          {/* trust line removed — redundant with subtitle */}
           {hasUsedAudit && remainingAudits !== undefined && remainingAudits > 0 && (
             <p className="text-center mt-2 text-sm font-medium" style={{ color: "hsl(var(--warning))" }}>
               You have {remainingAudits} free audit{remainingAudits !== 1 ? "s" : ""} remaining
