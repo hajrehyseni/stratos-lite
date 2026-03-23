@@ -112,6 +112,9 @@ export function HomepageLanding({ onSubmit, remainingAudits, hasUsedAudit }: Pro
               }}>
                 <label htmlFor="hero-input" className="sr-only">Describe your decision</label>
                 <input ref={inputRef} id="hero-input" type="text" value={value} onChange={handleChange} onFocus={() => setIsFocused(true)} onBlur={() => setIsFocused(false)} onKeyDown={handleKeyDown} placeholder={currentPlaceholder} className="w-full bg-transparent outline-none" style={{ fontSize: 17, fontWeight: 400, color: "hsl(var(--text-primary))", height: 52 }} />
+                <button onClick={handleMic} className={`flex-shrink-0 flex items-center justify-center rounded-full transition-all duration-200 ${voice.isListening ? "shazam-pulse" : ""}`} style={{ width: 40, height: 40, background: voice.isListening ? "hsla(0, 84%, 50%, 0.1)" : "transparent", color: voice.isListening ? "hsl(var(--destructive))" : "hsl(var(--text-tertiary))" }} aria-label={voice.isListening ? "Stop listening" : "Voice input"}>
+                  {voice.isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+                </button>
                 <button ref={submitRef} onClick={handleSubmit} disabled={!canSubmit} className={`flex-shrink-0 flex items-center justify-center gap-2 rounded-full transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${canSubmit && hasTyped ? "cta-glow" : ""}`} style={{ height: 48, paddingLeft: 24, paddingRight: 20, background: canSubmit ? "hsl(var(--primary))" : "hsla(221, 83%, 53%, 0.3)", opacity: canSubmit ? 1 : 0.5, cursor: canSubmit ? "pointer" : "default", color: "hsl(var(--primary-foreground))", fontSize: 15, fontWeight: 600 }} aria-label="Audit this decision">
                   Audit <ArrowRight className="w-4 h-4" />
                 </button>
