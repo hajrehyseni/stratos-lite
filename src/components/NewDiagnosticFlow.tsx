@@ -425,7 +425,7 @@ export function NewDiagnosticFlow({ decision, onComplete, onSkip, onBackToLandin
               </div>
 
               <p className="text-xs mt-6" style={{ color: "hsl(var(--text-faint))" }}>
-                Your answers help our AI apply the right strategic frameworks — McKinsey 7S, SODA, RAPID, and more.
+                Powering your audit: McKinsey 7S · SODA · RAPID · Cynefin · Pre-Mortem
               </p>
             </div>
           )}

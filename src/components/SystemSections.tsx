@@ -52,9 +52,9 @@ function DecideMockup() {
 const stepIcons = [Search, ShieldAlert, CheckCircle];
 
 const sections = [
-  { num: "01", tag: "Diagnose", heading: "Break any decision into its complete parts", body: "Our AI applies MECE logic to map every angle of your decision — the same framework McKinsey uses. No blind spots.", visual: <DiagnoseMockup /> },
-  { num: "02", tag: "Assess", heading: "See what could go wrong — before it does", body: "Surface the three risks most likely to derail you, with specific action steps to neutralise each one.", visual: <AssessMockup /> },
-  { num: "03", tag: "Decide", heading: "Get a confidence score, not just a gut feeling", body: "Get a calibrated confidence score out of 100, a clear verdict, and a devil's advocate challenge.", visual: <DecideMockup /> },
+  { num: "01", tag: "Diagnose", heading: "Break any decision into its complete parts", body: "MECE decomposition. Every angle mapped. No blind spots.", visual: <DiagnoseMockup /> },
+  { num: "02", tag: "Assess", heading: "See what could go wrong — before it does", body: "Top 3 risks surfaced with specific mitigations.", visual: <AssessMockup /> },
+  { num: "03", tag: "Decide", heading: "Get a confidence score, not just a gut feeling", body: "Confidence score, clear verdict, devil's advocate challenge.", visual: <DecideMockup /> },
 ];
 
 export function SystemSections() {

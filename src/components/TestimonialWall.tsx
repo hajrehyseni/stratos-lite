@@ -43,7 +43,7 @@ export function TestimonialWall() {
 
   return (
     <div className="py-16 md:py-20" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
-      <h2 className="text-2xl sm:text-3xl font-bold text-center mb-3" style={{ color: "hsl(var(--text-primary))" }}>Trusted by leaders making high-stakes calls</h2>
+      <h2 className="text-2xl sm:text-3xl font-bold text-center mb-3" style={{ color: "hsl(var(--text-primary))" }}>What leaders say</h2>
       <p className="text-center text-base mb-8" style={{ color: "hsl(var(--text-secondary))" }}>From early users</p>
       <div className="relative" style={{ overflow: "visible" }}>
         <div ref={scrollRef} className="flex gap-6 overflow-x-auto scroll-snap-x snap-mandatory px-8 pb-4 scrollbar-hide" style={{ scrollSnapType: "x mandatory" }}>

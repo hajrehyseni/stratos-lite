@@ -128,7 +128,7 @@ export function NewProcessingState({ lens, scale, onApiReady, apiResolved, decis
         </div>
 
         <p className="text-center mt-6 text-base" style={{ color: "hsl(var(--text-secondary))" }}>
-          Applying 6 strategic frameworks...
+          6 frameworks · 10-step methodology
         </p>
       </div>
     </div>
