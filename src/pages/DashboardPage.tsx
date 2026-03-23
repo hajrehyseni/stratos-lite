@@ -4,7 +4,7 @@ import { NavBar } from "@/components/NavBar";
 import { Footer } from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
 import { getJournalEntries } from "@/lib/journal";
-import { ArrowRight, TrendingUp } from "lucide-react";
+import { ArrowRight, TrendingUp, Search } from "lucide-react";
 
 const mockAudits = [
   { id: "1", decision: "Should we acquire our competitor?", date: "2026-03-20", score: 72, verdict: "CONDITIONAL PROCEED" },
