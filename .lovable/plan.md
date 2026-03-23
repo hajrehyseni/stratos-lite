@@ -1,50 +1,87 @@
-
-
-# Plan: Restore the Full Multi-Stage Audit Flow
+# Plan: Typeform-Style Diagnostic Flow Redesign
 
 ## Problem
-The `handleLandingSubmit` in `Index.tsx` was changed to `navigate('/audit-results')` — bypassing the entire diagnostic interview AND the real AI audit engine. Users type a decision and get hardcoded mock data. The 3-stage diagnostic flow (Stakes → Context → Constraints) and the sophisticated edge function with 10-step SSM/SODA methodology are both present in the codebase but completely bypassed.
 
-## What Exists (and works)
-- **3-stage diagnostic interview** (`NewDiagnosticFlow.tsx`) — Stakes, Context (decision type + blast radius), Constraints (constraint + success vision)
-- **Processing animation** (`NewProcessingState.tsx`) — phased loading with staggered checkmarks
-- **Edge function** (`supabase/functions/audit/index.ts`) — full 10-step methodology with Lovable AI, tool-calling for structured JSON output
-- **Scorecard component** (`Scorecard.tsx`) — renders real audit results
-- **Mock results page** (`MockAuditResults.tsx`) — static demo page at `/audit-results`
+The current 3-stage diagnostic flow crams multiple questions onto single screens (Stage 2 has two card grids), uses small form elements, and feels like a traditional form rather than a guided conversation. It lacks the smooth, one-question-at-a-time rhythm that makes Typeform feel effortless.
 
-## Plan
+## Design: One Question Per Screen, Full-Viewport
 
-### 1. Fix `handleLandingSubmit` in `Index.tsx`
-Restore the original flow: when user submits a decision, transition to the diagnostic phase instead of navigating away.
+Redesign the flow into **5 individual screens** (one question each), each taking the full viewport height, with smooth cross-fade transitions between them. This mirrors Typeform's core pattern.
 
-```
-handleLandingSubmit = (text) => {
-  setDecision(text);
-  sessionStorage.setItem("stratos_diag_decision", text);
-  setPhase("diagnostic");  // enters the 3-stage interview
-}
+```text
+Screen 1: "What happens if you get this wrong?"     [textarea]
+Screen 2: "What kind of decision is this?"           [4 cards]
+Screen 3: "Who gets affected?"                       [4 cards]
+Screen 4: "What makes this hard?"                    [4 cards]
+Screen 5: "What does success look like?"             [textarea]
+           → [Run Audit] button
 ```
 
-This reconnects: **Landing → Diagnostic (3 stages) → Processing animation → AI audit call → Scorecard results**.
+### Key UX Improvements
 
-### 2. Keep `/audit-results` as a demo/fallback route
-The `MockAuditResults` page stays available at `/audit-results` for demo purposes (e.g. dashboard "View" buttons link there). No changes needed.
+**Layout & Typography**
 
-### 3. Verify the edge function works
-The `audit` edge function already uses `LOVABLE_API_KEY` and calls the Lovable AI Gateway with the full 10-step prompt. The `startProcessing` function in `Index.tsx` already calls `supabase.functions.invoke("audit", ...)` with all diagnostic answers. This path just needs to be reachable again.
+- Each question centered vertically in full viewport (min-h-screen, flexbox center)
+- Large headline text (28-32px) for the question — feels like a conversation, not a form
+- Generous whitespace, max-width 580px content area
+- Subtle step counter: "1 of 5" top-right, not a complex progress bar
 
-## What Changes
-- **1 file modified**: `src/pages/Index.tsx` — revert `handleLandingSubmit` from `navigate(...)` back to `setDecision(text); setPhase("diagnostic")`
+**Transitions**
+
+- Cross-fade + slide-up between screens (opacity 0→1, translateY 20px→0, 400ms ease-out)
+- Exit animation: slide-up + fade-out before next question enters
+- No jarring hard-swaps
+
+**Card Selection (screens 2-4)**
+
+- Single-select cards auto-advance after 500ms delay (visual confirmation, then slide to next)
+- Cards grow slightly on hover (scale 1.03) with a subtle shadow lift
+- Selected card gets a smooth border + checkmark animation
+- Unselected cards dim to 40% opacity with a 200ms transition
+
+**Textarea Screens (1, 5)**
+
+- Auto-focus on mount with a subtle cursor blink
+- Large, borderless-feeling textarea (just a bottom border, like Typeform)
+- Press Enter or click "Next" to advance
+- Helpful placeholder text in lighter weight
+- Character guidance below (same color-coded counter)
+
+**Navigation**
+
+- Up/Down arrow key navigation between screens (Typeform signature)
+- "Press Enter ↵" hint next to the advance button
+- Back arrow top-left to go to previous question
+- Smooth scroll-to-top on each transition
+
+**Progress Indicator**
+
+- Thin horizontal progress bar at the very top of the viewport (fixed position)
+- Fills proportionally: 0% → 20% → 40% → 60% → 80% → 100%
+- Animated width transition (300ms ease)
+
+**Skip Flow**
+
+- Small "Skip to instant audit" link at bottom of screen 1 only
+- On screens 2-5, just the back arrow — no skip clutter
+
+**Final Screen Polish**
+
+- Screen 5 has both the textarea and the "Run Audit" CTA
+- CTA button pulses gently once when constraint is selected (draws the eye)
+- Below CTA: "Your answers help our AI apply the right strategic frameworks"
+
+## Files Changed
+
+1. `**src/components/NewDiagnosticFlow.tsx**` — Complete rewrite. Same interface (Props, DiagnosticResult), same session persistence, but entirely new 5-screen Typeform-style layout with cross-fade transitions, auto-advance on card select, keyboard navigation, and full-viewport centering.
+2. `**src/index.css**` — Add keyframes for the new slide-fade transitions if not already present.
 
 ## What Doesn't Change
-- All UX improvements (light theme, animations, gauge, cards)
-- Diagnostic flow component
-- Processing animation
-- Edge function
-- Mock results page
-- Dashboard, pricing, journal pages
-- Authentication, routing, Supabase integration
 
-## Risk
-The edge function may fail if `LOVABLE_API_KEY` is missing or the `check-subscription` function has issues. The existing error handling in `startProcessing` already catches this and shows a toast + returns to landing. The mock page remains as a reliable demo fallback.
-
+- Props interface and DiagnosticResult type (Index.tsx integration unchanged)
+- Session persistence logic (same keys)
+- All other pages, components, and the processing/results flow
+- The data collected is identical — same 5 fields sent to the audit engine  
+  
+Remember, I want a super engine for super business users signing up to my service. It needs to deliver world class McKinsey audit reports
+- &nbsp;
