@@ -35,13 +35,12 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
-  # Non-blocking. Surfaces lint issues without failing the PR while the existing
-  # lint debt is worked down. `continue-on-error` keeps this check from blocking
-  # merges; remove it to enforce lint.
+  # Non-blocking. Surfaces lint issues in the logs without failing the check
+  # while the existing lint debt is worked down. `continue-on-error` on the
+  # lint step keeps the job green; remove it to enforce lint.
   lint:
     name: Lint
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -57,6 +56,7 @@ jobs:
 
       - name: Lint
         run: npm run lint
+        continue-on-error: true
 
   # Required check. Branch protection on `main` requires the "Build" check.
   build:
