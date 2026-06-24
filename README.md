@@ -1,73 +1,87 @@
-# Welcome to your Lovable project
+# StratOS Lite
 
-## Project info
+**AI Decision Audit for Executives.** Get a strategic confidence score for your
+toughest decisions — MECE analysis, a risk matrix, and stakeholder mapping,
+powered by AI.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+This is a single-page web app built with Vite, React, and TypeScript. It runs
+entirely in the browser and talks to a hosted [Supabase](https://supabase.com)
+backend (auth + edge functions) — there is **no local database to run**.
 
-## How can I edit this code?
+## Tech stack
 
-There are several ways of editing your application.
+| Area        | Choice                                   |
+| ----------- | ---------------------------------------- |
+| Build tool  | [Vite](https://vitejs.dev)               |
+| Language    | [TypeScript](https://www.typescriptlang.org) |
+| UI          | [React 18](https://react.dev) + [shadcn/ui](https://ui.shadcn.com) |
+| Styling     | [Tailwind CSS](https://tailwindcss.com)  |
+| Data        | [TanStack Query](https://tanstack.com/query) |
+| Backend     | [Supabase](https://supabase.com) (hosted) |
+| Tests       | [Vitest](https://vitest.dev) + Testing Library |
 
-**Use Lovable**
+## Getting started
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+You need [Node.js](https://nodejs.org) 20+ and npm.
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+# 1. Install dependencies
+npm ci
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# 2. Start the dev server (http://localhost:8080 by default)
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### Environment variables
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+The app reads its Supabase connection from `VITE_`-prefixed env vars (see
+`.env`). These are **client-side publishable values** (the Supabase anon key and
+project URL) that ship in the browser bundle — they are not secrets. Never add
+service-role keys, API secrets, or passwords to `.env` or any committed file.
+See [`AGENTS.md`](./AGENTS.md).
 
-**Use GitHub Codespaces**
+| Variable                       | Description                          |
+| ------------------------------ | ------------------------------------ |
+| `VITE_SUPABASE_URL`            | Supabase project URL                 |
+| `VITE_SUPABASE_PROJECT_ID`     | Supabase project ID                  |
+| `VITE_SUPABASE_PUBLISHABLE_KEY`| Supabase publishable (anon) key      |
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Scripts
 
-## What technologies are used for this project?
+| Command             | What it does                              |
+| ------------------- | ----------------------------------------- |
+| `npm run dev`       | Start the Vite dev server                 |
+| `npm run build`     | Production build to `dist/`               |
+| `npm run preview`   | Preview the production build locally      |
+| `npm run typecheck` | Type-check the project (`tsc -b --noEmit`)|
+| `npm run lint`      | Run ESLint                                |
+| `npm test`          | Run the test suite once (Vitest)          |
+| `npm run test:watch`| Run tests in watch mode                   |
 
-This project is built with:
+## Contributing & workflow
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+`main` is protected. **All changes land through pull requests** — see
+[`AGENTS.md`](./AGENTS.md) for the working rules and
+[`docs/BUILD_FROM_ANYWHERE.md`](./docs/BUILD_FROM_ANYWHERE.md) for how to
+contribute from any device (laptop, GitHub web editor, Codespaces, or the
+cloud).
 
-## How can I deploy this project?
+Every pull request runs CI (typecheck, lint, and build) automatically via
+[GitHub Actions](./.github/workflows/ci.yml). Dependencies are kept current by
+[Dependabot](./.github/dependabot.yml) on a weekly schedule.
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+## Project structure
 
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+```
+src/
+  components/   Reusable UI + shadcn primitives
+  contexts/     React context providers (e.g. auth)
+  hooks/        Custom React hooks
+  integrations/ Supabase client and generated types
+  lib/          Shared utilities
+  pages/        Route-level screens
+  test/         Test setup and helpers
+supabase/
+  functions/    Edge functions (e.g. audit)
+  migrations/   Database migrations (managed in Supabase)
+```

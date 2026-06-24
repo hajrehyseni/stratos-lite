@@ -1,0 +1,36 @@
+version: 2
+updates:
+  # Keep npm dependencies up to date.
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: Etc/UTC
+    open-pull-requests-limit: 10
+    labels:
+      - dependencies
+    commit-message:
+      prefix: "deps"
+      prefix-development: "deps-dev"
+    groups:
+      # Batch minor/patch bumps into a single PR to cut review noise.
+      minor-and-patch:
+        update-types:
+          - minor
+          - patch
+
+  # Keep GitHub Actions in workflows up to date.
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: Etc/UTC
+    labels:
+      - dependencies
+      - github-actions
+    commit-message:
+      prefix: "ci"
